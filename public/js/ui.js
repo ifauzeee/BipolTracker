@@ -8,7 +8,7 @@ export function setupControls() {
         getMap().fitBounds(bounds, { padding: { top: 20, bottom: 180, left: 10, right: 10 }, pitch: 0, bearing: 0 });
         document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
     };
-    
+
     window.toggleRouteCard = (layerIdObj) => {
         toggleRoute(layerIdObj, null);
     }
@@ -17,6 +17,7 @@ export function setupControls() {
 export function updateSidebar(bus, list) {
     const item = document.createElement('div');
     item.className = 'bus-item';
+    item.id = `bus-item-${bus.bus_id}`;
     if (getFollowBusId() === bus.bus_id) item.classList.add('active-focus');
     let statusDot = bus.speed < 1 ? 'dot-gray' : 'dot-green';
     if (bus.gas_level > 600) statusDot = 'dot-red';
@@ -66,7 +67,7 @@ export function checkAlerts(bus) {
 
 export function switchTab(tab) {
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    
+
     const navItem = document.querySelector(`.nav-item[onclick*="'${tab}'"]`);
     if (navItem) {
         navItem.classList.add('active');
@@ -80,18 +81,18 @@ export function switchTab(tab) {
         sheet.classList.remove('hidden');
         infoPage.classList.remove('active-page');
         routeView.classList.remove('active-page');
-        
+
         if (getFollowBusId()) {
             setFollowBusId(null);
             document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
         }
-        
+
         getMap().fitBounds(bounds, { padding: { top: 20, bottom: 180, left: 10, right: 10 }, pitch: 0, bearing: 0 });
     } else if (tab === 'map') {
         sheet.classList.add('hidden');
         infoPage.classList.remove('active-page');
         routeView.classList.add('active-page');
-        
+
         getMap().resize();
         getMap().fitBounds(bounds, { padding: { top: 50, bottom: 250, left: 20, right: 20 }, pitch: 0, bearing: 0 });
     } else if (tab === 'announcement') {

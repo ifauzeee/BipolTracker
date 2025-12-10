@@ -11,7 +11,67 @@ map.on('load', () => {
     document.getElementById('empty-state').style.display = 'none';
 
     fetchData();
-    setInterval(fetchData, 1000);
+
+    const socket = io();
+
+    socket.on('connect', () => {
+        console.log('[SOCKET] Connected!');
+    });
+
+    socket.on('update_bus', (bus) => {
+        console.log('[SOCKET] New Data:', bus);
+
+        updateMarker(bus);
+
+        const list = document.getElementById('bus-list');
+        const existingItem = document.getElementById(`bus-item-${bus.bus_id}`);
+
+        if (existingItem) {
+            const statusDot = bus.speed < 1 ? 'dot-gray' : 'dot-green';
+            const gasClass = bus.gas_level > 600 ? 'status-text-danger' : '';
+
+            existingItem.innerHTML = `
+                <div class="bus-icon-wrapper"><img src="./images/bipol.png"></div>
+                <div class="bus-info">
+                    <h4>${bus.bus_id} <span class="status-dot ${statusDot}"></span></h4>
+                    <p><span><i class="fa-solid fa-gauge"></i> ${bus.speed} km/h</span> &bull;
+                    <span class="${gasClass}"><i class="fa-solid fa-fire"></i> ${bus.gas_level}</span></p>
+                </div>`;
+
+        } else {
+            const item = document.createElement('div');
+            item.className = 'bus-item';
+            item.id = `bus-item-${bus.bus_id}`;
+
+            let statusDot = bus.speed < 1 ? 'dot-gray' : 'dot-green';
+            item.innerHTML = `
+                <div class="bus-icon-wrapper"><img src="./images/bipol.png"></div>
+                <div class="bus-info">
+                    <h4>${bus.bus_id} <span class="status-dot ${statusDot}"></span></h4>
+                    <p><span><i class="fa-solid fa-gauge"></i> ${bus.speed} km/h</span> &bull;
+                    <span><i class="fa-solid fa-fire"></i> ${bus.gas_level}</span></p>
+                </div>`;
+
+            item.onclick = () => {
+                setFollowBusId(bus.bus_id);
+                if (getMap()) getMap().flyTo({ center: [bus.longitude, bus.latitude], zoom: 17.5 });
+                document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
+                item.classList.add('active-focus');
+            };
+            list.appendChild(item);
+        }
+
+        calculateETA(bus);
+        checkAlerts(bus);
+
+        if (getFollowBusId() === bus.bus_id) {
+            if (getMap()) getMap().flyTo({ center: [bus.longitude, bus.latitude], speed: 0.5 });
+        }
+
+        document.getElementById('skeleton-loader').classList.add('hidden');
+        document.getElementById('empty-state').classList.add('hidden');
+        document.getElementById('empty-state').style.display = 'none';
+    });
 
     map.on('dragstart', () => { setFollowBusId(null); });
     map.on('touchmove', () => { setFollowBusId(null); });
