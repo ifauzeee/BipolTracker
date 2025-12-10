@@ -19,7 +19,6 @@ export function getFollowBusId() {
 
 export function initMap() {
     const styleUrl = 'https://tiles.openfreemap.org/styles/bright';
-
     map = new maplibregl.Map({
         container: 'map',
         style: styleUrl,
@@ -29,7 +28,6 @@ export function initMap() {
         bearing: 0,
         antialias: true
     });
-
     return map;
 }
 
@@ -75,7 +73,6 @@ export function toggleRoute(layerIdObj, element) {
             el.querySelector('i').className = 'fa-solid fa-xmark';
         }
     });
-
     const cardId = 'card-' + layerIdObj;
     const card = document.getElementById(cardId);
     if (card) {
@@ -130,7 +127,6 @@ export function add3DBuildings() {
 export function updateMarker(bus) {
     const pos = [bus.longitude, bus.latitude];
     const content = `<div class="iw-header"><img src="./images/bipol.png" class="iw-icon"><h3>${bus.bus_id}</h3></div><p>Speed: ${bus.speed} km/h<br>Gas: ${bus.gas_level}</p>`;
-
     if (busMarkers[bus.bus_id]) {
         busMarkers[bus.bus_id].setLngLat(pos);
         busMarkers[bus.bus_id].getPopup().setHTML(content);
@@ -153,7 +149,6 @@ export function updateMarker(bus) {
             map.flyTo({ center: pos, zoom: 17 });
             document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
         };
-
         busMarkers[bus.bus_id] = new maplibregl.Marker({ element: el })
             .setLngLat(pos)
             .setPopup(new maplibregl.Popup({ offset: 25 }).setHTML(content))

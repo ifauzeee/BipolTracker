@@ -1,16 +1,55 @@
 # Dependencies
 node_modules/
 
-# Environment Variables 
+# Environment Variables
 .env
 .env.*
-.DS_Store
 
 # Logs
+logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# --- Auto-added by Context Tool ---
+# Diagnostic reports
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime Data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Operating System
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editors & IDEs
+.idea
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Testing
+coverage
+.nyc_output
+
+# Build
+dist
+build
+
+# Context Tool artifacts
 code_context.txt
 cat.py

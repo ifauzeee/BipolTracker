@@ -1,6 +1,5 @@
 import { stops, bounds } from './data.js';
 import { getMap, getFollowBusId, setFollowBusId, toggleRoute } from './map.js';
-
 let lastAlert = 0;
 
 export function setupControls() {
@@ -19,17 +18,15 @@ export function updateSidebar(bus, list) {
     const item = document.createElement('div');
     item.className = 'bus-item';
     if (getFollowBusId() === bus.bus_id) item.classList.add('active-focus');
-
     let statusDot = bus.speed < 1 ? 'dot-gray' : 'dot-green';
     if (bus.gas_level > 600) statusDot = 'dot-red';
-
     item.innerHTML = `
         <div class="bus-icon-wrapper"><img src="./images/bipol.png"></div>
         <div class="bus-info">
             <h4>${bus.bus_id} <span class="status-dot ${statusDot}"></span></h4>
-            <p><span><i class="fa-solid fa-gauge"></i> ${bus.speed} km/h</span> &bull; <span><i class="fa-solid fa-fire"></i> ${bus.gas_level}</span></p>
+            <p><span><i class="fa-solid fa-gauge"></i> ${bus.speed} km/h</span> &bull;
+            <span><i class="fa-solid fa-fire"></i> ${bus.gas_level}</span></p>
         </div>`;
-
     item.onclick = () => {
         setFollowBusId(bus.bus_id);
         getMap().flyTo({ center: [bus.longitude, bus.latitude], zoom: 17.5, speed: 1.2 });
@@ -50,7 +47,6 @@ export function calculateETA(bus) {
     });
     const etaEl = document.getElementById('eta-display');
     const displaySpeed = (bus.speed && bus.speed > 1) ? bus.speed : 20;
-
     if (minDist < 0.05) {
         etaEl.innerHTML = `<i class="fa-solid fa-check-circle"></i> Tiba di ${nearestStop}`;
         etaEl.classList.remove('hidden');
@@ -97,9 +93,7 @@ export function switchTab(tab) {
         routeView.classList.add('active-page');
         
         getMap().resize();
-        
         getMap().fitBounds(bounds, { padding: { top: 50, bottom: 250, left: 20, right: 20 }, pitch: 0, bearing: 0 });
-        
     } else if (tab === 'announcement') {
         sheet.classList.add('hidden');
         routeView.classList.remove('active-page');
@@ -111,7 +105,6 @@ export function viewImage(src) {
     const modal = document.getElementById('image-modal');
     const modalImg = document.getElementById('img01');
     const captionText = document.getElementById('caption');
-
     modal.style.display = "block";
     modalImg.src = src;
 }

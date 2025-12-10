@@ -2,14 +2,13 @@ import { initMap, addRoutes, addStops, add3DBuildings, updateMarker, removeInact
 import { setupControls, updateSidebar, calculateETA, checkAlerts, switchTab, closeImage } from './ui.js';
 
 const map = initMap();
-
 map.on('load', () => {
     addRoutes();
     try { add3DBuildings(); } catch (e) { console.error("3D Buildings error", e); }
     addStops();
 
     document.getElementById('skeleton-loader').classList.remove('hidden');
-    document.getElementById('empty-state').classList.add('hidden');
+    document.getElementById('empty-state').style.display = 'none';
 
     fetchData();
     setInterval(fetchData, 3000);
@@ -17,7 +16,6 @@ map.on('load', () => {
     map.on('dragstart', () => { setFollowBusId(null); });
     map.on('touchmove', () => { setFollowBusId(null); });
 });
-
 setupControls();
 
 document.addEventListener('keydown', function (event) {
@@ -32,21 +30,24 @@ async function fetchData() {
         const res = await fetch('/api/bus/location');
         const json = await res.json();
         const data = json.data || [];
-        console.debug('[CLIENT] /api/bus/location response:', data);
 
         const list = document.getElementById('bus-list');
         const skeleton = document.getElementById('skeleton-loader');
         const emptyState = document.getElementById('empty-state');
 
         skeleton.classList.add('hidden');
+        skeleton.style.display = 'none';
 
         if (data.length === 0) {
+            emptyState.style.display = 'flex';
             emptyState.classList.remove('hidden');
+
             Array.from(list.children).forEach(c => {
                 if (!c.classList.contains('skeleton-loader') && !c.classList.contains('empty-state')) c.remove();
             });
             return;
         } else {
+            emptyState.style.display = 'none';
             emptyState.classList.add('hidden');
         }
 
@@ -66,7 +67,6 @@ async function fetchData() {
                 if (getMap()) getMap().flyTo({ center: [bus.longitude, bus.latitude], speed: 0.5 });
             }
         });
-
         removeInactiveMarkers(activeIds);
 
     } catch (e) { console.error('[CLIENT] fetchData error', e); }

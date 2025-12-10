@@ -5,11 +5,5 @@
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#BF1E2E",
-  "icons": [
-    {
-      "src": "./images/bipol_icon.png",
-      "sizes": "1024x1024",
-      "type": "image/png"
-    }
-  ]
+  "icons": []
 }
