@@ -1,10 +1,11 @@
 require('dotenv').config();
-const fetch = require('node-fetch');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { createClient } = require('@supabase/supabase-js');
 const path = require('path');
+const dns = require('node:dns');
+dns.setDefaultResultOrder('ipv4first');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -25,18 +26,36 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/api/track', async (req, res) => {
     console.log("[DATA MASUK]", req.body);
-    const { bus_id, latitude, longitude, speed, gas_level } = req.body;
+    const bus_id = req.body.bus_id;
+    const latitude = parseFloat(req.body.latitude);
+    const longitude = parseFloat(req.body.longitude);
+    const speed = parseFloat(req.body.speed);
+    const gas_level = parseInt(req.body.gas_level);
 
     if (!bus_id) return res.status(400).send("Data invalid");
 
-    const { error } = await supabase
+    const insertData = {
+        bus_id,
+        latitude,
+        longitude,
+        speed,
+        gas_level,
+        created_at: new Date().toISOString()
+    };
+    console.log("Insert ke DB:", insertData);
+
+    const { data, error } = await supabase
         .from('bipol_tracker')
-        .insert([{ bus_id, latitude, longitude, speed, gas_level }]);
+        .insert([insertData])
+        .select();
 
     if (error) {
-        console.error("DB Error:", error.message);
+        console.error("DB Error:", error);
+        if (error.cause) console.error("Cause:", error.cause);
         return res.status(500).send("DB Error");
     }
+
+    console.log("DB Success! Inserted:", data);
     res.status(200).send("OK");
 });
 

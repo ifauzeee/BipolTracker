@@ -11,7 +11,7 @@ map.on('load', () => {
     document.getElementById('empty-state').style.display = 'none';
 
     fetchData();
-    setInterval(fetchData, 3000);
+    setInterval(fetchData, 1000);
 
     map.on('dragstart', () => { setFollowBusId(null); });
     map.on('touchmove', () => { setFollowBusId(null); });
