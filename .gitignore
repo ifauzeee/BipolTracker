@@ -1,7 +1,15 @@
+# Dependencies
+node_modules/
+
+# Environment Variables 
 .env
-env.js
-node_modules
+.env.*
 .DS_Store
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # --- Auto-added by Context Tool ---
 code_context.txt
