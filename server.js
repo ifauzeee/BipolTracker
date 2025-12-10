@@ -16,6 +16,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 let busData = {};
 let historyData = [];
+let dbPool = null;
 
 const dbConfig = {
     host: process.env.DB_HOST,
@@ -30,12 +31,52 @@ const MQTT_User = process.env.MQTT_USER;
 const MQTT_Pass = process.env.MQTT_PASS;
 const MQTT_Topic = process.env.MQTT_TOPIC;
 
+async function ensureDbPoolWithRetry(retries = 10, delayMs = 3000) {
+    let attempt = 0;
+    while (attempt < retries) {
+        try {
+            const baseConnConfig = Object.assign({}, dbConfig);
+            delete baseConnConfig.database;
+            const tempConn = await mysql.createConnection(baseConnConfig);
+            await tempConn.query(`CREATE DATABASE IF NOT EXISTS \\\`${dbConfig.database}\\\`)
+            await tempConn.end();
+
+            if (!dbPool) {
+                dbPool = mysql.createPool(Object.assign({}, dbConfig, { waitForConnections: true, connectionLimit: 5 }));
+            }
+            const conn = await dbPool.getConnection();
+            await conn.ping();
+            conn.release();
+            return;
+        } catch (err) {
+            attempt++;
+            console.error(`[DB] Connection attempt ${attempt} failed:`, err.message);
+            if (attempt >= retries) throw err;
+            await new Promise(r => setTimeout(r, delayMs));
+        }
+    }
+}
+
 async function loadInitialData() {
     console.log("[BOOTSTRAP] Loading data from DB...");
-    let connection;
     try {
-        connection = await mysql.createConnection(dbConfig);
-        const [rows] = await connection.execute(`
+        await ensureDbPoolWithRetry();
+
+        const createTableSql = `
+            CREATE TABLE IF NOT EXISTS location (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                bus_id VARCHAR(64),
+                latitude DOUBLE,
+                longitude DOUBLE,
+                gas_level INT,
+                speed DOUBLE,
+                timestamp DATETIME,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB;
+        `;
+        await dbPool.execute(createTableSql);
+
+        const [rows] = await dbPool.execute(`
             SELECT t1.bus_id, t1.latitude, t1.longitude, t1.timestamp 
             FROM location t1
             INNER JOIN (
@@ -60,8 +101,6 @@ async function loadInitialData() {
         }
     } catch (error) {
         console.error("[BOOTSTRAP ERROR]", error.message);
-    } finally {
-        if (connection) await connection.end();
     }
 }
 
@@ -127,6 +166,17 @@ client.on('message', (topic, message) => {
 
         console.log(`[LIVE] ${bus_id} updated. Speed: ${speed} km/h`);
 
+        if (dbPool) {
+            (async () => {
+                try {
+                    const ts = new Date(currentData.timestamp).toISOString().slice(0, 19).replace('T', ' ');
+                    await dbPool.execute(`INSERT INTO location (bus_id, latitude, longitude, gas_level, speed, timestamp) VALUES (?, ?, ?, ?, ?, ?)`, [currentData.bus_id, currentData.latitude, currentData.longitude, currentData.gas_level, currentData.speed, ts]);
+                } catch (err) {
+                    console.error('[DB] Failed to insert location (MQTT):', err.message);
+                }
+            })();
+        }
+
     } catch (e) {
         console.error("[MQTT ERROR]", e.message);
     }
@@ -162,6 +212,16 @@ app.post('/api/track', (req, res) => {
 
     busData[bus_id] = currentData;
     console.log(`[API] Received ${bus_id}`);
+    if (dbPool) {
+        (async () => {
+            try {
+                const ts = new Date(currentData.timestamp).toISOString().slice(0, 19).replace('T', ' ');
+                await dbPool.execute(`INSERT INTO location (bus_id, latitude, longitude, gas_level, speed, timestamp) VALUES (?, ?, ?, ?, ?, ?)`, [currentData.bus_id, currentData.latitude, currentData.longitude, currentData.gas_level, currentData.speed, ts]);
+            } catch (err) {
+                console.error('[DB] Failed to insert location (API):', err.message);
+            }
+        })();
+    }
     res.status(200).send('OK');
 });
 
@@ -180,9 +240,14 @@ app.get('*', (req, res) => {
 loadInitialData().then(() => {
     app.listen(PORT, '0.0.0.0', () => {
         console.log(`Server running on port ${PORT}`);
-        const bridgeProcess = fork('./bridge_realtime.js');
-        bridgeProcess.on('exit', (code) => {
-            console.log(`Bridge exited with code ${code}`);
-        });
+        
+        if (process.env.CLOUD_API_URL) {
+            const bridgeProcess = fork('./bridge_realtime.js');
+            bridgeProcess.on('exit', (code) => {
+                console.log(`Bridge exited with code ${code}`);
+            });
+        } else {
+            console.log("[INFO] CLOUD_API_URL not set. Bridge skipped.");
+        }
     });
 });

@@ -21,7 +21,7 @@ export function updateSidebar(bus, list) {
     if (getFollowBusId() === bus.bus_id) item.classList.add('active-focus');
 
     let statusDot = bus.speed < 1 ? 'dot-gray' : 'dot-green';
-    if (bus.gas_level > 250) statusDot = 'dot-red';
+    if (bus.gas_level > 600) statusDot = 'dot-red';
 
     item.innerHTML = `
         <div class="bus-icon-wrapper"><img src="./images/bipol.png"></div>
@@ -62,7 +62,7 @@ export function calculateETA(bus) {
 }
 
 export function checkAlerts(bus) {
-    if (bus.gas_level > 250 && Date.now() - lastAlert > 30000) {
+    if (bus.gas_level > 600 && Date.now() - lastAlert > 30000) {
         Swal.fire({ icon: 'warning', title: 'BAHAYA!', text: `Gas Tinggi: ${bus.gas_level}`, timer: 5000, background: '#BF1E2E', color: '#fff' });
         lastAlert = Date.now();
     }

@@ -28,9 +28,11 @@ document.addEventListener('keydown', function (event) {
 
 async function fetchData() {
     try {
+        console.debug('[CLIENT] fetchData() called');
         const res = await fetch('/api/bus/location');
         const json = await res.json();
         const data = json.data || [];
+        console.debug('[CLIENT] /api/bus/location response:', data);
 
         const list = document.getElementById('bus-list');
         const skeleton = document.getElementById('skeleton-loader');
@@ -67,5 +69,7 @@ async function fetchData() {
 
         removeInactiveMarkers(activeIds);
 
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error('[CLIENT] fetchData error', e); }
 }
+
+fetchData();
