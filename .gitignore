@@ -1,0 +1,8 @@
+.env
+env.js
+node_modules
+.DS_Store
+
+# --- Auto-added by Context Tool ---
+code_context.txt
+cat.py

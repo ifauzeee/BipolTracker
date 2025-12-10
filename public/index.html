@@ -1,42 +1,41 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#BF1E2E">
     <link rel="manifest" href="/manifest.json">
     <title>Bipol 3D Tracker</title>
-    
-    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+
+    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
+
 <body>
 
     <div id="map"></div>
 
     <div class="floating-controls">
-        <button id="themeToggleBtn" class="fab-btn" title="Ganti Tema">
-            <i class="fa-solid fa-moon"></i>
-        </button>
-        
-        <button id="liveCamBtn" class="fab-btn main-fab" title="Live Camera Mode">
-            <i class="fa-solid fa-video"></i>
-            <span class="btn-label">2D</span>
-        </button>
+
+
+
 
         <button id="historyBtn" class="fab-btn" title="Jejak Perjalanan">
             <i class="fa-solid fa-clock-rotate-left"></i>
         </button>
-        
+
         <button id="recenterBtn" class="fab-btn" title="Reset Lokasi">
             <i class="fa-solid fa-location-crosshairs"></i>
         </button>
     </div>
 
     <div class="bottom-sheet">
-        <div class="sheet-handle-bar"><div class="sheet-handle"></div></div>
-        
+        <div class="sheet-handle-bar">
+            <div class="sheet-handle"></div>
+        </div>
+
         <div class="sheet-header">
             <div class="header-text">
                 <h1>Bipol 3D <span class="live-badge">LIVE</span></h1>
@@ -62,13 +61,14 @@
         </div>
     </div>
 
-    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
-    <script src="/static/script.js"></script>
-    
+    <script src="/script.js"></script>
+
     <script>
         if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
     </script>
 </body>
+
 </html>
