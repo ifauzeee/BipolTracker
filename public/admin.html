@@ -4,497 +4,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bipol Admin Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <title>Bipol Admin</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-            background: #f4f4f9;
-            color: #333;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        .login-view {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: #fff;
-            z-index: 100;
-            display: flex;
-        }
-
-        .split-layout {
-            display: flex;
-            width: 100%;
-            height: 100%;
-        }
-
-        .left-pane {
-            display: none;
-            width: 50%;
-            background: #fdfdfd;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-            border-right: 1px solid #eaeaea;
-        }
-
-        .logo-overlay {
-            width: 20rem;
-            height: 20rem;
-            position: relative;
-        }
-
-        .large-faded-logo {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        .right-pane {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 4rem;
-            background: #ffffff;
-        }
-
-        .form-wrapper {
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .form-header {
-            text-align: left;
-            margin-bottom: 24px;
-        }
-
-        .brand-title {
-            display: block;
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: #111;
-            margin: 0;
-            letter-spacing: -1px;
-            line-height: 1.1;
-        }
-
-        .form-subtitle {
-            text-align: left;
-            color: #666;
-            margin-top: 12px;
-            font-size: 1rem;
-            font-weight: 400;
-            line-height: 1.6;
-        }
-
-        .modern-form {
-            margin-top: 2rem;
-        }
-
-        .input-group {
-            margin-bottom: 1rem;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: #111;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            border: 1px solid #e2e8f0;
-            background: #fff;
-            outline: none;
-            transition: ring 0.2s;
-        }
-
-        .input-group input:focus {
-            border-color: #BF1E2E;
-            box-shadow: 0 0 0 2px rgba(191, 30, 46, 0.2);
-        }
-
-        .btn-primary {
-            width: 100%;
-            padding: 0.75rem;
-            background: #BF1E2E;
-            color: white;
-            border: none;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background 0.2s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary:hover {
-            background: #991825;
-        }
-
-        .divider {
-            position: relative;
-            text-align: center;
-            margin: 1.5rem 0;
-        }
-
-        .divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: #e2e8f0;
-        }
-
-        .divider span {
-            background: #fff;
-            padding: 0 0.5rem;
-            position: relative;
-            color: #64748b;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-        }
-
-        .btn-google-style {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 0.75rem;
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.5rem;
-            color: #111;
-            font-weight: 600;
-            text-decoration: none;
-            gap: 0.5rem;
-            transition: background 0.2s;
-        }
-
-        .btn-google-style:hover {
-            background: #f8f9fa;
-        }
-
-        .footer-text {
-            text-align: center;
-            font-size: 0.75rem;
-            color: #64748b;
-            margin-top: 3rem;
-        }
-
-        .footer-text a {
-            color: inherit;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .footer-text a:hover {
-            text-decoration: underline;
-            color: #BF1E2E;
-        }
-
-        @media (min-width: 1024px) {
-            .left-pane {
-                display: flex;
-            }
-
-            .right-pane {
-                width: 50%;
-            }
-
-            .form-header {
-                text-align: left;
-                display: flex;
-                align-items: center;
-                justify-content: flex-start;
-            }
-
-            .form-subtitle {
-                text-align: left;
-            }
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 40px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-
-        h1,
-        h2 {
-            color: #2c3e50;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-
-        #dashboard-view input,
-        #dashboard-view textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            box-sizing: border-box;
-            background: white;
-        }
-
-        #dashboard-view button:not(.tab-btn):not(.logout-btn) {
-            padding: 10px 20px;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .logout-btn {
-            background: #e74c3c;
-            padding: 8px 16px;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            float: right;
-        }
-
-        .info-item {
-            background: #ecf0f1;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            position: relative;
-        }
-
-        .delete-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #e74c3c !important;
-            padding: 5px 10px !important;
-            font-size: 0.8em;
-        }
-
-        .stats {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            flex: 1;
-            background: #2ecc71;
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .tab-btn {
-            background: none;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            color: #7f8c8d;
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .tab-btn.active {
-            color: #3498db;
-            border-bottom: 3px solid #3498db;
-        }
-
-        table td {
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-            font-size: 0.9em;
-        }
-
-        .event-ENTER {
-            color: green;
-            font-weight: bold;
-        }
-
-        .event-EXIT {
-            color: orange;
-            font-weight: bold;
-        }
-
-        @keyframes fadein {
-            from {
-                background: #ffeaa7;
-            }
-
-            to {
-                background: transparent;
-            }
-        }
-
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .animate-enter {
-            animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes slideUpFade {
-            0% {
-                opacity: 0;
-                transform: translateY(30px) scale(0.98);
-            }
-
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-    </style>
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" href="/css/admin.css">
 </head>
 
 <body>
 
-    <div id="login-view" class="login-view">
-        <div class="split-layout">
-            <div class="left-pane">
-                <div class="logo-overlay">
-                    <img src="/images/Logo PNJ.png" alt="PNJ Logo" class="large-faded-logo">
+    <aside id="sidebar">
+        <div class="brand">
+            <img src="/images/header.png" alt="Bipol Logo" class="brand-logo">
+        </div>
+        <nav>
+            <button onclick="switchTab('dashboard')" class="nav-item active" id="nav-dashboard">
+                <i class="fa-solid fa-border-all"></i> Overview
+            </button>
+            <button onclick="switchTab('logs')" class="nav-item" id="nav-logs">
+                <i class="fa-solid fa-database"></i> Live Logs
+            </button>
+            <button onclick="switchTab('geofence')" class="nav-item" id="nav-geofence">
+                <i class="fa-solid fa-route"></i> Geofence
+            </button>
+            <button onclick="switchTab('settings')" class="nav-item" id="nav-settings">
+                <i class="fa-solid fa-sliders"></i> Settings
+            </button>
+        </nav>
+        <div class="user-panel">
+            <div class="user-details">
+                <div>
+                    <div class="user-name">Admin</div>
+                    <div class="user-role">Superuser</div>
                 </div>
             </div>
+            <button onclick="logout()" class="btn-logout" title="Sign Out">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            </button>
+        </div>
+    </aside>
 
-            <div class="right-pane">
-                <div class="form-wrapper">
-                    <div class="form-header">
-                    </div>
-                    <form onsubmit="event.preventDefault(); login();" class="modern-form">
-                        <div class="input-group">
-                            <label>Username</label>
-                            <input type="text" id="username" placeholder="bipol" required>
-                        </div>
-                        <div class="input-group">
-                            <label>Password</label>
-                            <input type="password" id="password" placeholder="••••••••" required>
-                        </div>
-
-                        <button type="submit" class="btn-primary" id="loginBtn">
-                            <i class="fa-solid fa-lock"></i> Login
-                        </button>
-                    </form>
-
-                    <div class="divider">
-                        <span>Atau</span>
-                    </div>
-
-                    <a href="/" class="btn-google-style">
-                        <i class="fa-solid fa-map-location-dot"></i>
-                        Kembali ke Peta
-                    </a>
-
-                    <p class="footer-text">
-                        © 2025 Created by <a href="#">Tim PBL Bipol</a>
-                    </p>
-                </div>
+    <main>
+        <header>
+            <div>
+                <button class="mobile-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+                <h1 id="page-title">Dashboard</h1>
             </div>
-        </div>
-    </div>
+            <div class="date-badge" id="currentDate">
+            </div>
+        </header>
 
-    <div id="dashboard-view" class="container" style="display:none;">
-        <button id="logoutBtn" class="logout-btn" onclick="logout()">Logout</button>
-        <h1>🔐 Admin Dashboard</h1>
-
-        <div id="admin-tabs" style="display:block; margin-bottom: 20px; border-bottom: 2px solid #ddd;">
-            <button onclick="switchTab('dashboard')" class="tab-btn active">📢 Info</button>
-            <button onclick="switchTab('logs')" class="tab-btn">📊 Data Logs</button>
-            <button onclick="switchTab('geofence')" class="tab-btn">🌍 Geofence</button>
-            <button onclick="switchTab('settings')" class="tab-btn">⚙️ Settings</button>
-        </div>
-
-        <div id="dashboard-section">
-            <div class="stats">
+        <div id="dashboard-section" class="section-container active">
+            <div class="grid-dashboard">
                 <div class="stat-card">
-                    <h3>System Status</h3>
-                    <p>ONLINE</p>
+                    <div class="stat-title">System Status</div>
+                    <div class="stat-value">Operational</div>
+                    <div class="stat-meta"><i class="fa-solid fa-circle-check"></i> All systems go</div>
+                    <i class="fa-solid fa-server stat-icon-bg"></i>
                 </div>
-                <div class="stat-card" style="background: #3498db;">
-                    <h3>Active Infos</h3>
-                    <span id="infoCount">0</span>
+                <div class="stat-card">
+                    <div class="stat-title">Active Alerts</div>
+                    <div class="stat-value" id="infoCount">0</div>
+                    <div class="stat-meta">Published</div>
+                    <i class="fa-solid fa-bell stat-icon-bg"></i>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Fleet Active</div>
+                    <div class="stat-value" id="activeBusCount">0</div>
+                    <div class="stat-meta off" id="activeBusMeta">Waiting for data...</div>
+                    <i class="fa-solid fa-bus stat-icon-bg"></i>
                 </div>
             </div>
 
-            <h2>📢 Post New Information</h2>
-            <div class="form-group">
-                <label>Title</label>
-                <input type="text" id="infoTitle" placeholder="Ex: Perubahan Jadwal">
-            </div>
-            <div class="form-group">
-                <label>Content</label>
-                <textarea id="infoContent" rows="4" placeholder="Detail informasi..."></textarea>
-            </div>
-            <button onclick="postInfo()">Post Information</button>
+            <div style="display: flex; flex-direction: column; gap: 40px;">
 
-            <hr>
-            <h2>📋 Managed Information</h2>
-            <div id="infoList">Loading...</div>
+                <div>
+                    <h2 style="font-size:1.1rem; margin-bottom:16px;">Create Announcement</h2>
+                    <div class="form-grid">
+                        <div class="input-wrapper">
+                            <label>Title</label>
+                            <input type="text" id="infoTitle" class="styled-input"
+                                placeholder="e.g. Schedule Maintenance">
+                        </div>
+                        <div class="input-wrapper">
+                            <label>Message</label>
+                            <textarea id="infoContent" class="styled-input" rows="4"
+                                placeholder="Enter full details..."></textarea>
+                        </div>
+                        <button onclick="postInfo()" class="btn-primary">
+                            <i class="fa-solid fa-paper-plane"></i> Publish Now
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 style="font-size:1.1rem; margin-bottom:16px;">Active Announcements</h2>
+                    <div id="infoList" class="list-container">
+                        <div style="text-align:center; padding:40px; color:var(--text-light);">Loading...</div>
+                    </div>
+                </div>
+
+            </div>
         </div>
 
-        <div id="logs-section" style="display:none;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h2>📊 Incoming Data Logs (Live)</h2>
-                <span style="color:green; font-weight:bold;">● Auto-Refresh ON</span>
+        <div id="logs-section" class="section-container">
+            <div style="display: flex; gap: 16px; margin-bottom: 20px;">
+                <div class="input-wrapper" style="flex: 1;">
+                    <input type="text" id="filterBusId" class="styled-input" placeholder="Filter by Bus ID..."
+                        onkeyup="renderLogs()">
+                </div>
+                <div class="input-wrapper" style="width: 180px;">
+                    <input type="date" id="filterDate" class="styled-input" onchange="renderLogs()">
+                </div>
+                <div class="input-wrapper" style="width: 200px;">
+                    <select id="sortLogs" class="styled-input" onchange="renderLogs()">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="speed_desc">Speed (High-Low)</option>
+                        <option value="speed_asc">Speed (Low-High)</option>
+                        <option value="gas_desc">Gas (High-Low)</option>
+                        <option value="gas_asc">Gas (Low-High)</option>
+                    </select>
+                </div>
             </div>
-            <div style="overflow-x:auto; margin-top:15px; max-height:500px; overflow-y:auto;">
-                <table style="width:100%; border-collapse: collapse; background:white;">
-                    <thead style="position:sticky; top:0; background:#ecf0f1;">
-                        <tr style="text-align:left;">
-                            <th style="padding:10px;">Bus ID</th>
-                            <th style="padding:10px;">Lat, Lon</th>
-                            <th style="padding:10px;">Speed</th>
-                            <th style="padding:10px;">Gas</th>
-                            <th style="padding:10px;">Time</th>
+            <div class="table-glass">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Bus ID</th>
+                            <th>Coordinates</th>
+                            <th>Speed</th>
+                            <th>Gas</th>
+                            <th>Time</th>
                         </tr>
                     </thead>
                     <tbody id="logs-table-body"></tbody>
@@ -502,19 +145,15 @@
             </div>
         </div>
 
-        <div id="geofence-section" style="display:none;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h2>🌍 Geofence Events (Live)</h2>
-                <span style="color:green; font-weight:bold;">● Auto-Refresh ON</span>
-            </div>
-            <div style="overflow-x:auto; margin-top:15px; max-height:500px; overflow-y:auto;">
-                <table style="width:100%; border-collapse: collapse; background:white;">
-                    <thead style="position:sticky; top:0; background:#ecf0f1;">
-                        <tr style="text-align:left;">
-                            <th style="padding:10px;">BS ID</th>
-                            <th style="padding:10px;">Location (Zone)</th>
-                            <th style="padding:10px;">Event</th>
-                            <th style="padding:10px;">Time</th>
+        <div id="geofence-section" class="section-container">
+            <div class="table-glass">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Bus ID</th>
+                            <th>Zone Name</th>
+                            <th>Event Type</th>
+                            <th>Timestamp</th>
                         </tr>
                     </thead>
                     <tbody id="geofence-table-body"></tbody>
@@ -522,133 +161,72 @@
             </div>
         </div>
 
-        <div id="settings-section" style="display:none;">
-            <h2>⚙️ Admin Settings</h2>
-            <div class="form-group">
-                <label>New Password</label>
-                <input type="password" id="newPassword" placeholder="******">
+        <div id="settings-section" class="section-container">
+            <div style="max-width: 500px;">
+                <div class="glass-panel">
+                    <h2 style="font-size:1.2rem; margin-top:0; margin-bottom:24px;">Security Settings</h2>
+                    <div class="form-grid">
+                        <div class="input-wrapper">
+                            <label>Update Password</label>
+                            <input type="password" id="newPassword" class="styled-input"
+                                placeholder="New secure password">
+                        </div>
+                        <button onclick="changePassword()" class="btn-primary">Update Password</button>
+                    </div>
+                </div>
             </div>
-            <button onclick="changePassword()" style="background:#f39c12;">Update Password</button>
         </div>
 
-    </div>
-
-    <script src="/socket.io/socket.io.js"></script>
+    </main>
 
     <script>
         const socket = io();
 
+        document.getElementById('currentDate').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
         fetch('/auth/status').then(r => r.json()).then(data => {
-            if (data.loggedIn) showDashboard();
-            else showLogin();
+            if (!data.loggedIn) window.location.href = '/login';
+            else initDashboard();
         });
 
-        socket.on('update_bus', (data) => addLogRow(data));
-        socket.on('geofence_event', (data) => addGeofenceRow(data));
-
-        function showLogin() {
-            const view = document.getElementById('login-view');
-            view.style.display = 'flex';
-            view.classList.remove('animate-enter');
-            void view.offsetWidth;
-            view.classList.add('animate-enter');
-            document.getElementById('dashboard-view').style.display = 'none';
-        }
-
-        function showDashboard() {
-            document.getElementById('login-view').style.display = 'none';
-            const view = document.getElementById('dashboard-view');
-            view.style.display = 'block';
-            view.classList.remove('animate-enter');
-            void view.offsetWidth;
-            view.classList.add('animate-enter');
+        function initDashboard() {
             loadInfo();
             loadLogs();
             loadGeofenceLogs();
-            switchTab('dashboard');
         }
 
         function switchTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelector(`button[onclick="switchTab('${tab}')"]`).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(`nav-${tab}`).classList.add('active');
 
-            ['dashboard', 'logs', 'settings', 'geofence'].forEach(t => {
-                const section = document.getElementById(`${t}-section`);
-                if (t === tab) {
-                    section.style.display = 'block';
-                    section.style.animation = 'slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
-                } else {
-                    section.style.display = 'none';
-                }
-            });
+            const titles = {
+                'dashboard': 'Dashboard',
+                'logs': 'Vehicle Logs',
+                'geofence': 'Geofence Events',
+                'settings': 'Settings'
+            };
+            document.getElementById('page-title').innerText = titles[tab];
+
+            document.querySelectorAll('.section-container').forEach(el => el.classList.remove('active'));
+            document.getElementById(`${tab}-section`).classList.add('active');
+
+            document.getElementById('sidebar').classList.remove('open');
         }
 
-        async function login() {
-            const username = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
-            const btn = document.getElementById('loginBtn');
-            const originalText = btn.innerHTML;
-
-            btn.innerHTML = '<div class="spinner"></div>';
-            btn.disabled = true;
-
-            try {
-                const res = await fetch('/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password: pass })
-                });
-
-                let data;
-                try {
-                    data = await res.json();
-                } catch (err) {
-                    throw new Error("Server returned invalid response");
-                }
-
-                if (!res.ok || !data.success) {
-                    const msg = data.message || 'Username atau password salah';
-
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Login Gagal',
-                            text: msg,
-                            confirmButtonColor: '#e74c3c'
-                        });
-                    } else {
-                        alert("LOGIN GAGAL: " + msg);
-                    }
-                    return;
-                }
-
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Welcome Back',
-                        text: 'Login Successful',
-                        timer: 1000,
-                        showConfirmButton: false,
-                        backdrop: `rgba(0,0,123,0.4)`
-                    }).then(() => showDashboard());
-                } else {
-                    showDashboard();
-                }
-
-            } catch (e) {
-                alert("ERROR KONEKSI: " + e.message);
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
         }
 
-        async function logout() { await fetch('/auth/logout', { method: 'POST' }); showLogin(); }
+        async function logout() {
+            await fetch('/auth/logout', { method: 'POST' });
+            window.location.href = '/login';
+        }
 
         async function postInfo() {
             const title = document.getElementById('infoTitle').value;
             const content = document.getElementById('infoContent').value;
-            if (!title || !content) return Swal.fire('Warning', 'Fill all fields', 'warning');
+            if (!title || !content) return Swal.fire({ icon: 'warning', title: 'Missing fields', text: 'Please enter a title and content', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
+
             try {
                 const res = await fetch('/api/info', {
                     method: 'POST',
@@ -656,12 +234,57 @@
                     body: JSON.stringify({ title, content })
                 });
                 if (res.ok) {
-                    Swal.fire('Posted', 'Information added successfully', 'success');
+                    Swal.fire({ icon: 'success', title: 'Published', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
                     document.getElementById('infoTitle').value = '';
                     document.getElementById('infoContent').value = '';
                     loadInfo();
                 }
-            } catch (e) { Swal.fire('Error', 'Failed to post', 'error'); }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadInfo() {
+            const res = await fetch('/api/admin/info');
+            const list = await res.json();
+            document.getElementById('infoCount').innerText = list.length;
+            const container = document.getElementById('infoList');
+            container.innerHTML = '';
+
+            if (list.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:30px; border:1px dashed #e5e7eb; border-radius:12px; color:#9ca3af;">No active announcements</div>';
+                return;
+            }
+
+            list.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'list-item-minimal';
+                card.innerHTML = `
+                    <div class="list-info">
+                        <h3>${item.title}</h3>
+                        <p>${item.content}</p>
+                        <div class="list-meta">Posted on ${new Date(item.created_at).toLocaleDateString()}</div>
+                    </div>
+                    <button class="btn-icon" onclick="deleteInfo(${item.id})"><i class="fa-solid fa-trash"></i></button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function deleteInfo(id) {
+            Swal.fire({
+                title: 'Delete?',
+                text: "Confirm deletion of this announcement.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#111827',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    await fetch('/api/info/' + id, { method: 'DELETE' });
+                    loadInfo();
+                    Swal.fire({ icon: 'success', title: 'Deleted', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
+                }
+            });
         }
 
         async function changePassword() {
@@ -673,58 +296,82 @@
                 body: JSON.stringify({ newPassword })
             });
             const data = await res.json();
-            if (data.success) Swal.fire('Success', 'Password Changed', 'success');
-            else Swal.fire('Error', data.message, 'error');
+            if (data.success) {
+                Swal.fire({ icon: 'success', title: 'Updated', text: 'Password changed successfully' });
+                document.getElementById('newPassword').value = '';
+            } else {
+                Swal.fire('Error', data.message, 'error');
+            }
         }
 
-        async function loadInfo() {
-            const res = await fetch('/api/admin/info');
-            const list = await res.json();
-            document.getElementById('infoCount').innerText = list.length;
-            const container = document.getElementById('infoList');
-            container.innerHTML = '';
-            list.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'info-item';
-                div.innerHTML = `<h3>${item.title}</h3><p>${item.content}</p><small>${new Date(item.created_at).toLocaleString()}</small><button class="delete-btn" onclick="deleteInfo(${item.id})">Delete</button>`;
-                container.appendChild(div);
+        let allLogs = [];
+
+        async function loadLogs() {
+            const res = await fetch('/api/admin/logs');
+            allLogs = await res.json();
+
+            allLogs.forEach(log => {
+                if (log.bus_id) updateActiveBuses(log.bus_id);
+            });
+
+            renderLogs();
+        }
+
+        function renderLogs() {
+            const tbody = document.getElementById('logs-table-body');
+            tbody.innerHTML = '';
+
+            const filterId = document.getElementById('filterBusId').value.toLowerCase();
+            const filterDate = document.getElementById('filterDate').value;
+            const sortMode = document.getElementById('sortLogs').value;
+
+            let filtered = allLogs.filter(log => {
+                const bid = (log.bus_id || '').toLowerCase();
+                const matchesId = bid.includes(filterId);
+
+                let matchesDate = true;
+                if (filterDate) {
+                    const logDate = log.created_at ? new Date(log.created_at).toISOString().split('T')[0] : '';
+                    matchesDate = logDate === filterDate;
+                }
+
+                return matchesId && matchesDate;
+            });
+
+            filtered.sort((a, b) => {
+                const dateA = new Date(a.created_at || 0);
+                const dateB = new Date(b.created_at || 0);
+                const speedA = parseFloat(a.speed || 0);
+                const speedB = parseFloat(b.speed || 0);
+                const gasA = parseFloat(a.gas_level || 0);
+                const gasB = parseFloat(b.gas_level || 0);
+
+                switch (sortMode) {
+                    case 'newest': return dateB - dateA;
+                    case 'oldest': return dateA - dateB;
+                    case 'speed_desc': return speedB - speedA;
+                    case 'speed_asc': return speedA - speedB;
+                    case 'gas_desc': return gasB - gasA;
+                    case 'gas_asc': return gasA - gasB;
+                    default: return dateB - dateA;
+                }
+            });
+
+            filtered.slice(0, 50).forEach(log => {
+                const tr = document.createElement('tr');
+                const time = log.created_at ? new Date(log.created_at).toLocaleTimeString() : new Date().toLocaleTimeString();
+
+                tr.innerHTML = `
+                    <td style="font-weight:700;">${log.bus_id || 'Unknown'}</td>
+                    <td class="data-highlight" style="font-size:0.85rem">${(log.latitude || 0).toFixed(5)}, ${(log.longitude || 0).toFixed(5)}</td>
+                    <td>${log.speed || 0} km/h</td>
+                    <td class="data-highlight">${log.gas_level || 0}</td>
+                    <td style="color:var(--text-light);">${time}</td>
+                `;
+                tbody.appendChild(tr);
             });
         }
 
-        async function deleteInfo(id) {
-            if (!confirm('Are you sure?')) return;
-            await fetch('/api/info/' + id, { method: 'DELETE' });
-            loadInfo();
-        }
-
-        async function loadLogs() {
-            const tbody = document.getElementById('logs-table-body');
-            tbody.innerHTML = '';
-            const res = await fetch('/api/admin/logs');
-            const logs = await res.json();
-            logs.forEach(log => addLogRow(log, true));
-        }
-
-        function addLogRow(log, append = false) {
-            const tbody = document.getElementById('logs-table-body');
-            const tr = document.createElement('tr');
-            const time = log.created_at ? new Date(log.created_at).toLocaleTimeString() : new Date().toLocaleTimeString();
-
-            tr.innerHTML = `
-                <td>${log.bus_id || 'Unknown'}</td>
-                <td>${log.latitude}, ${log.longitude}</td>
-                <td>${log.speed || 0} km/h</td>
-                <td>${log.gas_level || 0}</td>
-                <td>${time}</td>
-            `;
-
-            tr.style.animation = "fadein 1s";
-
-            if (append) tbody.appendChild(tr);
-            else tbody.prepend(tr);
-
-            if (tbody.children.length > 100) tbody.removeChild(tbody.lastChild);
-        }
 
         async function loadGeofenceLogs() {
             const tbody = document.getElementById('geofence-table-body');
@@ -738,22 +385,54 @@
             const tbody = document.getElementById('geofence-table-body');
             const tr = document.createElement('tr');
 
-            const zone = log.zoneName || log.zone_name || 'Unk';
+            const zone = log.zoneName || log.zone_name || 'Unknown';
             const event = log.event_type;
             const timeVal = log.time || log.timestamp || new Date();
             const time = new Date(timeVal).toLocaleTimeString();
 
-            tr.innerHTML = `<td>${log.bus_id}</td><td>${zone}</td><td class="event-${event}">${event}</td><td>${time}</td>`;
+            const pillClass = event === 'ENTER' ? 'status-enter' : 'status-exit';
 
-            tr.style.animation = "fadein 1s";
+            tr.innerHTML = `
+                <td style="font-weight:700;">${log.bus_id}</td>
+                <td>${zone}</td>
+                <td><span class="status-pill ${pillClass}">${event}</span></td>
+                <td style="color:var(--text-light);">${time}</td>
+            `;
+
+            tr.style.animation = "slideUp 0.3s ease-out";
 
             if (append) tbody.appendChild(tr);
             else tbody.prepend(tr);
 
             if (tbody.children.length > 50) tbody.removeChild(tbody.lastChild);
         }
-    </script>
 
+        const activeBuses = new Set();
+
+        function updateActiveBuses(busId) {
+            if (busId && !activeBuses.has(busId)) {
+                activeBuses.add(busId);
+                const count = activeBuses.size;
+                document.getElementById('activeBusCount').innerText = count;
+                const meta = document.getElementById('activeBusMeta');
+                meta.innerText = count + ' vehicle(s) online';
+                meta.classList.remove('off');
+                meta.style.color = '#10B981';
+            }
+        }
+
+        socket.on('update_bus', (data) => {
+            allLogs.unshift(data);
+            if (allLogs.length > 200) allLogs.pop();
+            updateActiveBuses(data.bus_id);
+            renderLogs();
+        });
+        socket.on('geofence_event', (data) => {
+            addGeofenceRow(data);
+            updateActiveBuses(data.bus_id);
+        });
+        socket.on('update_info', () => loadInfo());
+    </script>
 </body>
 
 </html>
