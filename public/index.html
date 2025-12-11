@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -13,24 +14,32 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
 </head>
+
 <body>
     <div id="map"></div>
     <div class="bottom-sheet">
-        <div class="sheet-handle-bar"><div class="sheet-handle"></div></div>
+        <div class="sheet-handle-bar">
+            <div class="sheet-handle"></div>
+        </div>
         <div class="sheet-header">
             <div class="header-text" style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
                     <h1>Bipol Tracker<span class="live-badge">LIVE</span></h1>
-                    <div id="eta-display" class="eta-badge hidden"><i class="fa-solid fa-calculator"></i> Menghitung...</div>
+                    <div id="eta-display" class="eta-badge hidden"><i class="fa-solid fa-calculator"></i> Menghitung...
+                    </div>
                 </div>
-                <button id="recenterBtn" class="fab-btn" title="Reset Lokasi" style="width:36px; height:36px; box-shadow:none; border:1px solid rgba(0,0,0,0.1);"><i class="fa-solid fa-location-crosshairs"></i></button>
+                <button id="recenterBtn" class="fab-btn" title="Reset Lokasi"
+                    style="width:36px; height:36px; box-shadow:none; border:1px solid rgba(0,0,0,0.1);"><i
+                        class="fa-solid fa-location-crosshairs"></i></button>
             </div>
         </div>
         <div class="sheet-content">
             <h3>Armada Aktif</h3>
             <div id="bus-list">
                 <div class="skeleton-loader hidden" id="skeleton-loader">
-                    <div class="skeleton-item"></div><div class="skeleton-item"></div><div class="skeleton-item"></div>
+                    <div class="skeleton-item"></div>
+                    <div class="skeleton-item"></div>
+                    <div class="skeleton-item"></div>
                 </div>
                 <div class="empty-state" id="empty-state">
                     <i class="fa-solid fa-satellite-dish fa-spin"></i>
@@ -41,11 +50,11 @@
     </div>
 
     <div id="info-page" class="page-view">
-        <div class="page-header"><h2><i class="fa-solid fa-bullhorn"></i> Info & Pengumuman</h2></div>
-        <div class="page-content">
-            <div class="info-card"><div class="info-icon"><i class="fa-solid fa-clock"></i></div><div class="info-text"><h4>Jadwal Baru</h4><p>Mulai 1 Januari 2025, jadwal bus Bipol diperpanjang hingga pukul 20:00 WIB.</p></div></div>
-            <div class="info-card"><div class="info-icon warning"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="info-text"><h4>Info Lalu Lintas</h4><p>Jalan Margonda sedang ada perbaikan, harap maklum jika ada keterlambatan armada.</p></div></div>
-            <div class="info-card"><div class="info-icon"><i class="fa-solid fa-bus"></i></div><div class="info-text"><h4>Armada Baru</h4><p>Kami telah menambah 2 armada baru untuk rute pagi demi kenyamanan anda.</p></div></div>
+        <div class="page-header">
+            <h2><i class="fa-solid fa-bullhorn"></i> Info & Pengumuman</h2>
+        </div>
+        <div class="page-content" id="dynamic-info-list">
+
         </div>
     </div>
 
@@ -53,19 +62,33 @@
         <div class="route-panel-overlay" onclick="if(event.target === this) switchTab('home')">
             <div class="route-master-panel">
                 <div class="panel-header">
-                    <div class="header-content"><h2><i class="fa-solid fa-route"></i> Pilih Rute</h2><p>Aktifkan rute untuk melihat jalur di peta</p></div>
-                    <button class="close-route-btn" onclick="switchTab('home')"><i class="fa-solid fa-times"></i></button>
+                    <div class="header-content">
+                        <h2><i class="fa-solid fa-route"></i> Pilih Rute</h2>
+                        <p>Aktifkan rute untuk melihat jalur di peta</p>
+                    </div>
+                    <button class="close-route-btn" onclick="switchTab('home')"><i
+                            class="fa-solid fa-times"></i></button>
                 </div>
                 <div class="route-list-container">
                     <div class="route-card-item" id="card-rutePagi" onclick="toggleRouteCard('rutePagi')">
                         <div class="route-card-icon morning-theme"><i class="fa-solid fa-sun"></i></div>
-                        <div class="route-card-info"><span class="route-name">Rute Pagi</span><div class="route-meta"><span><i class="fa-regular fa-clock"></i> 06:30 - 10:00</span><span><i class="fa-solid fa-arrow-right"></i> Berangkat</span></div></div>
-                        <div class="route-checkbox"><div class="custom-toggle"></div></div>
+                        <div class="route-card-info"><span class="route-name">Rute Pagi</span>
+                            <div class="route-meta"><span><i class="fa-regular fa-clock"></i> 06:30 -
+                                    10:00</span><span><i class="fa-solid fa-arrow-right"></i> Berangkat</span></div>
+                        </div>
+                        <div class="route-checkbox">
+                            <div class="custom-toggle"></div>
+                        </div>
                     </div>
                     <div class="route-card-item" id="card-ruteSore" onclick="toggleRouteCard('ruteSore')">
                         <div class="route-card-icon afternoon-theme"><i class="fa-solid fa-cloud-moon"></i></div>
-                        <div class="route-card-info"><span class="route-name">Rute Sore</span><div class="route-meta"><span><i class="fa-regular fa-clock"></i> 14:00 - 18:00</span><span><i class="fa-solid fa-arrow-left"></i> Pulang</span></div></div>
-                        <div class="route-checkbox"><div class="custom-toggle"></div></div>
+                        <div class="route-card-info"><span class="route-name">Rute Sore</span>
+                            <div class="route-meta"><span><i class="fa-regular fa-clock"></i> 14:00 -
+                                    18:00</span><span><i class="fa-solid fa-arrow-left"></i> Pulang</span></div>
+                        </div>
+                        <div class="route-checkbox">
+                            <div class="custom-toggle"></div>
+                        </div>
                     </div>
                 </div>
                 <div class="panel-footer-info">
@@ -83,14 +106,19 @@
     <script type="module" src="/js/app.js"></script>
 
     <div id="image-modal" class="image-modal" onclick="closeImage()">
-        <span class="close-modal">&times;</span><img class="modal-content" id="img01"><div id="caption"></div>
+        <span class="close-modal">&times;</span><img class="modal-content" id="img01">
+        <div id="caption"></div>
     </div>
 
     <nav class="mobile-nav">
-        <div class="nav-item" onclick="switchTab('map')"><i class="fa-solid fa-map-location-dot"></i><span>Rute</span></div>
-        <div class="nav-item active" onclick="switchTab('home')"><i class="fa-solid fa-house"></i><span>Home</span></div>
-        <div class="nav-item" onclick="switchTab('announcement')"><i class="fa-solid fa-bullhorn"></i><span>Info</span></div>
+        <div class="nav-item" onclick="switchTab('map')"><i class="fa-solid fa-map-location-dot"></i><span>Rute</span>
+        </div>
+        <div class="nav-item active" onclick="switchTab('home')"><i class="fa-solid fa-house"></i><span>Home</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('announcement')"><i class="fa-solid fa-bullhorn"></i><span>Info</span>
+        </div>
     </nav>
     <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
 </body>
+
 </html>

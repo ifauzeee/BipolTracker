@@ -3,8 +3,10 @@ node_modules/
 
 # Environment Variables
 .env
-.env.*
-arduino_secrets.h
+.env.local
+.env.production
+!.env.example
+firmware/arduino_secrets.h
 
 # Logs
 logs

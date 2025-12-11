@@ -132,4 +132,46 @@ async function fetchData() {
     } catch (e) { console.error('[CLIENT] fetchData error', e); }
 }
 
+async function fetchInfo() {
+    try {
+        const res = await fetch('/api/info');
+        const data = await res.json();
+
+        const listContainer = document.getElementById('dynamic-info-list');
+        if (!listContainer) return;
+
+        listContainer.innerHTML = '';
+
+        if (data.length === 0) {
+            listContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#999;"><i class="fa-regular fa-folder-open" style="font-size:2em; margin-bottom:10px;"></i><p>Belum ada pengumuman.</p></div>';
+            return;
+        }
+
+        data.forEach(item => {
+            const date = new Date(item.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+            const div = document.createElement('div');
+
+            div.className = 'info-card';
+            div.innerHTML = `
+                <div class="info-icon"><i class="fa-solid fa-bullhorn"></i></div>
+                <div class="info-text">
+                    <h4>${item.title}</h4>
+                    <p>${item.content}</p>
+                    <div style="font-size:0.75em; color:#888; margin-top:5px;"><i class="fa-regular fa-clock"></i> ${date}</div>
+                </div>
+            `;
+            listContainer.appendChild(div);
+        });
+
+    } catch (e) { console.error('Fetch Info Error', e); }
+}
+
+
 fetchData();
+fetchInfo();
+
+
+socket.on('update_info', () => {
+    console.log('[SOCKET] Info Updated');
+    fetchInfo();
+});
