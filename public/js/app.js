@@ -1,10 +1,16 @@
 import { initMap, addRoutes, addStops, add3DBuildings, updateMarker, removeInactiveMarkers, getMap, setFollowBusId, getFollowBusId } from './map.js';
-import { setupControls, updateSidebar, calculateETA, checkAlerts, switchTab, closeImage } from './ui.js';
+import { setupControls, updateSidebar, calculateETA, checkAlerts, switchTab, closeImage, getBusStatus } from './ui.js';
+
+let GAS_ALERT_THRESHOLD = 600;
+fetch('/api/config')
+    .then(r => r.json())
+    .then(config => { GAS_ALERT_THRESHOLD = config.gasAlertThreshold || 600; })
+    .catch(() => { });
 
 const map = initMap();
 map.on('load', () => {
     addRoutes();
-    try { add3DBuildings(); } catch (e) { console.error("3D Buildings error", e); }
+    try { add3DBuildings(); } catch (e) { }
     addStops();
 
     document.getElementById('skeleton-loader').classList.remove('hidden');
@@ -14,30 +20,35 @@ map.on('load', () => {
 
     const socket = io();
 
-    socket.on('connect', () => {
-        console.log('[SOCKET] Connected!');
-    });
-
     socket.on('update_bus', (bus) => {
-        console.log('[SOCKET] New Data:', bus);
-
         updateMarker(bus);
 
         const list = document.getElementById('bus-list');
         const existingItem = document.getElementById(`bus-item-${bus.bus_id}`);
 
         if (existingItem) {
-            const statusDot = bus.speed < 1 ? 'dot-gray' : 'dot-green';
-            const gasClass = bus.gas_level > 600 ? 'status-text-danger' : '';
+            const busStatus = getBusStatus(bus);
+            let statusDot = busStatus.class;
+            if (bus.gas_level > GAS_ALERT_THRESHOLD) statusDot = 'dot-red';
+            const gasClass = bus.gas_level > GAS_ALERT_THRESHOLD ? 'text-danger' : '';
+            const eta = calculateETA(bus);
 
             existingItem.innerHTML = `
                 <div class="bus-icon-wrapper"><img src="./images/bipol.png"></div>
                 <div class="bus-info">
-                    <h4>${bus.bus_id} <span class="status-dot ${statusDot}"></span></h4>
-                    <p><span><i class="fa-solid fa-gauge"></i> ${bus.speed} km/h</span> &bull;
+                    <h4>${bus.bus_id} <span class="status-dot ${statusDot}"></span> <span class="eta-inline"><i class="fa-solid ${eta.icon}"></i> ${eta.text}</span></h4>
+                    <p><span><i class="fa-solid ${busStatus.icon}"></i> ${busStatus.status}</span> &bull;
+                    <span><i class="fa-solid fa-gauge"></i> ${bus.speed} km/h</span> &bull;
                     <span class="${gasClass}"><i class="fa-solid fa-fire"></i> ${bus.gas_level}</span></p>
                 </div>`;
 
+            existingItem.onclick = () => {
+                if (getFollowBusId() === bus.bus_id) return;
+                setFollowBusId(bus.bus_id);
+                if (getMap()) getMap().flyTo({ center: [bus.longitude, bus.latitude], zoom: 18, speed: 1.5 });
+                document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
+                existingItem.classList.add('active-focus');
+            };
         } else {
             const item = document.createElement('div');
             item.className = 'bus-item';
@@ -53,6 +64,7 @@ map.on('load', () => {
                 </div>`;
 
             item.onclick = () => {
+                if (getFollowBusId() === bus.bus_id) return;
                 setFollowBusId(bus.bus_id);
                 if (getMap()) getMap().flyTo({ center: [bus.longitude, bus.latitude], zoom: 17.5 });
                 document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
@@ -86,7 +98,6 @@ document.addEventListener('keydown', function (event) {
 
 async function fetchData() {
     try {
-        console.debug('[CLIENT] fetchData() called');
         const res = await fetch('/api/bus/location');
         const json = await res.json();
         const data = json.data || [];
@@ -116,10 +127,10 @@ async function fetchData() {
         });
 
         const activeIds = new Set();
-        data.forEach(bus => {
+        data.forEach((bus, index) => {
             activeIds.add(bus.bus_id);
             updateMarker(bus);
-            updateSidebar(bus, list);
+            updateSidebar(bus, list, index);
             calculateETA(bus);
             checkAlerts(bus);
 
@@ -127,9 +138,15 @@ async function fetchData() {
                 if (getMap()) getMap().flyTo({ center: [bus.longitude, bus.latitude], speed: 0.5 });
             }
         });
+
+        const summaryEl = document.getElementById('collapsed-summary');
+        if (summaryEl) {
+            summaryEl.innerHTML = `<i class="fa-solid fa-bus"></i> ${activeIds.size} Armada Aktif`;
+        }
+
         removeInactiveMarkers(activeIds);
 
-    } catch (e) { console.error('[CLIENT] fetchData error', e); }
+    } catch (e) { }
 }
 
 async function fetchInfo() {
@@ -163,15 +180,8 @@ async function fetchInfo() {
             listContainer.appendChild(div);
         });
 
-    } catch (e) { console.error('Fetch Info Error', e); }
+    } catch (e) { }
 }
-
 
 fetchData();
 fetchInfo();
-
-
-socket.on('update_info', () => {
-    console.log('[SOCKET] Info Updated');
-    fetchInfo();
-});

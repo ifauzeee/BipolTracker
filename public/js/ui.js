@@ -1,36 +1,94 @@
 import { stops, bounds } from './data.js';
-import { getMap, getFollowBusId, setFollowBusId, toggleRoute } from './map.js';
+import { getMap, setFollowBusId, getFollowBusId, toggleRoute } from './map.js';
+import * as turf from 'https://cdn.jsdelivr.net/npm/@turf/turf@7/+esm';
+
 let lastAlert = 0;
+let GAS_ALERT_THRESHOLD = 600;
+let BUS_STOP_TIMEOUT_MINUTES = 5;
+const busLastMovedTime = {};
+
+fetch('/api/config')
+    .then(r => r.json())
+    .then(config => {
+        GAS_ALERT_THRESHOLD = config.gasAlertThreshold || 600;
+        BUS_STOP_TIMEOUT_MINUTES = config.busStopTimeoutMinutes || 5;
+    })
+    .catch(() => { });
+
+export function getBusStatus(bus) {
+    const now = Date.now();
+
+    if (bus.speed > 0) {
+        busLastMovedTime[bus.bus_id] = now;
+        return { status: 'Berjalan', class: 'dot-green', icon: 'fa-bus' };
+    }
+
+    if (!busLastMovedTime[bus.bus_id]) {
+        return { status: 'Parkir', class: 'dot-gray', icon: 'fa-square-parking' };
+    }
+
+    const lastMoved = busLastMovedTime[bus.bus_id];
+    const stoppedMinutes = (now - lastMoved) / 1000 / 60;
+
+    if (stoppedMinutes >= BUS_STOP_TIMEOUT_MINUTES) {
+        return { status: 'Parkir', class: 'dot-gray', icon: 'fa-square-parking' };
+    } else {
+        return { status: 'Berhenti', class: 'dot-yellow', icon: 'fa-circle-pause' };
+    }
+}
 
 export function setupControls() {
     document.getElementById('recenterBtn').onclick = () => {
         setFollowBusId(null);
-        getMap().fitBounds(bounds, { padding: { top: 20, bottom: 180, left: 10, right: 10 }, pitch: 0, bearing: 0 });
+        getMap().fitBounds(bounds, { padding: { top: 40, bottom: 250, left: 20, right: 20 }, pitch: 0, bearing: 0 });
         document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
     };
 
     window.toggleRouteCard = (layerIdObj) => {
         toggleRoute(layerIdObj, null);
     }
+
+    const toggleBtn = document.getElementById('toggleSheetBtn');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const sheet = document.querySelector('.bottom-sheet');
+            sheet.classList.toggle('collapsed');
+        });
+    }
+
+    if (window.innerWidth < 768) {
+        const sheet = document.querySelector('.bottom-sheet');
+        if (sheet) sheet.classList.add('collapsed');
+    }
 }
 
-export function updateSidebar(bus, list) {
+export function updateSidebar(bus, list, index) {
     const item = document.createElement('div');
-    item.className = 'bus-item';
+    item.className = 'bus-item animate-enter';
+    item.style.animationDelay = `${index * 0.1}s`;
     item.id = `bus-item-${bus.bus_id}`;
     if (getFollowBusId() === bus.bus_id) item.classList.add('active-focus');
-    let statusDot = bus.speed < 1 ? 'dot-gray' : 'dot-green';
-    if (bus.gas_level > 600) statusDot = 'dot-red';
+
+    const busStatus = getBusStatus(bus);
+    let statusDot = busStatus.class;
+    if (bus.gas_level > GAS_ALERT_THRESHOLD) statusDot = 'dot-red';
+
+    const gasClass = bus.gas_level > GAS_ALERT_THRESHOLD ? 'text-danger' : '';
+    const eta = calculateETA(bus);
+
     item.innerHTML = `
         <div class="bus-icon-wrapper"><img src="./images/bipol.png"></div>
         <div class="bus-info">
-            <h4>${bus.bus_id} <span class="status-dot ${statusDot}"></span></h4>
-            <p><span><i class="fa-solid fa-gauge"></i> ${bus.speed} km/h</span> &bull;
-            <span><i class="fa-solid fa-fire"></i> ${bus.gas_level}</span></p>
+            <h4>${bus.bus_id} <span class="status-dot ${statusDot}"></span> <span class="eta-inline"><i class="fa-solid ${eta.icon}"></i> ${eta.text}</span></h4>
+            <p><span><i class="fa-solid ${busStatus.icon}"></i> ${busStatus.status}</span> &bull;
+            <span><i class="fa-solid fa-gauge"></i> ${bus.speed} km/h</span> &bull;
+            <span class="${gasClass}"><i class="fa-solid fa-fire"></i> ${bus.gas_level}</span></p>
         </div>`;
     item.onclick = () => {
+        if (getFollowBusId() === bus.bus_id) return;
         setFollowBusId(bus.bus_id);
-        getMap().flyTo({ center: [bus.longitude, bus.latitude], zoom: 17.5, speed: 1.2 });
+        getMap().flyTo({ center: [bus.longitude, bus.latitude], zoom: 18, speed: 1.5, curve: 1 });
         document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
         item.classList.add('active-focus');
     };
@@ -46,26 +104,45 @@ export function calculateETA(bus) {
         const dist = turf.distance(from, to, { units: 'kilometers' });
         if (dist < minDist) { minDist = dist; nearestStop = stop.title; }
     });
-    const etaEl = document.getElementById('eta-display');
+
     const displaySpeed = (bus.speed && bus.speed > 1) ? bus.speed : 20;
+
     if (minDist < 0.05) {
-        etaEl.innerHTML = `<i class="fa-solid fa-check-circle"></i> Tiba di ${nearestStop}`;
-        etaEl.classList.remove('hidden');
+        return { text: `Tiba di ${nearestStop}`, icon: 'fa-check-circle', arrived: true };
     } else {
         const time = Math.ceil((minDist / displaySpeed) * 60);
-        etaEl.innerHTML = `<i class="fa-solid fa-clock"></i> ${time} min ke ${nearestStop}`;
-        etaEl.classList.remove('hidden');
+        return { text: `${time} min ke ${nearestStop}`, icon: 'fa-clock', arrived: false };
     }
 }
 
 export function checkAlerts(bus) {
-    if (bus.gas_level > 600 && Date.now() - lastAlert > 30000) {
-        Swal.fire({ icon: 'warning', title: 'BAHAYA!', text: `Gas Tinggi: ${bus.gas_level}`, timer: 5000, background: '#BF1E2E', color: '#fff' });
+    if (bus.gas_level > GAS_ALERT_THRESHOLD && Date.now() - lastAlert > 30000) {
+        Swal.fire({
+            html: `
+                <div class="gas-warning-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div class="gas-alert-title">GAS TINGGI DETEKSI</div>
+                <div class="gas-value-display">${bus.gas_level}</div>
+                <div class="gas-alert-text">Segera periksa kondisi armada ${bus.bus_id}</div>
+            `,
+            showConfirmButton: true,
+            confirmButtonText: 'MENGERTI',
+            confirmButtonColor: '#BF1E2E',
+            background: 'transparent',
+            customClass: { popup: 'gas-alert-popup' },
+            backdrop: `rgba(191,30,46,0.2)`
+        });
         lastAlert = Date.now();
     }
 }
 
+let currentTab = 'home';
+
 export function switchTab(tab) {
+    if (tab === currentTab && tab !== 'home') {
+        tab = 'home';
+    }
+    currentTab = tab;
+
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
 
     const navItem = document.querySelector(`.nav-item[onclick*="'${tab}'"]`);
@@ -87,14 +164,32 @@ export function switchTab(tab) {
             document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
         }
 
-        getMap().fitBounds(bounds, { padding: { top: 20, bottom: 180, left: 10, right: 10 }, pitch: 0, bearing: 0 });
+        getMap().easeTo({
+            center: bounds.getCenter(),
+            zoom: 14,
+            padding: { top: 40, bottom: 250, left: 20, right: 20 },
+            duration: 1200,
+            essential: true
+        });
+
+        getMap().fitBounds(bounds, {
+            padding: { top: 40, bottom: 250, left: 20, right: 20 },
+            speed: 0.8,
+            curve: 1.2,
+            essential: true
+        });
+
     } else if (tab === 'map') {
         sheet.classList.add('hidden');
         infoPage.classList.remove('active-page');
         routeView.classList.add('active-page');
 
         getMap().resize();
-        getMap().fitBounds(bounds, { padding: { top: 50, bottom: 250, left: 20, right: 20 }, pitch: 0, bearing: 0 });
+        getMap().fitBounds(bounds, {
+            padding: { top: 50, bottom: 250, left: 20, right: 20 },
+            speed: 0.8,
+            curve: 1.2
+        });
     } else if (tab === 'announcement') {
         sheet.classList.add('hidden');
         routeView.classList.remove('active-page');
@@ -105,7 +200,6 @@ export function switchTab(tab) {
 export function viewImage(src) {
     const modal = document.getElementById('image-modal');
     const modalImg = document.getElementById('img01');
-    const captionText = document.getElementById('caption');
     modal.style.display = "block";
     modalImg.src = src;
 }

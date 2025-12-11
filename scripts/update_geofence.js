@@ -8,7 +8,6 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 async function fix() {
     console.log("Updating Halte PNJ location to match BUS-01...");
 
-
     const { data, error } = await supabase
         .from('geofences')
         .update({ latitude: -6.377937, longitude: 106.81665 })

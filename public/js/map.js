@@ -24,7 +24,7 @@ export function initMap() {
         style: styleUrl,
         attributionControl: false,
         bounds: bounds,
-        fitBoundsOptions: { padding: { top: 20, bottom: 180, left: 10, right: 10 } },
+        fitBoundsOptions: { padding: { top: 40, bottom: 250, left: 20, right: 20 } },
         pitch: 0,
         bearing: 0,
         antialias: true
@@ -91,8 +91,10 @@ export function addStops() {
     stops.forEach(stop => {
         const el = document.createElement('div');
         el.style.backgroundImage = "url('https://png.pngtree.com/png-clipart/20230321/original/pngtree-bus-stop-vector-icon-design-illustration-png-image_8997806.png')";
-        el.style.width = '30px'; el.style.height = '30px';
-        el.style.backgroundSize = 'contain'; el.style.backgroundRepeat = 'no-repeat';
+        el.style.width = '30px';
+        el.style.height = '30px';
+        el.style.backgroundSize = 'contain';
+        el.style.backgroundRepeat = 'no-repeat';
 
         const marker = new maplibregl.Marker({ element: el })
             .setLngLat([stop.lng, stop.lat])
@@ -125,12 +127,71 @@ export function add3DBuildings() {
     }
 }
 
+const ANIMATION_DURATION = 3000;
+let animationLoopStarted = false;
+
+function easeLinear(t) { return t; }
+
+function animateMarkers() {
+    const now = performance.now();
+    Object.keys(busMarkers).forEach(id => {
+        const markerObj = busMarkers[id];
+        if (!markerObj.isAnimating) return;
+
+        const timeSinceStart = now - markerObj.startTime;
+        let progress = timeSinceStart / ANIMATION_DURATION;
+
+        if (progress >= 1) {
+            progress = 1;
+            markerObj.marker.setLngLat(markerObj.targetPos);
+        } else {
+            const currentLng = markerObj.startPos[0] + (markerObj.targetPos[0] - markerObj.startPos[0]) * easeLinear(progress);
+            const currentLat = markerObj.startPos[1] + (markerObj.targetPos[1] - markerObj.startPos[1]) * easeLinear(progress);
+            markerObj.marker.setLngLat([currentLng, currentLat]);
+        }
+    });
+    requestAnimationFrame(animateMarkers);
+}
+
 export function updateMarker(bus) {
-    const pos = [bus.longitude, bus.latitude];
-    const content = `<div class="iw-header"><img src="./images/bipol.png" class="iw-icon"><h3>${bus.bus_id}</h3></div><p>Speed: ${bus.speed} km/h<br>Gas: ${bus.gas_level}</p>`;
+    const targetPos = [bus.longitude, bus.latitude];
+    const gasClass = bus.gas_level > 600 ? 'popup-danger' : '';
+    const statusText = bus.speed < 1 ? 'Berhenti' : 'Berjalan';
+    const statusClass = bus.speed < 1 ? 'status-stopped' : 'status-moving';
+
+    const content = `
+        <div class="bus-popup">
+            <div class="popup-header">
+                <img src="./images/bipol.png" class="popup-icon">
+                <div class="popup-title">
+                    <h3>${bus.bus_id}</h3>
+                    <span class="popup-status ${statusClass}">${statusText}</span>
+                </div>
+            </div>
+            <div class="popup-stats">
+                <div class="popup-stat">
+                    <i class="fa-solid fa-gauge"></i>
+                    <span>${bus.speed} km/h</span>
+                </div>
+                <div class="popup-stat ${gasClass}">
+                    <i class="fa-solid fa-fire"></i>
+                    <span>${bus.gas_level}</span>
+                </div>
+            </div>
+        </div>
+    `;
+
     if (busMarkers[bus.bus_id]) {
-        busMarkers[bus.bus_id].setLngLat(pos);
-        busMarkers[bus.bus_id].getPopup().setHTML(content);
+        const markerObj = busMarkers[bus.bus_id];
+        markerObj.startPos = markerObj.marker.getLngLat().toArray();
+        markerObj.targetPos = targetPos;
+        markerObj.startTime = performance.now();
+        markerObj.isAnimating = true;
+        markerObj.marker.getPopup().setHTML(content);
+
+        if (getFollowBusId() === bus.bus_id && getMap()) {
+            getMap().easeTo({ center: targetPos, duration: ANIMATION_DURATION, easing: easeLinear, zoom: 17.5 });
+        }
     } else {
         const el = document.createElement('div');
         el.className = 'bus-marker-icon';
@@ -140,20 +201,36 @@ export function updateMarker(bus) {
         el.style.backgroundSize = 'contain';
         el.style.backgroundRepeat = 'no-repeat';
         el.style.cursor = 'pointer';
+        el.style.willChange = 'transform';
 
         const pulse = document.createElement('div');
         pulse.className = 'marker-pulse';
         el.appendChild(pulse);
 
         el.onclick = () => {
+            if (getFollowBusId() === bus.bus_id) return;
             setFollowBusId(bus.bus_id);
-            map.flyTo({ center: pos, zoom: 17 });
+            getMap().flyTo({ center: targetPos, zoom: 17.5 });
             document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
         };
-        busMarkers[bus.bus_id] = new maplibregl.Marker({ element: el })
-            .setLngLat(pos)
+
+        const marker = new maplibregl.Marker({ element: el })
+            .setLngLat(targetPos)
             .setPopup(new maplibregl.Popup({ offset: 25 }).setHTML(content))
             .addTo(map);
+
+        busMarkers[bus.bus_id] = {
+            marker: marker,
+            startPos: targetPos,
+            targetPos: targetPos,
+            startTime: performance.now(),
+            isAnimating: false
+        };
+    }
+
+    if (!animationLoopStarted) {
+        requestAnimationFrame(animateMarkers);
+        animationLoopStarted = true;
     }
 }
 

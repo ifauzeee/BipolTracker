@@ -9,6 +9,7 @@ const dns = require('node:dns');
 const http = require('http');
 const { Server } = require("socket.io");
 const bcrypt = require('bcryptjs');
+const dgram = require('dgram');
 
 dns.setDefaultResultOrder('ipv4first');
 
@@ -27,7 +28,22 @@ if (!supabaseUrl || !supabaseKey) {
     process.exit(1);
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const fetchWithRetry = async (url, options, retries = 3) => {
+    for (let i = 0; i < retries; i++) {
+        try {
+            return await fetch(url, options);
+        } catch (err) {
+            if (i === retries - 1) throw err;
+            console.warn(`⚠️ Connection failed. Retrying... (${i + 1}/${retries})`);
+            await new Promise(res => setTimeout(res, 1000));
+        }
+    }
+};
+
+const supabase = createClient(supabaseUrl, supabaseKey, {
+    auth: { persistSession: false },
+    global: { fetch: fetchWithRetry }
+});
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -61,7 +77,7 @@ app.post('/auth/login', async (req, res) => {
 
     const match = await bcrypt.compare(password, data.password_hash);
     if (!match) {
-        return res.status(401).json({ success: false, message: 'Invalid password' });
+        return res.status(401).json({ success: false, message: 'Password salah' });
     }
 
     req.session.admin = { id: data.id, username: data.username };
@@ -113,6 +129,13 @@ app.get('/api/info', async (req, res) => {
     res.json(data);
 });
 
+app.get('/api/config', (req, res) => {
+    res.json({
+        gasAlertThreshold: parseInt(process.env.GAS_ALERT_THRESHOLD) || 600,
+        busStopTimeoutMinutes: parseInt(process.env.BUS_STOP_TIMEOUT_MINUTES) || 5
+    });
+});
+
 app.post('/api/info', requireAuth, async (req, res) => {
     const { title, content } = req.body;
     const { data, error } = await supabase
@@ -148,13 +171,9 @@ app.get('/api/admin/info', requireAuth, async (req, res) => {
 });
 
 app.get('/api/admin/geofence-events', requireAuth, async (req, res) => {
-
     const { data, error } = await supabase
         .from('geofence_events')
-        .select(`
-            *,
-            geofences ( name )
-        `)
+        .select(`*, geofences ( name )`)
         .order('timestamp', { ascending: false })
         .limit(50);
 
@@ -225,11 +244,8 @@ app.post('/api/track', async (req, res) => {
 
     console.log(`✅ [${getLogTime()}] Saved to DB (ID: ${data[0].id})`);
 
-
     checkGeofence(bus_id, latitude, longitude);
-
     io.emit("update_bus", data[0]);
-
     res.status(200).send("OK");
 });
 
@@ -271,8 +287,7 @@ function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
         Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat1)) *
         Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const d = R * c;
-    return d * 1000;
+    return R * c * 1000;
 }
 
 function deg2rad(deg) {
@@ -295,7 +310,6 @@ async function checkGeofence(bus_id, lat, lon) {
     const previousZoneId = busGeofenceState[bus_id] || null;
 
     if (currentlyInsideZoneId !== previousZoneId) {
-
         if (previousZoneId) {
             console.log(`⚠️ ${bus_id} EXITED Zone ${previousZoneId}`);
             await logGeofenceEvent(bus_id, previousZoneId, 'EXIT');
@@ -326,7 +340,10 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-const dgram = require('dgram');
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
 const udpServer = dgram.createSocket('udp4');
 const UDP_PORT = 3333;
 

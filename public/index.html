@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#BF1E2E">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/images/pwa-icon.png">
     <link rel="manifest" href="/manifest.json">
     <title>Bipol Tracker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,20 +20,31 @@
 
 <body>
     <div id="map"></div>
+
+    <div class="floating-controls">
+        <a href="/admin" class="fab-btn admin-btn" title="Admin Panel" aria-label="Admin Panel">
+            <i class="fa-solid fa-user-shield"></i>
+        </a>
+    </div>
+
     <div class="bottom-sheet">
         <div class="sheet-handle-bar">
             <div class="sheet-handle"></div>
         </div>
         <div class="sheet-header">
             <div class="header-text" style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <h1>Bipol Tracker<span class="live-badge">LIVE</span></h1>
-                    <div id="eta-display" class="eta-badge hidden"><i class="fa-solid fa-calculator"></i> Menghitung...
-                    </div>
+                <div style="flex:1;">
+                    <h1 style="display:flex; align-items:center; gap:8px;">Bipol Tracker<span
+                            class="live-badge">LIVE</span></h1>
                 </div>
-                <button id="recenterBtn" class="fab-btn" title="Reset Lokasi"
-                    style="width:36px; height:36px; box-shadow:none; border:1px solid rgba(0,0,0,0.1);"><i
-                        class="fa-solid fa-location-crosshairs"></i></button>
+                <div style="display:flex; gap:8px;">
+                    <button id="toggleSheetBtn" class="fab-btn" title="Toggle Dashboard" aria-label="Toggle Dashboard"
+                        style="width:36px; height:36px; box-shadow:none; border:1px solid rgba(0,0,0,0.1);"><i
+                            class="fa-solid fa-chevron-down"></i></button>
+                    <button id="recenterBtn" class="fab-btn" title="Reset Lokasi" aria-label="Reset Lokasi"
+                        style="width:36px; height:36px; box-shadow:none; border:1px solid rgba(0,0,0,0.1);"><i
+                            class="fa-solid fa-location-crosshairs"></i></button>
+                </div>
             </div>
         </div>
         <div class="sheet-content">
@@ -54,7 +68,6 @@
             <h2><i class="fa-solid fa-bullhorn"></i> Info & Pengumuman</h2>
         </div>
         <div class="page-content" id="dynamic-info-list">
-
         </div>
     </div>
 
@@ -66,7 +79,7 @@
                         <h2><i class="fa-solid fa-route"></i> Pilih Rute</h2>
                         <p>Aktifkan rute untuk melihat jalur di peta</p>
                     </div>
-                    <button class="close-route-btn" onclick="switchTab('home')"><i
+                    <button class="close-route-btn" onclick="switchTab('home')" aria-label="Tutup Panel Rute"><i
                             class="fa-solid fa-times"></i></button>
                 </div>
                 <div class="route-list-container">
