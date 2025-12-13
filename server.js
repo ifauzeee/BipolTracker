@@ -433,6 +433,35 @@ app.post('/api/lost-items', rateLimitMiddleware(10), async (req, res) => {
     }
 });
 
+app.post('/api/feedback', rateLimitMiddleware(10), async (req, res) => {
+    try {
+        const { name, message } = req.body;
+
+        if (!validate.message(message)) {
+            return res.status(400).json({ error: 'Pesan minimal 5 karakter, maksimal 1000' });
+        }
+
+        const cleanName = name ? sanitizeInput(name).substring(0, 50) : 'Anonim';
+        const cleanMessage = sanitizeInput(message);
+
+        const { data, error } = await supabase
+            .from('feedback')
+            .insert([{
+                name: cleanName,
+                message: cleanMessage,
+                status: 'pending'
+            }])
+            .select();
+
+        if (error) throw error;
+
+        res.json({ success: true, data: data[0] });
+    } catch (err) {
+        console.error('Submit feedback error:', err.message);
+        res.status(500).json({ error: 'Gagal mengirim masukan' });
+    }
+});
+
 app.get('/api/admin/lost-items', requireAuth, async (req, res) => {
     try {
         const { data, error } = await supabase
@@ -445,6 +474,21 @@ app.get('/api/admin/lost-items', requireAuth, async (req, res) => {
     } catch (err) {
         console.error('Get lost items error:', err.message);
         res.status(500).json({ error: 'Failed to fetch lost items' });
+    }
+});
+
+app.get('/api/admin/feedback', requireAuth, async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('feedback')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        res.json(data);
+    } catch (err) {
+        console.error('Fetch feedback error:', err.message);
+        res.status(500).json({ error: 'Failed to fetch feedback' });
     }
 });
 
@@ -554,7 +598,10 @@ app.post('/api/track', async (req, res) => {
 
         setToCache(`bus_${bus_id}`, data[0]);
         checkGeofence(bus_id, latitude, longitude);
-        io.emit("update_bus", data[0]);
+
+        const occupancy = ['Sepi', 'Sedang', 'Penuh'][Math.floor(Math.random() * 3)];
+        io.emit("update_bus", { ...data[0], occupancy });
+
         res.status(200).send("OK");
     } catch (err) {
         console.error(`❌ [${getLogTime()}] Track Error:`, err.message);
@@ -715,6 +762,9 @@ udpServer.on('message', async (msg, rinfo) => {
         checkGeofence(bus_id, latitude, longitude);
 
         insertData.id = Date.now();
+
+        insertData.occupancy = ['Sepi', 'Sedang', 'Penuh'][Math.floor(Math.random() * 3)];
+
         io.emit("update_bus", insertData);
     } catch (err) {
         console.error('UDP message error:', err.message);

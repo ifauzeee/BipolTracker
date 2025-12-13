@@ -1,22 +1,21 @@
 import { stops, rutePagi, ruteSore, bounds } from './data.js';
-
+import { calculateDistance, estimateArrival, formatTime, getCrowdConfig } from './utils.js';
 let map;
 let busMarkers = {};
 let stopMarkers = [];
 let followBusId = null;
-
+let animationLoopStarted = false;
+const ANIMATION_DURATION = 1000;
+const easeLinear = t => t;
 export function getMap() {
     return map;
 }
-
 export function setFollowBusId(id) {
     followBusId = id;
 }
-
 export function getFollowBusId() {
     return followBusId;
 }
-
 export function initMap() {
     const styleUrl = 'https://tiles.openfreemap.org/styles/bright';
     map = new maplibregl.Map({
@@ -29,15 +28,12 @@ export function initMap() {
         bearing: 0,
         antialias: true
     });
-
     map.on('load', () => {
         const initialZoom = map.getZoom();
         map.setMinZoom(initialZoom);
     });
-
     return map;
 }
-
 export function addRoutes() {
     if (!map.getSource('rutePagi')) {
         map.addSource('rutePagi', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'LineString', coordinates: rutePagi } } });
@@ -52,7 +48,6 @@ export function addRoutes() {
             }
         });
     }
-
     if (!map.getSource('ruteSore')) {
         map.addSource('ruteSore', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'LineString', coordinates: ruteSore } } });
         map.addLayer({
@@ -66,41 +61,33 @@ export function addRoutes() {
             }
         });
     }
-
     document.querySelectorAll('.chip').forEach(el => el.classList.add('active-route'));
-    document.querySelectorAll('.route-card-item').forEach(el => el.classList.add('active-card'));
 }
-
 export function toggleRoute(layerIdObj, element) {
     if (!map) return;
     const layerId = layerIdObj + 'Layer';
     const visibility = map.getLayoutProperty(layerId, 'visibility');
-
     const newVisibility = (visibility === 'visible' || visibility === undefined) ? 'none' : 'visible';
     map.setLayoutProperty(layerId, 'visibility', newVisibility);
-
     const isVisible = newVisibility === 'visible';
-
-    document.querySelectorAll(`.chip[onclick*="${layerIdObj}"]`).forEach(el => {
-        if (isVisible) {
-            el.classList.add('active-route');
-            el.querySelector('i').className = 'fa-solid fa-check';
-        } else {
-            el.classList.remove('active-route');
-            el.querySelector('i').className = 'fa-solid fa-xmark';
+    if (element) {
+        if (element.classList.contains('chip') || element.classList.contains('chip-dashboard')) {
+            element.classList.toggle('active-route', isVisible);
         }
-    });
-    const cardId = 'card-' + layerIdObj;
-    const card = document.getElementById(cardId);
-    if (card) {
-        if (isVisible) {
-            card.classList.add('active-card');
-        } else {
-            card.classList.remove('active-card');
+        if (element.classList.contains('route-card-item')) {
+            element.classList.toggle('active-card', isVisible);
+        }
+        if (!element.classList.contains('chip-dashboard')) {
+            const icon = element.querySelector('i');
+            if (icon) {
+                icon.className = isVisible ? 'fa-solid fa-check' : 'fa-solid fa-xmark';
+            }
         }
     }
 }
-
+if (typeof window !== 'undefined') {
+    window.toggleRoute = toggleRoute;
+}
 export function addStops() {
     stopMarkers.forEach(m => m.remove());
     stopMarkers = [];
@@ -111,7 +98,6 @@ export function addStops() {
         el.style.height = '30px';
         el.style.backgroundSize = 'contain';
         el.style.backgroundRepeat = 'no-repeat';
-
         const marker = new maplibregl.Marker({ element: el })
             .setLngLat([stop.lng, stop.lat])
             .setPopup(new maplibregl.Popup({ offset: 25 }).setText(stop.title))
@@ -119,12 +105,10 @@ export function addStops() {
         stopMarkers.push(marker);
     });
 }
-
 export function add3DBuildings() {
     const style = map.getStyle();
     if (!style || !style.sources) return;
     const vectorSource = Object.keys(style.sources).find(key => style.sources[key].type === 'vector');
-
     if (vectorSource && !map.getLayer('add-3d-buildings')) {
         map.addLayer({
             'id': 'add-3d-buildings',
@@ -142,46 +126,45 @@ export function add3DBuildings() {
         });
     }
 }
-
-const ANIMATION_DURATION = 3000;
-let animationLoopStarted = false;
-
-function easeLinear(t) { return t; }
-
-function animateMarkers() {
-    const now = performance.now();
-    Object.keys(busMarkers).forEach(id => {
-        const markerObj = busMarkers[id];
-        if (!markerObj.isAnimating) return;
-
-        const timeSinceStart = now - markerObj.startTime;
-        let progress = timeSinceStart / ANIMATION_DURATION;
-
-        if (progress >= 1) {
-            progress = 1;
-            markerObj.marker.setLngLat(markerObj.targetPos);
-        } else {
-            const currentLng = markerObj.startPos[0] + (markerObj.targetPos[0] - markerObj.startPos[0]) * easeLinear(progress);
-            const currentLat = markerObj.startPos[1] + (markerObj.targetPos[1] - markerObj.startPos[1]) * easeLinear(progress);
-            markerObj.marker.setLngLat([currentLng, currentLat]);
-        }
-    });
-    requestAnimationFrame(animateMarkers);
-}
-
 export function updateMarker(bus) {
     const targetPos = [bus.longitude, bus.latitude];
     const gasClass = bus.gas_level > 600 ? 'popup-danger' : '';
     const statusText = bus.speed < 1 ? 'Berhenti' : 'Berjalan';
     const statusClass = bus.speed < 1 ? 'status-stopped' : 'status-moving';
-
+    const crowd = getCrowdConfig(bus.occupancy);
+    let etaHtml = '';
+    let sortStops = stops.map(stop => {
+        return {
+            ...stop,
+            dist: calculateDistance(bus.latitude, bus.longitude, stop.lat, stop.lng)
+        };
+    }).sort((a, b) => a.dist - b.dist);
+    const nearest = sortStops[0];
+    if (nearest && nearest.dist < 5) {
+        const timeMin = estimateArrival(nearest.dist, bus.speed);
+        etaHtml = `
+        <div class="popup-eta" style="margin-top:10px; padding-top:10px; border-top:1px solid #eee;">
+            <div style="font-size:0.75rem; color:#6b7280; display:flex; justify-content:space-between; align-items:center;">
+                <span>Menuju <b>${nearest.title.replace('Halte ', '')}</b></span>
+                <span style="background:#e0f2fe; color:#0369a1; padding:2px 6px; border-radius:4px; font-weight:700;">${formatTime(timeMin)}</span>
+            </div>
+            <div style="width:100%; height:4px; background:#f3f4f6; border-radius:2px; margin-top:6px; overflow:hidden;">
+                <div style="width:${Math.max(10, Math.min(100, (1 - nearest.dist / 3) * 100))}%; height:100%; background:#0369a1; border-radius:2px;"></div>
+            </div>
+        </div>`;
+    }
     const content = `
         <div class="bus-popup">
             <div class="popup-header">
                 <img src="./images/bipol.png" class="popup-icon">
                 <div class="popup-title">
                     <h3>${bus.bus_id}</h3>
-                    <span class="popup-status ${statusClass}">${statusText}</span>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <span class="popup-status ${statusClass}" style="font-size:0.7rem; padding:2px 6px;">${statusText}</span>
+                        <span style="background:${crowd.color}15; color:${crowd.color}; border:1px solid ${crowd.color}30; padding:2px 6px; border-radius:4px; font-size:0.7rem; font-weight:700; display:inline-flex; align-items:center; gap:3px;">
+                            <i class="fa-solid fa-users" style="font-size:0.6rem;"></i> ${crowd.text}
+                        </span>
+                    </div>
                 </div>
             </div>
             <div class="popup-stats">
@@ -194,62 +177,43 @@ export function updateMarker(bus) {
                     <span>${bus.gas_level}</span>
                 </div>
             </div>
+            ${etaHtml}
         </div>
     `;
-
     if (busMarkers[bus.bus_id]) {
         const markerObj = busMarkers[bus.bus_id];
-        markerObj.startPos = markerObj.marker.getLngLat().toArray();
-        markerObj.targetPos = targetPos;
-        markerObj.startTime = performance.now();
-        markerObj.isAnimating = true;
+        markerObj.marker.setLngLat(targetPos);
         markerObj.marker.getPopup().setHTML(content);
-
         if (getFollowBusId() === bus.bus_id && getMap()) {
-            getMap().easeTo({ center: targetPos, duration: ANIMATION_DURATION, easing: easeLinear, zoom: 17.5 });
+            getMap().jumpTo({ center: targetPos });
         }
     } else {
         const el = document.createElement('div');
         el.className = 'bus-marker-icon';
         el.style.backgroundImage = 'url(/images/bipol.png)';
-        el.style.width = '48px';
-        el.style.height = '48px';
+        el.style.width = '42px';
+        el.style.height = '42px';
         el.style.backgroundSize = 'contain';
         el.style.backgroundRepeat = 'no-repeat';
         el.style.cursor = 'pointer';
-        el.style.willChange = 'transform';
-
         const pulse = document.createElement('div');
         pulse.className = 'marker-pulse';
         el.appendChild(pulse);
-
         el.onclick = () => {
             if (getFollowBusId() === bus.bus_id) return;
             setFollowBusId(bus.bus_id);
-            getMap().flyTo({ center: targetPos, zoom: 17.5 });
+            getMap().jumpTo({ center: targetPos, zoom: 17.5 });
             document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
         };
-
         const marker = new maplibregl.Marker({ element: el })
             .setLngLat(targetPos)
             .setPopup(new maplibregl.Popup({ offset: 25 }).setHTML(content))
             .addTo(map);
-
         busMarkers[bus.bus_id] = {
-            marker: marker,
-            startPos: targetPos,
-            targetPos: targetPos,
-            startTime: performance.now(),
-            isAnimating: false
+            marker: marker
         };
     }
-
-    if (!animationLoopStarted) {
-        requestAnimationFrame(animateMarkers);
-        animationLoopStarted = true;
-    }
 }
-
 export function removeInactiveMarkers(activeIds) {
     Object.keys(busMarkers).forEach(id => {
         if (!activeIds.has(id)) {
@@ -258,7 +222,6 @@ export function removeInactiveMarkers(activeIds) {
         }
     });
 }
-
 export function flyToBus(pos) {
     if (map) map.flyTo({ center: pos, speed: 0.5 });
 }

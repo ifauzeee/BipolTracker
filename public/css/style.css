@@ -175,15 +175,17 @@ html {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    will-change: max-height, transform;
-    transition: max-height 0.4s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 .bottom-sheet.collapsed {
-    max-height: 85px !important;
+    max-height: none !important;
+    height: auto !important;
+    padding-bottom: 8px;
+    /* Sedikit padding bawah */
     transform: none !important;
     border-radius: 28px;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
+    /* Sedikit lebih solid agar tulisan jelas */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     left: 15px;
     right: 15px;
@@ -191,9 +193,9 @@ html {
 }
 
 .bottom-sheet.collapsed .sheet-content {
+    display: none !important;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s;
 }
 
 .bottom-sheet.collapsed .collapsed-summary {
@@ -222,14 +224,15 @@ html {
     z-index: 50;
     padding: 20px;
     overflow-y: auto;
-    transform: translate3d(100%, 0, 0);
-    will-change: transform;
-    transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-    display: block !important;
+
+    /* Instant toggle logic */
+    display: none !important;
+    /* transform removed */
 }
 
 .page-view.active-page {
-    transform: translate3d(0, 0, 0);
+    display: block !important;
+    /* transform removed */
 }
 
 .page-view.hidden {
@@ -408,14 +411,11 @@ html {
     cursor: pointer;
     font-weight: 500;
     opacity: 0.7;
-    transition: all 0.2s;
     border: 1px solid transparent;
 }
 
 .chip.active-route {
     opacity: 1;
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .sheet-content {
@@ -441,7 +441,6 @@ html {
     border-radius: 16px;
     margin-bottom: 12px;
     border: 1px solid rgba(0, 0, 0, 0.03);
-    transition: 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     cursor: pointer;
     position: relative;
     overflow: hidden;
@@ -864,18 +863,20 @@ html {
     border-top-right-radius: 28px;
     box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
     padding: 24px;
-    will-change: transform;
-    transform: translateY(100%) translateZ(0);
-    transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
     border: 1px solid rgba(0, 0, 0, 0.08);
     margin: 0 10px;
-    border-bottom-left-radius: 28px;
-    border-bottom-right-radius: 28px;
     margin-bottom: 20px;
 }
 
+/* Animation Removed - Instant Logic */
+#route-view.active-page {
+    display: flex !important;
+    background-color: transparent !important;
+    /* No background effect */
+}
+
 #route-view.active-page .route-master-panel {
-    transform: translateY(0);
+    opacity: 1;
 }
 
 .panel-header {
@@ -901,7 +902,7 @@ html {
     border: 2px solid transparent;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    /* transition removed for performance */
     position: relative;
     overflow: hidden;
 }
@@ -909,7 +910,6 @@ html {
 .route-card-item.active-card {
     border-color: var(--accent);
     background: rgba(191, 30, 46, 0.03);
-    box-shadow: 0 8px 25px rgba(191, 30, 46, 0.1);
 }
 
 .route-card-item.active-card .custom-toggle {
@@ -994,7 +994,6 @@ html {
     background: #e5e7eb;
     border-radius: 20px;
     position: relative;
-    transition: background 0.3s ease;
 }
 
 .custom-toggle::after {
@@ -1007,7 +1006,6 @@ html {
     background: white;
     border-radius: 50%;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .panel-footer-info {
@@ -1308,11 +1306,10 @@ html {
 }
 
 .lost-item-form {
-    background: #ffffff;
-    border-radius: 20px;
-    padding: 24px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    background: transparent;
+    padding: 0;
+    border: none;
+    box-shadow: none;
 }
 
 .lost-item-form .form-group {
@@ -1743,4 +1740,44 @@ html {
 .connection-status.offline .status-indicator {
     background: #ef4444;
     animation: blink 1s infinite;
+}
+
+/* Dashboard Route Chips - Toggle Style */
+.chip-dashboard {
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: #f3f4f6;
+    /* Default OFF (Abu-abu) */
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.8;
+}
+
+/* Active State Pagi - Orange */
+.chip-dashboard.pagi.active-route {
+    background: #fff7ed;
+    color: #f97316;
+    border-color: #fdba74;
+    opacity: 1;
+    box-shadow: 0 2px 5px rgba(249, 115, 22, 0.15);
+}
+
+/* Active State Sore - Blue */
+.chip-dashboard.sore.active-route {
+    background: #ecfeff;
+    color: #06b6d4;
+    border-color: #67e8f9;
+    opacity: 1;
+    box-shadow: 0 2px 5px rgba(6, 182, 212, 0.15);
+}
+
+/* Fix icon color inheritance */
+.chip-dashboard i {
+    color: inherit;
 }

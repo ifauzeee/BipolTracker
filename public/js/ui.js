@@ -160,6 +160,7 @@ export function switchTab(tab) {
         infoPage.classList.remove('active-page');
         faqPage.classList.remove('active-page');
         routeView.classList.remove('active-page');
+        routeView.classList.remove('closing'); 
 
         if (getFollowBusId()) {
             setFollowBusId(null);

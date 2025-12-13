@@ -159,8 +159,63 @@ async function fetchInfo() {
 
         listContainer.innerHTML = '';
 
+        const lostItemDiv = document.createElement('div');
+        lostItemDiv.className = 'info-card';
+
+        lostItemDiv.innerHTML = `
+            <div class="info-icon"><i class="fa-solid fa-box-open"></i></div>
+            <div class="info-text">
+                <div style="font-size:0.75em; color:#64748b; margin-bottom:4px; font-weight:500;">
+                    <i class="fa-solid fa-thumbtack" style="transform:rotate(45deg); margin-right:4px;"></i> Tersemat
+                </div>
+                <h4>Barang Ketinggalan?</h4>
+                <p>Lapor segera melalui fitur lost & found kami.</p>
+                <button onclick="goToLostItems()" style="margin-top:10px; background:var(--accent); color:white; border:none; padding:8px 16px; border-radius:8px; font-size:0.8rem; cursor:pointer; font-weight:500; display:inline-flex; align-items:center; gap:6px;">
+                    Lapor Sekarang <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        `;
+        listContainer.appendChild(lostItemDiv);
+
+        const feedbackDiv = document.createElement('div');
+        feedbackDiv.className = 'info-card';
+
+        feedbackDiv.innerHTML = `
+            <div class="info-icon"><i class="fa-solid fa-code"></i></div>
+            <div class="info-text">
+                <div style="font-size:0.75em; color:#64748b; margin-bottom:4px; font-weight:500;">
+                    <i class="fa-solid fa-thumbtack" style="transform:rotate(45deg); margin-right:4px;"></i> Tersemat
+                </div>
+                <h4>Temukan Bug / Saran?</h4>
+                <p>Bantu kami kembangkan aplikasi ini jadi lebih baik.</p>
+                <button onclick="goToFeedback()" style="margin-top:10px; background:#475569; color:white; border:none; padding:8px 16px; border-radius:8px; font-size:0.8rem; cursor:pointer; font-weight:500; display:inline-flex; align-items:center; gap:6px;">
+                    Beri Masukan <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        `;
+        listContainer.appendChild(feedbackDiv);
+
+        window.goToLostItems = function () {
+            if (window.switchTab) window.switchTab('faq');
+            setTimeout(() => {
+                const el = document.querySelector('.lost-items-section');
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
+        };
+
+        window.goToFeedback = function () {
+            if (window.switchTab) window.switchTab('faq');
+            setTimeout(() => {
+                const el = document.querySelector('.feedback-section');
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
+        };
+
         if (data.length === 0) {
-            listContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#999;"><i class="fa-regular fa-folder-open" style="font-size:2em; margin-bottom:10px;"></i><p>Belum ada pengumuman.</p></div>';
             return;
         }
 

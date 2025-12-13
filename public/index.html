@@ -58,6 +58,14 @@
                 <div style="flex:1;">
                     <h1 style="display:flex; align-items:center; gap:8px;">Bipol Tracker<span
                             class="live-badge">LIVE</span></h1>
+                    <div class="dashboard-routes" style="display:flex; gap:8px; margin-top:2px;">
+                        <button class="chip-dashboard pagi active-route" onclick="toggleRoute('rutePagi', this)">
+                            <i class="fa-solid fa-sun"></i> Pagi
+                        </button>
+                        <button class="chip-dashboard sore active-route" onclick="toggleRoute('ruteSore', this)">
+                            <i class="fa-solid fa-cloud-moon"></i> Sore
+                        </button>
+                    </div>
                 </div>
                 <div style="display:flex; gap:8px;">
                     <button id="toggleSheetBtn" class="fab-btn" title="Toggle Dashboard" aria-label="Toggle Dashboard"
@@ -240,6 +248,48 @@
                 </form>
             </div>
 
+            <div class="faq-section feedback-section"
+                style="margin-top: 30px; border-top: 2px dashed #e2e8f0; padding-top: 30px;">
+                <h3><i class="fa-solid fa-bug"></i> Lapor Bug & Saran</h3>
+                <div class="lost-items-intro" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                    <p style="color: #475569;"><i class="fa-solid fa-code" style="color:#64748b;"></i> Web ini masih
+                        dalam pengembangan. Jika menemukan bug sekecil apapun atau punya saran fitur, jangan sungkan
+                        lapor di sini.</p>
+                </div>
+                <form id="feedbackForm" class="lost-item-form" onsubmit="submitFeedback(event)">
+                    <div class="form-group">
+                        <label><i class="fa-regular fa-user"></i> Nama (Opsional)</label>
+                        <input type="text" name="name" placeholder="Nama Anda (Boleh kosong)">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-comment-dots"></i> Detail Masukan</label>
+                        <textarea name="message" rows="4" required
+                            placeholder="Ceritakan bug yang Anda temukan atau fitur yang Anda inginkan..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit-lost" style="background:#475569;">
+                        <i class="fa-solid fa-paper-plane"></i> Kirim Masukan
+                    </button>
+                </form>
+            </div>
+
+            <div class="faq-footer-cta" style="margin-top:60px; text-align:center; padding:50px 20px 80px 20px;">
+                <h2
+                    style="font-size:1.4rem; line-height:1.2; color:#334155; font-weight:800; letter-spacing:1px; margin-bottom:15px; text-transform:uppercase; font-family:'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+                    INGIN MENJADI BAGIAN DARI<br>
+                    <span
+                        style="color:#f59e0b; display:block; font-size:2.4rem; margin-top:8px; text-shadow:2px 2px 0px rgba(245, 158, 11, 0.15); letter-spacing:-1px; font-weight:900;">TEAM
+                        PEJUANG BIPOL?</span>
+                </h2>
+                <div style="font-size:1rem; color:#64748b; margin-bottom:35px; letter-spacing:2px; font-weight:600;">
+                    SILAHKAN HUBUNGI</div>
+
+                <a href="mailto:bipoltracker.tik@gmail.com?subject=Join Team Pejuang Bipol"
+                    style="text-decoration:none; display:inline-flex; align-items:center; gap:12px; background:#ea4335; color:white; padding:16px 32px; border-radius:100px; font-weight:800; font-size:1.1rem; box-shadow:0 8px 25px rgba(234, 67, 53, 0.35); transition:all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); letter-spacing:0.5px;"
+                    onmouseover="this.style.transform='scale(1.05) translateY(-3px)'; this.style.boxShadow='0 15px 30px rgba(234, 67, 53, 0.45)'"
+                    onmouseout="this.style.transform='scale(1) translateY(0)'; this.style.boxShadow='0 8px 25px rgba(234, 67, 53, 0.35)'">
+                    <i class="fa-brands fa-google" style="font-size:1.3rem;"></i> HUBUNGI VIA GMAIL
+                </a>
+            </div>
         </div>
     </div>
 
@@ -296,16 +346,13 @@
     </div>
 
     <nav class="mobile-nav" role="navigation" aria-label="Menu utama">
-        <div class="nav-item" onclick="switchTab('map')" role="button" tabindex="0" aria-label="Lihat Rute">
-            <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i><span>Rute</span>
+        <div class="nav-item" onclick="switchTab('announcement')" role="button" tabindex="0"
+            aria-label="Info dan Pengumuman">
+            <i class="fa-solid fa-bullhorn" aria-hidden="true"></i><span>Info</span>
         </div>
         <div class="nav-item active" onclick="switchTab('home')" role="button" tabindex="0" aria-label="Halaman Utama"
             aria-current="page">
             <i class="fa-solid fa-house" aria-hidden="true"></i><span>Home</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('announcement')" role="button" tabindex="0"
-            aria-label="Info dan Pengumuman">
-            <i class="fa-solid fa-bullhorn" aria-hidden="true"></i><span>Info</span>
         </div>
         <div class="nav-item" onclick="switchTab('faq')" role="button" tabindex="0" aria-label="FAQ dan Panduan">
             <i class="fa-solid fa-circle-question" aria-hidden="true"></i><span>FAQ</span>
@@ -415,6 +462,68 @@
             }
         }
 
+        async function submitFeedback(event) {
+            event.preventDefault();
+            const form = event.target;
+            const btn = form.querySelector('button');
+            const originalContent = btn.innerHTML;
+
+            const name = form.name.value.trim() || 'Anonim';
+            const messageRaw = form.message.value.trim();
+
+            if (messageRaw.length < 5) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Pesan Terlalu Pendek',
+                    text: 'Mohon isi detail masukan minimal 5 karakter.',
+                    confirmButtonColor: '#475569'
+                });
+                return;
+            }
+
+            const payload = {
+                name: name,
+                message: messageRaw
+            };
+
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengirim...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || 'Gagal mengirim masukan');
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Masukan Terkirim!',
+                    text: 'Terima kasih atas kontribusi Anda dalam pengembangan Bipol Tracker.',
+                    confirmButtonColor: '#475569'
+                });
+
+                form.reset();
+
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Mengirim',
+                    text: error.message || 'Terjadi kesalahan jaringan',
+                    confirmButtonColor: '#BF1E2E'
+                });
+            } finally {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
+        }
+
         let deferredPrompt;
 
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -472,22 +581,6 @@
                 navigator.vibrate(50);
             }
         }
-
-        document.querySelectorAll('.nav-item, .fab-btn, .bus-item').forEach(el => {
-            el.addEventListener('click', function (e) {
-                triggerHaptic();
-
-                const ripple = document.createElement('span');
-                ripple.className = 'touch-ripple';
-                ripple.style.left = e.offsetX + 'px';
-                ripple.style.top = e.offsetY + 'px';
-                this.style.position = 'relative';
-                this.style.overflow = 'hidden';
-                this.appendChild(ripple);
-
-                setTimeout(() => ripple.remove(), 600);
-            });
-        });
 
         if (!navigator.onLine) {
             document.getElementById('offline-indicator').classList.add('show');
