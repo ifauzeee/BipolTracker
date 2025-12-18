@@ -1,6 +1,6 @@
-const CACHE_NAME = 'bipol-tracker-v5';
-const STATIC_CACHE = 'bipol-static-v5';
-const DYNAMIC_CACHE = 'bipol-dynamic-v5';
+const CACHE_NAME = 'bipol-tracker-v6';
+const STATIC_CACHE = 'bipol-static-v6';
+const DYNAMIC_CACHE = 'bipol-dynamic-v6';
 
 const STATIC_ASSETS = [
   '/',

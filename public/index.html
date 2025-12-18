@@ -39,20 +39,6 @@
         <span>Mode Offline - Menampilkan data tersimpan</span>
     </div>
 
-    <div class="pwa-install-prompt" id="pwa-install-prompt">
-        <div class="prompt-icon">
-            <i class="fa-solid fa-download"></i>
-        </div>
-        <div class="prompt-text">
-            <h4>Install Bipol Tracker</h4>
-            <p>Akses lebih cepat dari homescreen</p>
-        </div>
-        <div class="prompt-actions">
-            <button class="btn-later" onclick="dismissInstallPrompt()">Nanti</button>
-            <button class="btn-install" onclick="installPWA()">Install</button>
-        </div>
-    </div>
-
     <div id="map" role="application" aria-label="Peta pelacakan bus"></div>
 
     <div class="floating-controls">
@@ -534,36 +520,6 @@
                 btn.innerHTML = originalContent;
                 btn.disabled = false;
             }
-        }
-
-        let deferredPrompt;
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            setTimeout(() => {
-                if (!localStorage.getItem('pwaPromptDismissed')) {
-                    document.getElementById('pwa-install-prompt').classList.add('show');
-                }
-            }, 30000);
-        });
-
-        function installPWA() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((result) => {
-                    if (result.outcome === 'accepted') {
-                        showToast('Aplikasi berhasil diinstall!', 'success');
-                    }
-                    deferredPrompt = null;
-                    document.getElementById('pwa-install-prompt').classList.remove('show');
-                });
-            }
-        }
-
-        function dismissInstallPrompt() {
-            document.getElementById('pwa-install-prompt').classList.remove('show');
-            localStorage.setItem('pwaPromptDismissed', 'true');
         }
 
         window.addEventListener('online', () => {
