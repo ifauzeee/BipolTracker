@@ -1,4 +1,4 @@
--- 1. ADMIN USERS SCHEMA
+
 DROP TABLE IF EXISTS admin_users CASCADE;
 
 CREATE TABLE admin_users (
@@ -8,6 +8,5 @@ CREATE TABLE admin_users (
     created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- Default Admin User (Username: admin, Password: admin)
-INSERT INTO admin_users (username, password_hash) 
+INSERT INTO admin_users (username, password_hash)
 VALUES ('admin', '$2b$10$GF9VCWQVGzjebQt0FDUGte/KBWGp26q2eRI2C/p8PpkSIv0M4iP4u');

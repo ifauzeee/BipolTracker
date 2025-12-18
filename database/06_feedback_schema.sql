@@ -1,4 +1,4 @@
--- 6. FEEDBACK SCHEMA
+
 DROP TABLE IF EXISTS feedback CASCADE;
 
 CREATE TABLE feedback (

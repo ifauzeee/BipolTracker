@@ -1,4 +1,4 @@
--- 3. APP INFO SCHEMA
+
 DROP TABLE IF EXISTS app_info CASCADE;
 
 CREATE TABLE app_info (

@@ -1,4 +1,4 @@
--- 2. BIPOL TRACKER SCHEMA
+
 DROP TABLE IF EXISTS bipol_tracker CASCADE;
 
 CREATE TABLE bipol_tracker (

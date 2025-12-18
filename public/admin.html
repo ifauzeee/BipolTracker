@@ -583,7 +583,6 @@
             });
         }
 
-
         async function loadGeofenceLogs() {
             const tbody = document.getElementById('geofence-table-body');
             tbody.innerHTML = '';
@@ -687,7 +686,7 @@
         function switchSubTab(tab) {
             document.querySelectorAll('.sub-nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById(`subnav-${tab}`).classList.add('active');
-            
+
             document.querySelectorAll('.sub-section').forEach(el => el.classList.remove('active'));
             document.getElementById(`sub-${tab}`).classList.add('active');
         }

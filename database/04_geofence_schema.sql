@@ -1,4 +1,4 @@
--- 4. GEOFENCES & EVENTS SCHEMA
+
 DROP TABLE IF EXISTS geofence_events CASCADE;
 DROP TABLE IF EXISTS geofences CASCADE;
 
@@ -19,9 +19,8 @@ CREATE TABLE geofence_events (
     timestamp timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- Default Geofences
 INSERT INTO geofences (name, latitude, longitude, radius_meters)
-VALUES 
+VALUES
 ('Halte PNJ', -6.372132, 106.824248, 150),
 ('Garasi / Pool', -6.368864, 106.833098, 200)
 ON CONFLICT DO NOTHING;

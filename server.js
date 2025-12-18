@@ -6,20 +6,34 @@ const bodyParser = require('body-parser');
 const { createClient } = require('@supabase/supabase-js');
 const path = require('path');
 const dns = require('node:dns');
+const crypto = require('node:crypto');
 const http = require('http');
 const { Server } = require("socket.io");
 const bcrypt = require('bcryptjs');
 const dgram = require('dgram');
+const helmet = require('helmet');
+const hpp = require('hpp');
+const xss = require('xss');
 
 dns.setDefaultResultOrder('ipv4first');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const server = http.createServer(app);
+
 const io = new Server(server, {
-    cors: { origin: "*", methods: ["GET", "POST"] },
+    cors: {
+        origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
+        methods: ["GET", "POST"],
+        credentials: true
+    },
     pingTimeout: 60000,
-    pingInterval: 25000
+    pingInterval: 25000,
+    maxHttpBufferSize: 1e6,
+    connectionStateRecovery: {
+        maxDisconnectionDuration: 2 * 60 * 1000,
+        skipMiddlewares: true
+    }
 });
 
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -129,7 +143,7 @@ const validate = {
 
 function sanitizeInput(str) {
     if (typeof str !== 'string') return str;
-    return str.replace(/[<>\"'&]/g, '').trim().substring(0, 1000);
+    return xss(str.trim().substring(0, 1000));
 }
 
 const fetchWithRetry = async (url, options, retries = 3) => {
@@ -149,19 +163,51 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
     global: { fetch: fetchWithRetry }
 });
 
+app.set('trust proxy', 1);
+
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://unpkg.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://cdn.jsdelivr.net"],
+            imgSrc: ["'self'", "data:", "https:", "blob:"],
+            connectSrc: ["'self'", "wss:", "ws:", "https://lmkbbfknaflfcwanoonf.supabase.co"],
+            workerSrc: ["'self'", "blob:"],
+            frameSrc: ["'none'"],
+            objectSrc: ["'none'"],
+            upgradeInsecureRequests: process.env.USE_HTTPS === 'true' ? [] : null
+        }
+    },
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+
+app.use(hpp());
+
 app.use(cors({
     origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use(bodyParser.json({ limit: '10kb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10kb' }));
-app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(express.static(path.join(__dirname, 'public'), {
+    maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
+    etag: true
+}));
+
 app.use(session({
     secret: process.env.SESSION_SECRET || 'bipol_secret_key_change_me',
+    name: 'bipol.sid',
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV === 'production',
+        secure: process.env.USE_HTTPS === 'true',
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
         sameSite: 'lax'
@@ -169,9 +215,9 @@ app.use(session({
 }));
 
 app.use((req, res, next) => {
-    res.set('X-Content-Type-Options', 'nosniff');
-    res.set('X-Frame-Options', 'DENY');
-    res.set('X-XSS-Protection', '1; mode=block');
+    res.set('X-Permitted-Cross-Domain-Policies', 'none');
+    res.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.set('Permissions-Policy', 'geolocation=(self), microphone=(), camera=()');
     next();
 });
 
@@ -216,7 +262,7 @@ app.post('/auth/login', rateLimitMiddleware(LOGIN_RATE_LIMIT_MAX), async (req, r
         const { data, error } = await supabase
             .from('admin_users')
             .select('*')
-            .eq('username', sanitizeInput(username))
+            .ilike('username', sanitizeInput(username))
             .single();
 
         if (error || !data) {
@@ -823,6 +869,12 @@ process.on('unhandledRejection', (reason, promise) => {
 server.listen(PORT, () => {
     console.log(`🚀 Server Socket.io HIDUP di Port ${PORT}`);
     console.log(`🧹 Auto-Cleanup scheduler aktif (24 Jam retensi)`);
-    console.log(`🔒 Security features enabled`);
+    console.log(`🔒 Security features enabled:`);
+    console.log(`   ├─ Helmet.js (Security Headers)`);
+    console.log(`   ├─ HPP (HTTP Parameter Pollution Protection)`);
+    console.log(`   ├─ XSS Sanitization`);
+    console.log(`   ├─ Rate Limiting (${RATE_LIMIT_MAX_REQUESTS} req/min)`);
+    console.log(`   ├─ CORS: ${process.env.ALLOWED_ORIGINS || '*'}`);
+    console.log(`   └─ HTTPS: ${process.env.USE_HTTPS === 'true' ? 'Enabled' : 'Disabled'}`);
     console.log(`📊 Health check: /api/health`);
 });

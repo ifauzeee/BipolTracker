@@ -1255,12 +1255,10 @@ tr:hover {
     color: #dc2626;
 }
 
-/* --- Horizontal Settings Layout --- */
-
 .settings-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    /* Force 3 columns side-by-side */
+
     gap: 48px;
     width: 100%;
     max-width: 100%;
@@ -1275,7 +1273,7 @@ tr:hover {
     padding: 0;
     position: relative;
     max-width: 100%;
-    /* Vertical separator */
+
     padding-right: 48px;
     border-right: 1px solid rgba(0, 0, 0, 0.05);
     height: 100%;
@@ -1295,7 +1293,6 @@ tr:hover {
     display: none;
 }
 
-/* Responsive: Stack on smaller screens */
 @media (max-width: 1200px) {
     .settings-grid {
         grid-template-columns: 1fr;
@@ -1316,7 +1313,6 @@ tr:hover {
     }
 }
 
-/* Elegant Section Headers */
 .settings-card h2 {
     font-size: 1.8rem;
     font-weight: 800;
@@ -1344,10 +1340,9 @@ tr:hover {
 
 .settings-card h2 i {
     display: none;
-    /* Hide icon for cleaner look focus on typography */
+
 }
 
-/* Custom Input Fields */
 .input-wrapper {
     position: relative;
     margin-bottom: 0;
@@ -1401,7 +1396,6 @@ tr:hover {
     font-style: italic;
 }
 
-/* System Health "HUD" Design */
 .system-health {
     display: flex;
     flex-wrap: wrap;
@@ -1446,7 +1440,6 @@ tr:hover {
     padding: 0;
 }
 
-/* Buttons */
 .btn-primary {
     background: var(--text-main);
     color: white;
@@ -1526,7 +1519,6 @@ tr:hover {
     }
 }
 
-/* Sub Navigation / Tabs */
 .sub-nav {
     display: flex;
     gap: 8px;

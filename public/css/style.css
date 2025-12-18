@@ -181,11 +181,11 @@ html {
     max-height: none !important;
     height: auto !important;
     padding-bottom: 8px;
-    /* Sedikit padding bawah */
+
     transform: none !important;
     border-radius: 28px;
     background: rgba(255, 255, 255, 0.95);
-    /* Sedikit lebih solid agar tulisan jelas */
+
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     left: 15px;
     right: 15px;
@@ -225,14 +225,13 @@ html {
     padding: 20px;
     overflow-y: auto;
 
-    /* Instant toggle logic */
     display: none !important;
-    /* transform removed */
+
 }
 
 .page-view.active-page {
     display: block !important;
-    /* transform removed */
+
 }
 
 .page-view.hidden {
@@ -660,6 +659,52 @@ html {
     border-top-color: var(--sheet-bg);
 }
 
+.mapboxgl-popup-close-button,
+.maplibregl-popup-close-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.06);
+    border: none;
+    font-size: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;
+}
+
+.mapboxgl-popup-close-button::before,
+.maplibregl-popup-close-button::before {
+    content: '×';
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-sub);
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+.mapboxgl-popup-close-button:hover,
+.maplibregl-popup-close-button:hover {
+    background: var(--accent);
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(191, 30, 46, 0.3);
+}
+
+.mapboxgl-popup-close-button:hover::before,
+.maplibregl-popup-close-button:hover::before {
+    color: white;
+}
+
+.mapboxgl-popup-close-button:active,
+.maplibregl-popup-close-button:active {
+    transform: scale(0.95);
+}
+
 .skeleton-loader {
     padding: 10px 0;
 }
@@ -868,11 +913,10 @@ html {
     margin-bottom: 20px;
 }
 
-/* Animation Removed - Instant Logic */
 #route-view.active-page {
     display: flex !important;
     background-color: transparent !important;
-    /* No background effect */
+
 }
 
 #route-view.active-page .route-master-panel {
@@ -902,7 +946,7 @@ html {
     border: 2px solid transparent;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
     cursor: pointer;
-    /* transition removed for performance */
+
     position: relative;
     overflow: hidden;
 }
@@ -1742,7 +1786,6 @@ html {
     animation: blink 1s infinite;
 }
 
-/* Dashboard Route Chips - Toggle Style */
 .chip-dashboard {
     padding: 6px 12px;
     border-radius: 100px;
@@ -1751,7 +1794,7 @@ html {
     cursor: pointer;
     border: 1px solid rgba(0, 0, 0, 0.1);
     background: #f3f4f6;
-    /* Default OFF (Abu-abu) */
+
     color: #9ca3af;
     display: flex;
     align-items: center;
@@ -1759,7 +1802,6 @@ html {
     opacity: 0.8;
 }
 
-/* Active State Pagi - Orange */
 .chip-dashboard.pagi.active-route {
     background: #fff7ed;
     color: #f97316;
@@ -1768,7 +1810,6 @@ html {
     box-shadow: 0 2px 5px rgba(249, 115, 22, 0.15);
 }
 
-/* Active State Sore - Blue */
 .chip-dashboard.sore.active-route {
     background: #ecfeff;
     color: #06b6d4;
@@ -1777,7 +1818,6 @@ html {
     box-shadow: 0 2px 5px rgba(6, 182, 212, 0.15);
 }
 
-/* Fix icon color inheritance */
 .chip-dashboard i {
     color: inherit;
 }

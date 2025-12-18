@@ -1,4 +1,4 @@
--- 5. LOST ITEMS SCHEMA
+
 DROP TABLE IF EXISTS lost_items CASCADE;
 
 CREATE TABLE lost_items (
