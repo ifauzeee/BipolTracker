@@ -51,10 +51,10 @@ const memoryCache = {
     rateLimits: new Map()
 };
 
-const CACHE_TTL = 5000;
-const RATE_LIMIT_WINDOW = 60000;
-const RATE_LIMIT_MAX_REQUESTS = 100;
-const LOGIN_RATE_LIMIT_MAX = 5;
+const CACHE_TTL = parseInt(process.env.CACHE_TTL_MS) || 5000;
+const RATE_LIMIT_WINDOW = parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 60000;
+const RATE_LIMIT_MAX_REQUESTS = parseInt(process.env.RATE_LIMIT_MAX) || 100;
+const LOGIN_RATE_LIMIT_MAX = parseInt(process.env.RATE_LIMIT_LOGIN_MAX) || 5;
 
 function getFromCache(key) {
     const data = memoryCache.busData.get(key);
@@ -173,7 +173,7 @@ app.use(helmet({
             fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
             scriptSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://cdn.jsdelivr.net", "https://cdn.socket.io", "https://www.google-analytics.com"],
             imgSrc: ["'self'", "data:", "https:", "blob:"],
-            connectSrc: ["'self'", "wss:", "ws:", "https://lmkbbfknaflfcwanoonf.supabase.co", "https://tiles.openfreemap.org", "https://www.google-analytics.com"],
+            connectSrc: ["'self'", "wss:", "ws:", new URL(supabaseUrl).origin, "https://tiles.openfreemap.org", "https://www.google-analytics.com"],
             workerSrc: ["'self'", "blob:"],
             frameSrc: ["'none'"],
             objectSrc: ["'none'"],
@@ -609,15 +609,16 @@ function getLogTime() {
 
 async function cleanupOldData() {
     try {
-        const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const retentionHours = parseInt(process.env.DATA_RETENTION_HOURS) || 24;
+        const cutoffDate = new Date(Date.now() - retentionHours * 60 * 60 * 1000).toISOString();
 
         const { error } = await supabase
             .from('bipol_tracker')
             .delete()
-            .lt('created_at', yesterday);
+            .lt('created_at', cutoffDate);
 
         if (error) throw error;
-        console.log(`🧹 [${getLogTime()}] Auto-Cleanup: Deleted data older than 24h.`);
+        console.log(`🧹 [${getLogTime()}] Auto-Cleanup: Deleted data older than ${retentionHours}h.`);
     } catch (err) {
         console.error(`❌ [${getLogTime()}] Cleanup Failed:`, err.message);
     }
@@ -790,7 +791,7 @@ app.use((err, req, res, next) => {
 });
 
 const udpServer = dgram.createSocket('udp4');
-const UDP_PORT = 3333;
+const UDP_PORT = process.env.UDP_PORT || 3333;
 
 udpServer.on('error', (err) => {
     console.error(`❌ UDP Error:\n${err.stack}`);
@@ -814,7 +815,8 @@ udpServer.on('message', async (msg, rinfo) => {
         console.log(`📡 [UDP] ${bus_id} | 📍 ${latitude.toFixed(6)},${longitude.toFixed(6)} | 🚀 ${speed} | ⛽ ${gas_level}`);
 
         let cleanSpeed = validate.speed(speed) ? speed : 0;
-        if (cleanSpeed < 3.0) cleanSpeed = 0;
+        const minSpeed = parseFloat(process.env.UDP_MIN_SPEED_THRESHOLD) || 3.0;
+        if (cleanSpeed < minSpeed) cleanSpeed = 0;
 
         const insertData = {
             bus_id, latitude, longitude,
@@ -868,12 +870,14 @@ process.on('unhandledRejection', (reason, promise) => {
 
 server.listen(PORT, () => {
     console.log(`🚀 Server Socket.io HIDUP di Port ${PORT}`);
-    console.log(`🧹 Auto-Cleanup scheduler aktif (24 Jam retensi)`);
+    const retention = parseInt(process.env.DATA_RETENTION_HOURS) || 24;
+    console.log(`🧹 Auto-Cleanup scheduler aktif (${retention} Jam retensi)`);
     console.log(`🔒 Security features enabled:`);
     console.log(`   ├─ Helmet.js (Security Headers)`);
     console.log(`   ├─ HPP (HTTP Parameter Pollution Protection)`);
     console.log(`   ├─ XSS Sanitization`);
-    console.log(`   ├─ Rate Limiting (${RATE_LIMIT_MAX_REQUESTS} req/min)`);
+    const winSec = (parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 60000) / 1000;
+    console.log(`   ├─ Rate Limiting (${RATE_LIMIT_MAX_REQUESTS} req / ${winSec}s)`);
     console.log(`   ├─ CORS: ${process.env.ALLOWED_ORIGINS || '*'}`);
     console.log(`   └─ HTTPS: ${process.env.USE_HTTPS === 'true' ? 'Enabled' : 'Disabled'}`);
     console.log(`📊 Health check: /api/health`);

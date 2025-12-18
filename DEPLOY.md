@@ -1,112 +1,203 @@
-# Panduan Deployment BIPOL ke VPS
+# 🚀 Deployment Guide for BIPOL Tracker
 
-Panduan ini akan membantu Anda men-deploy sistem backend BIPOL ke VPS (Virtual Private Server) dan mengkonfigurasi perangkat keras ESP32.
-
-## Prasyarat
-- VPS dengan OS Ubuntu 20.04/22.04 LTS.
-- Akses SSH ke VPS.
-- Domain (opsional, tapi disarankan untuk HTTPS).
+This guide provides a comprehensive, step-by-step walkthrough for deploying the BIPOL Tracker backend and web interface to a production Linux server (VPS).
 
 ---
 
-## Bagian 1: Setup VPS & Backend
+## 📋 Prerequisites
 
-### 1. Masuk ke VPS
-SSH ke VPS Anda:
+Before you begin, ensure you have the following:
+
+1.  **A Virtual Private Server (VPS)**
+    *   OS: Ubuntu 20.04 LTS or 22.04 LTS (Recommended)
+    *   Specs: Minimum 1 CPU, 1GB RAM (2GB+ recommended for stability)
+    *   Public IP Address
+2.  **Domain Name (Optional but Recommended)**
+    *   For HTTPS/SSL security (e.g., `tracker.yourdomain.com`).
+3.  **Supabase Project**
+    *   A production-ready Supabase project with your database schema set up.
+
+---
+
+## 🛠️ Phase 1: Server Preparation
+
+SSH into your server:
 ```bash
-ssh root@ip-vps-anda
+ssh root@your_server_ip
 ```
 
-### 2. Clone Repository
-Clone repository ini ke VPS:
+### 1. Update System Packages
+Keep your server secure and up-to-date.
 ```bash
+sudo apt update && sudo apt upgrade -y
+```
+
+### 2. Install Git & Utilities
+```bash
+sudo apt install -y git curl ufw
+```
+
+### 3. Configure Firewall (UFW)
+Secure your ports. We need SSH, HTTP (80), HTTPS (443), and the UDP port for tracking (3333).
+```bash
+sudo ufw allow OpenSSH
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw allow 3333/udp
+sudo ufw enable
+```
+*Type `y` to confirm enabling the firewall.*
+
+### 4. Install Docker & Docker Compose
+We use Docker to containerize the application for easy management.
+```bash
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+rm get-docker.sh
+```
+Verify installation:
+```bash
+docker --version
+docker compose version
+```
+
+---
+
+## 📥 Phase 2: Application Setup
+
+### 1. Clone the Repository
+Navigate to your desired directory (e.g., `/var/www` or `~/`) and clone the project.
+```bash
+cd ~
 git clone https://github.com/ifauzeee/BIPOL.git
 cd BIPOL
 ```
-*(Ganti URL git jika berbeda)*
 
-### 3. Jalankan Script Setup
-Script ini akan menginstall Docker, Docker Compose, dan mengkonfigurasi Firewall.
-```bash
-chmod +x deploy/setup.sh
-./deploy/setup.sh
-```
-
-### 4. Konfigurasi Environment (.env)
-Copy file contoh dan edit sesuai kebutuhan:
+### 2. Configure Environment Variables
+**CRITICAL STEP**: The application will not work without correct credentials.
 ```bash
 cp .env.example .env
 nano .env
 ```
-**Penting:**
-- Isi `SUPABASE_URL` dan `SUPABASE_KEY` dari dashboard Supabase Anda.
-- Ganti `SESSION_SECRET` dengan string acak yang panjang.
-- Jika menggunakan HTTPS, set `USE_HTTPS=true`.
+*   **Action**: Fill in your `SUPABASE_URL`, `SUPABASE_KEY`, and change `NODE_ENV` to `production`.
+*   **Action**: Set `USE_HTTPS=true` if you are setting up SSL.
 
-### 5. Jalankan Aplikasi
-Jalankan aplikasi menggunakan Docker Compose:
+---
+
+## 🌐 Phase 3: Nginx & SSL (Reverse Proxy)
+
+We use Nginx to serve the web app on port 80/443 and proxy traffic to our Node.js app (internal port 3000).
+
+### 1. Install Nginx
+```bash
+sudo apt install -y nginx certbot python3-certbot-nginx
+```
+
+### 2. Configure Nginx
+Copy the deployment config (or edit the default).
+```bash
+# Remove default config
+sudo rm /etc/nginx/sites-enabled/default
+
+# Create new config
+sudo nano /etc/nginx/sites-available/bipol
+```
+
+Paste the following configuration (Adjust `server_name` to your domain):
+
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com; # <--- CHANGE THIS
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    # Helper for Socket.io
+    location /socket.io/ {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+    }
+}
+```
+
+Enable the site:
+```bash
+sudo ln -s /etc/nginx/sites-available/bipol /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+### 3. Setup SSL (HTTPS)
+Secure your domain with a free Let's Encrypt certificate.
+```bash
+sudo certbot --nginx -d your-domain.com
+```
+Follow the prompts. Certbot will automatically update your Nginx config.
+
+---
+
+## 🚀 Phase 4: Launching the Application
+
+Start the application container using Docker Compose.
+
 ```bash
 docker compose up -d --build
 ```
-Cek apakah container berjalan:
+*   `-d`: Detached mode (runs in background).
+*   `--build`: Rebuilds the image if code changed.
+
+**Verify status:**
 ```bash
 docker compose ps
-```
-Cek logs:
-```bash
 docker compose logs -f
 ```
 
-### 6. Setup Domain & HTTPS (Opsional - Disarankan)
-Jika Anda memiliki domain, gunakan Nginx sebagai reverse proxy.
-
-1. Copy config nginx:
-   ```bash
-   cp deploy/nginx.conf /etc/nginx/sites-available/bipol
-   ```
-2. Edit file config dan ganti `your-domain.com` dengan domain Anda:
-   ```bash
-   nano /etc/nginx/sites-available/bipol
-   ```
-3. Aktifkan site:
-   ```bash
-   ln -s /etc/nginx/sites-available/bipol /etc/nginx/sites-enabled/
-   nginx -t
-   systemctl restart nginx
-   ```
-4. Setup HTTPS dengan Certbot:
-   ```bash
-   certbot --nginx -d your-domain.com
-   ```
+✅ **Success!** Your application should now be accessible at `https://your-domain.com`.
 
 ---
 
-## Bagian 2: Setup Hardware (ESP32)
+## 🔄 Management & Maintenance
 
-Agar perangkat pelacak bisa mengirim data ke VPS baru Anda, Anda perlu mengupdate firmware.
+### Updating the App
+When you push new code to GitHub, update the live server:
+```bash
+cd ~/BIPOL
+git pull
+docker compose down
+docker compose up -d --build
+```
 
-1. Buka folder `firmware`.
-2. Buat file `arduino_secrets.h` dari contoh:
-   - Jika di lokal komputer Anda, copy isi `arduino_secrets.h.example` ke `arduino_secrets.h`.
-3. Edit `arduino_secrets.h`:
-   ```cpp
-   #define SECRET_SERVER_IP "IP_VPS_ANDA" // Masukkan IP VPS di sini
-   #define SECRET_UDP_PORT 3333
-   ```
-4. Upload sketch `esp32_tracker_udp.ino` ke ESP32 Anda.
+### Checking Logs
+*   **App Logs:** `docker compose logs -f --tail=100`
+*   **Nginx Logs:** `sudo tail -f /var/log/nginx/error.log`
+
+### Database Backups
+Since we use Supabase (Managed PostgreSQL), database backups are handled automatically by the Supabase platform. Check your Supabase dashboard for PITR (Point-in-Time Recovery) options.
 
 ---
 
-## Troubleshooting
+## 🆘 Troubleshooting
 
-- **Server tidak bisa diakses?**
-  - Pastikan port 80/443 (HTTP) dan 3333 (UDP) dibuka di firewall penyedia VPS (AWS Security Group / DigitalOcean Firewall).
-  - Cek status container: `docker compose ps`
+**Common Issues:**
 
-- **Data GPS tidak masuk?**
-  - Pastikan `SECRET_SERVER_IP` di ESP32 sudah benar.
-  - Cek logs server untuk melihat data masuk: `docker compose logs -f | grep UDP`
-  - Pastikan kartu SIM memiliki kuota dan APN benar.
+1.  **"502 Bad Gateway"**
+    *   The Node.js app might be down. Check `docker compose logs`.
+    *   Ensure `PORT=3000` is set in `.env`.
 
-- **Supabase Error?**
-  - Pastikan URL dan Key di `.env` sudah benar.
+2.  **UDP Data Not Received**
+    *   Check firewall: `sudo ufw status` (Must allow 3333/udp).
+    *   Check VPS provider firewall (AWS Security Groups / DigitalOcean Firewalls) to ensure UDP 3333 is open incoming.
+
+3.  **Socket.io Connection Fails**
+    *   Ensure Nginx configuration includes the `Upgrade` and `Connection` headers as shown in Phase 3.

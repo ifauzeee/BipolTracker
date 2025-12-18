@@ -3,8 +3,8 @@ services:
     build: .
     container_name: bipol-backend
     ports:
-      - "3000:3000"
-      - "3333:3333/udp"
+      - "${PORT:-3000}:${PORT:-3000}"
+      - "${UDP_PORT:-3333}:${UDP_PORT:-3333}/udp"
     env_file:
       - .env
     environment:
