@@ -53,8 +53,8 @@
         }
 
         .logo-overlay {
-            width: 8rem;
-            height: 8rem;
+            width: 14rem;
+            height: 14rem;
             position: relative;
         }
 
@@ -246,7 +246,7 @@
         <div class="split-layout">
             <div class="left-pane">
                 <div class="logo-overlay">
-                    <img src="/images/Logo PNJ.png" alt="PNJ Logo" class="large-faded-logo">
+                    <img src="/images/header.png" alt="Bipol Tracker Banner" class="large-faded-logo">
                 </div>
             </div>
 
@@ -339,10 +339,10 @@
                         showConfirmButton: false,
                         backdrop: `rgba(0,0,123,0.4)`
                     }).then(() => {
-                        window.location.href = '/admin';
+                        window.location.href = data.redirect || '/admin';
                     });
                 } else {
-                    window.location.href = '/admin';
+                    window.location.href = data.redirect || '/admin';
                 }
 
             } catch (e) {

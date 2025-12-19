@@ -121,7 +121,7 @@ const validate = {
     },
     username: (value) => {
         if (!value || typeof value !== 'string') return false;
-        return /^[a-zA-Z0-9_]{3,30}$/.test(value);
+        return /^[a-zA-Z0-9_ ]{3,30}$/.test(value);
     },
     password: (value) => {
         if (!value || typeof value !== 'string') return false;
@@ -266,32 +266,45 @@ app.post('/auth/login', rateLimitMiddleware(LOGIN_RATE_LIMIT_MAX), async (req, r
     try {
         const { username, password } = req.body;
 
-        if (!validate.username(username)) {
-            return res.status(400).json({ success: false, message: 'Username tidak valid' });
-        }
-        if (!validate.password(password)) {
-            return res.status(400).json({ success: false, message: 'Password tidak valid' });
-        }
-
-        const { data, error } = await supabase
+        const { data: adminData, error: adminError } = await supabase
             .from('admin_users')
             .select('*')
             .ilike('username', sanitizeInput(username))
             .single();
 
-        if (error || !data) {
-            console.warn(`[Login] Gagal: User '${username}' tidak ditemukan.`);
-            return res.status(401).json({ success: false, message: 'User not found' });
+        if (adminData && !adminError) {
+            const match = await bcrypt.compare(password.trim(), adminData.password_hash);
+            if (match) {
+                req.session.admin = { id: adminData.id, username: adminData.username };
+                return res.json({ success: true, role: 'admin', redirect: '/admin' });
+            }
         }
 
-        const match = await bcrypt.compare(password.trim(), data.password_hash);
-        if (!match) {
-            console.warn(`[Login] Gagal: Password salah untuk user '${username}'.`);
-            return res.status(401).json({ success: false, message: 'Password salah' });
+        let busPlate = username;
+        let formattedPlate = busPlate.toUpperCase().replace(/\s/g, '');
+        const plateRegex = /^([A-Z]{1,2})(\d{1,4})([A-Z]{0,3})$/;
+        const matchPlate = formattedPlate.match(plateRegex);
+        if (matchPlate) {
+            busPlate = `${matchPlate[1]} ${matchPlate[2]} ${matchPlate[3]}`.trim();
         }
 
-        req.session.admin = { id: data.id, username: data.username };
-        res.json({ success: true, message: 'Login successful' });
+        const { data: driverData, error: driverError } = await supabase
+            .from('drivers')
+            .select('*')
+            .eq('bus_plate', sanitizeInput(busPlate))
+            .single();
+
+        if (driverData && !driverError) {
+            const match = await bcrypt.compare(password, driverData.password_hash);
+            if (match) {
+                req.session.driver = { id: driverData.id, bus_plate: driverData.bus_plate, name: driverData.driver_name };
+                return res.json({ success: true, role: 'driver', redirect: '/driver/dashboard' });
+            }
+        }
+
+        console.warn(`[Login] Gagal: '${username}' tidak ditemukan di Admin maupun Driver, atau password salah.`);
+        return res.status(401).json({ success: false, message: 'Username/Plat atau Password salah' });
+
     } catch (err) {
         console.error('Login error:', err.message);
         res.status(500).json({ success: false, message: 'Server error' });
@@ -798,6 +811,248 @@ app.get('/login', (req, res) => {
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
+
+app.get('/api/admin/drivers', requireAuth, async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('drivers')
+            .select('id, bus_plate, driver_name, created_at')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        res.json(data);
+    } catch (err) {
+        console.error('Get drivers error:', err.message);
+        res.status(500).json({ error: 'Failed to fetch drivers' });
+    }
+});
+
+app.post('/api/admin/drivers', requireAuth, async (req, res) => {
+    try {
+        const { bus_plate, driver_name, password } = req.body;
+
+        let formattedPlate = bus_plate.toUpperCase().replace(/\s/g, '');
+        const plateRegex = /^([A-Z]{1,2})(\d{1,4})([A-Z]{0,3})$/;
+        const match = formattedPlate.match(plateRegex);
+
+        if (match) {
+            formattedPlate = `${match[1]} ${match[2]} ${match[3]}`.trim();
+        } else {
+            formattedPlate = bus_plate.trim();
+        }
+
+        if (!validate.busPlate(formattedPlate)) {
+            return res.status(400).json({ error: 'Invalid bus plate format' });
+        }
+
+        let finalPassword = password;
+        if (!finalPassword) {
+            finalPassword = crypto.randomBytes(4).toString('hex');
+        }
+
+        const hash = await bcrypt.hash(finalPassword, 12);
+
+        const { data, error } = await supabase
+            .from('drivers')
+            .insert([{
+                bus_plate: sanitizeInput(formattedPlate),
+                driver_name: sanitizeInput(driver_name) || null,
+                password_hash: hash
+            }])
+            .select();
+
+        if (error) {
+            if (error.code === '23505') return res.status(400).json({ error: 'Bus plate already exists' });
+            throw error;
+        }
+
+        res.json({ success: true, data: data[0], generatedPassword: finalPassword });
+    } catch (err) {
+        console.error('Create driver error:', err.message);
+        res.status(500).json({ error: 'Failed to add driver' });
+    }
+});
+
+app.delete('/api/admin/drivers/:id', requireAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { error } = await supabase.from('drivers').delete().eq('id', id);
+        if (error) throw error;
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Delete driver error:', err.message);
+        res.status(500).json({ error: 'Failed to delete driver' });
+    }
+});
+
+app.patch('/api/admin/drivers/:id/reset-password', requireAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const rawPassword = crypto.randomBytes(4).toString('hex');
+        const hash = await bcrypt.hash(rawPassword, 12);
+
+        const { error } = await supabase
+            .from('drivers')
+            .update({ password_hash: hash })
+            .eq('id', id);
+
+        if (error) throw error;
+        res.json({ success: true, newPassword: rawPassword });
+    } catch (err) {
+        console.error('Reset driver password error:', err.message);
+        res.status(500).json({ error: 'Failed to reset password' });
+    }
+});
+
+app.put('/api/admin/drivers/:id', requireAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { bus_plate, driver_name, password } = req.body;
+
+        const updates = {};
+        if (bus_plate) {
+            let formattedPlate = bus_plate.toUpperCase().replace(/\s/g, '');
+            const plateRegex = /^([A-Z]{1,2})(\d{1,4})([A-Z]{0,3})$/;
+            const match = formattedPlate.match(plateRegex);
+            if (match) {
+                formattedPlate = `${match[1]} ${match[2]} ${match[3]}`.trim();
+            }
+            updates.bus_plate = sanitizeInput(formattedPlate);
+        }
+        if (driver_name !== undefined) updates.driver_name = sanitizeInput(driver_name);
+
+        if (password && password.trim() !== "") {
+            updates.password_hash = await bcrypt.hash(password, 12);
+        }
+
+        const { error } = await supabase
+            .from('drivers')
+            .update(updates)
+            .eq('id', id);
+
+        if (error) {
+            if (error.code === '23505') return res.status(400).json({ error: 'Bus plate already exists' });
+            throw error;
+        }
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Update driver error:', err.message);
+        res.status(500).json({ error: 'Failed to update driver' });
+    }
+});
+
+app.get('/api/bus-plates', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('drivers')
+            .select('bus_plate')
+            .order('bus_plate', { ascending: true });
+
+        if (error) throw error;
+        res.json(data.map(d => d.bus_plate));
+    } catch (err) {
+        console.error('Get bus plates error:', err.message);
+        res.status(500).json({ error: 'Failed to fetch bus list' });
+    }
+});
+
+app.get('/auth/driver/lost-items', async (req, res) => {
+    if (!req.session || !req.session.driver) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    try {
+        const { data, error } = await supabase
+            .from('lost_items')
+            .select('*')
+            .eq('bus_plate', req.session.driver.bus_plate)
+            .eq('status', 'pending')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        res.json(data);
+    } catch (err) {
+        console.error('Fetch driver lost items error:', err.message);
+        res.status(500).json({ error: 'Failed to fetch items' });
+    }
+});
+app.post('/auth/driver/lost-items/:id/resolve', rateLimitMiddleware(10), async (req, res) => {
+    try {
+        if (!req.session || !req.session.driver) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        const { id } = req.params;
+        const driverPlate = req.session.driver.bus_plate;
+
+        const { data: itemData, error: fetchError } = await supabase
+            .from('lost_items')
+            .select('bus_plate')
+            .eq('id', id)
+            .single();
+
+        if (fetchError || !itemData) return res.status(404).json({ error: 'Item not found' });
+        if (itemData.bus_plate !== driverPlate) return res.status(403).json({ error: 'Not your bus' });
+
+        const { error } = await supabase
+            .from('lost_items')
+            .update({ status: 'resolved' })
+            .eq('id', id);
+
+        if (error) throw error;
+        io.emit('update_lost_items');
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Resolve item error:', err.message);
+        res.status(500).json({ error: 'Failed to resolve item' });
+    }
+});
+
+
+
+
+
+app.get('/driver/dashboard', (req, res) => {
+    if (!req.session || !req.session.driver) {
+        return res.redirect('/login');
+    }
+    res.sendFile(path.join(__dirname, 'public', 'driver.html'));
+});
+
+app.post('/auth/driver/login', rateLimitMiddleware(LOGIN_RATE_LIMIT_MAX), async (req, res) => {
+    try {
+        const { bus_plate, password } = req.body;
+
+        if (!bus_plate || !password) return res.status(400).json({ error: 'Missing credentials' });
+
+        const { data, error } = await supabase
+            .from('drivers')
+            .select('*')
+            .eq('bus_plate', sanitizeInput(bus_plate))
+            .single();
+
+        if (error || !data) return res.status(401).json({ success: false, message: 'Bus not found' });
+
+        const match = await bcrypt.compare(password, data.password_hash);
+        if (!match) return res.status(401).json({ success: false, message: 'Invalid password' });
+
+        req.session.driver = { id: data.id, bus_plate: data.bus_plate, name: data.driver_name };
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Driver login error:', err.message);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.get('/auth/driver/status', (req, res) => {
+    if (req.session && req.session.driver) {
+        res.json({ loggedIn: true, driver: req.session.driver });
+    } else {
+        res.json({ loggedIn: false });
+    }
+});
+
 
 app.use((err, req, res, next) => {
     console.error('Unhandled error:', err);

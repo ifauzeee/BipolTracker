@@ -13,7 +13,8 @@ export default defineConfig({
             input: {
                 main: path.resolve(__dirname, 'frontend/index.html'),
                 login: path.resolve(__dirname, 'frontend/login.html'),
-                admin: path.resolve(__dirname, 'frontend/admin.html')
+                admin: path.resolve(__dirname, 'frontend/admin.html'),
+                driver: path.resolve(__dirname, 'frontend/driver.html')
             }
         }
     },

@@ -226,7 +226,10 @@
                 <form id="lostItemForm" class="lost-item-form" onsubmit="submitLostItem(event)">
                     <div class="form-group">
                         <label for="busPlate"><i class="fa-solid fa-bus"></i> Nomor Plat Bus</label>
-                        <input type="text" id="busPlate" name="busPlate" placeholder="Contoh: B 1234 ABC" required>
+                        <select id="busPlate" name="busPlate" required
+                            style="width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; background:#fff;">
+                            <option value="">Pilih Plat Bus...</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="waNumber"><i class="fa-brands fa-whatsapp"></i> Nomor WhatsApp Anda</label>

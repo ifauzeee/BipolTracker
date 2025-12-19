@@ -5,7 +5,6 @@ node_modules/
 .env
 .env.local
 .env.production
-!.env.example
 firmware/arduino_secrets.h
 
 # Logs
@@ -16,6 +15,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+*.pcap
 
 # Runtime Data
 pids

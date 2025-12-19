@@ -56,10 +56,29 @@ map.on('load', () => {
 
             existingItem.onclick = () => {
                 if (getFollowBusId() === bus.bus_id) return;
-                setFollowBusId(bus.bus_id);
-                if (getMap()) getMap().flyTo({ center: [bus.longitude, bus.latitude], zoom: 18, speed: 1.5 });
-                document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
-                existingItem.classList.add('active-focus');
+
+                const map = getMap();
+                if (map) {
+                    const maxBounds = map.getMaxBounds();
+                    if (maxBounds && !maxBounds.contains([bus.longitude, bus.latitude])) {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Bus Diluar Area',
+                                text: 'Posisi bus berada di luar jangkauan peta.',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000
+                            });
+                        }
+                        return;
+                    }
+                    setFollowBusId(bus.bus_id);
+                    map.flyTo({ center: [bus.longitude, bus.latitude], zoom: 18, speed: 1.5 });
+                    document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
+                    existingItem.classList.add('active-focus');
+                }
             };
         } else {
             const item = document.createElement('div');
@@ -77,10 +96,29 @@ map.on('load', () => {
 
             item.onclick = () => {
                 if (getFollowBusId() === bus.bus_id) return;
-                setFollowBusId(bus.bus_id);
-                if (getMap()) getMap().flyTo({ center: [bus.longitude, bus.latitude], zoom: 17.5 });
-                document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
-                item.classList.add('active-focus');
+
+                const map = getMap();
+                if (map) {
+                    const maxBounds = map.getMaxBounds();
+                    if (maxBounds && !maxBounds.contains([bus.longitude, bus.latitude])) {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Bus Diluar Area',
+                                text: 'Posisi bus berada di luar jangkauan peta.',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000
+                            });
+                        }
+                        return;
+                    }
+                    setFollowBusId(bus.bus_id);
+                    map.flyTo({ center: [bus.longitude, bus.latitude], zoom: 17.5 });
+                    document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
+                    item.classList.add('active-focus');
+                }
             };
             list.appendChild(item);
         }
@@ -89,7 +127,13 @@ map.on('load', () => {
         checkAlerts(bus);
 
         if (getFollowBusId() === bus.bus_id) {
-            if (getMap()) getMap().flyTo({ center: [bus.longitude, bus.latitude], speed: 0.5 });
+            const map = getMap();
+            if (map) {
+                const maxBounds = map.getMaxBounds();
+                if (!maxBounds || maxBounds.contains([bus.longitude, bus.latitude])) {
+                    map.flyTo({ center: [bus.longitude, bus.latitude], speed: 0.5 });
+                }
+            }
         }
 
         document.getElementById('skeleton-loader').classList.add('hidden');
@@ -155,7 +199,13 @@ async function fetchData() {
             checkAlerts(bus);
 
             if (getFollowBusId() === bus.bus_id) {
-                if (getMap()) getMap().flyTo({ center: [bus.longitude, bus.latitude], speed: 0.5 });
+                const map = getMap();
+                if (map) {
+                    const maxBounds = map.getMaxBounds();
+                    if (!maxBounds || maxBounds.contains([bus.longitude, bus.latitude])) {
+                        map.flyTo({ center: [bus.longitude, bus.latitude], speed: 0.5 });
+                    }
+                }
             }
         });
 

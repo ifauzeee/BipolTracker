@@ -72,10 +72,28 @@ export function updateSidebar(bus, list, index) {
         </div>`;
     item.onclick = () => {
         if (getFollowBusId() === bus.bus_id) return;
-        setFollowBusId(bus.bus_id);
-        getMap().flyTo({ center: [bus.longitude, bus.latitude], zoom: 18, speed: 1.5, curve: 1 });
-        document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
-        item.classList.add('active-focus');
+
+        const map = getMap();
+        if (map) {
+            const maxBounds = map.getMaxBounds();
+            if (maxBounds && !maxBounds.contains([bus.longitude, bus.latitude])) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Bus Diluar Area',
+                    text: 'Posisi bus berada di luar jangkauan peta.',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+                return;
+            }
+
+            setFollowBusId(bus.bus_id);
+            map.flyTo({ center: [bus.longitude, bus.latitude], zoom: 18, speed: 1.5, curve: 1 });
+            document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
+            item.classList.add('active-focus');
+        }
     };
     list.appendChild(item);
 }
@@ -184,7 +202,27 @@ export function switchTab(tab) {
         routeView.classList.remove('active-page');
         infoPage.classList.remove('active-page');
         faqPage.classList.add('active-page');
+        loadBusPlates();
     }
+}
+
+export async function loadBusPlates() {
+    const select = document.getElementById('busPlate');
+    if (!select) return;
+
+    if (select.options.length > 1) return;
+
+    try {
+        const res = await fetch('/api/bus-plates');
+        const plates = await res.json();
+
+        plates.forEach(plate => {
+            const opt = document.createElement('option');
+            opt.value = plate;
+            opt.textContent = plate;
+            select.appendChild(opt);
+        });
+    } catch (e) { console.error(e); }
 }
 
 export function viewImage(src) {

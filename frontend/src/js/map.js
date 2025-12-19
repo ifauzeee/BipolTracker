@@ -251,7 +251,11 @@ export function updateMarker(bus) {
         markerObj.marker.setLngLat(targetPos);
         markerObj.marker.getPopup().setHTML(content);
         if (getFollowBusId() === bus.bus_id && getMap()) {
-            getMap().jumpTo({ center: targetPos });
+            const map = getMap();
+            const maxBounds = map.getMaxBounds();
+            if (!maxBounds || maxBounds.contains(targetPos)) {
+                map.jumpTo({ center: targetPos });
+            }
         }
     } else {
         const el = document.createElement('div');
@@ -267,9 +271,29 @@ export function updateMarker(bus) {
         el.appendChild(pulse);
         el.onclick = () => {
             if (getFollowBusId() === bus.bus_id) return;
-            setFollowBusId(bus.bus_id);
-            getMap().jumpTo({ center: targetPos, zoom: 17.5 });
-            document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
+
+            const map = getMap();
+            if (map) {
+                const maxBounds = map.getMaxBounds();
+                if (maxBounds && !maxBounds.contains(targetPos)) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Bus Diluar Area',
+                            text: 'Posisi bus berada di luar jangkauan peta.',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                    }
+                    return;
+                }
+
+                setFollowBusId(bus.bus_id);
+                map.jumpTo({ center: targetPos, zoom: 17.5 });
+                document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
+            }
         };
         const marker = new maplibregl.Marker({ element: el })
             .setLngLat(targetPos)
