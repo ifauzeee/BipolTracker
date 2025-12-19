@@ -197,8 +197,21 @@ app.use(cors({
 app.use(bodyParser.json({ limit: '10kb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10kb' }));
 
+app.use('/assets', express.static(path.join(__dirname, 'public', 'assets'), {
+    maxAge: '1y',
+    immutable: true
+}));
+
+app.get('/sw.js', (req, res) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    res.set('Service-Worker-Allowed', '/');
+    res.sendFile(path.join(__dirname, 'public', 'sw.js'));
+});
+
 app.use(express.static(path.join(__dirname, 'public'), {
-    maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
+    maxAge: 0,
     etag: true
 }));
 

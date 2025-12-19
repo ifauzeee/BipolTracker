@@ -32,10 +32,10 @@ export function initMap() {
                 'google-maps': {
                     'type': 'raster',
                     'tiles': [
-                        'https://mt0.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
-                        'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
-                        'https://mt2.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
-                        'https://mt3.google.com/vt/lyrs=m&x={x}&y={y}&z={z}'
+                        `https://mt0.google.com/vt/lyrs=m${(window.devicePixelRatio > 1) ? '&scale=2' : ''}&hl=id&x={x}&y={y}&z={z}`,
+                        `https://mt1.google.com/vt/lyrs=m${(window.devicePixelRatio > 1) ? '&scale=2' : ''}&hl=id&x={x}&y={y}&z={z}`,
+                        `https://mt2.google.com/vt/lyrs=m${(window.devicePixelRatio > 1) ? '&scale=2' : ''}&hl=id&x={x}&y={y}&z={z}`,
+                        `https://mt3.google.com/vt/lyrs=m${(window.devicePixelRatio > 1) ? '&scale=2' : ''}&hl=id&x={x}&y={y}&z={z}`
                     ],
                     'tileSize': 256,
                     'attribution': '&copy; Google Maps'
@@ -59,7 +59,9 @@ export function initMap() {
         fitBoundsOptions: { padding: { top: 40, bottom: (window.innerWidth < 768) ? 230 : 150, left: 20, right: 20 } },
         pitch: 0,
         bearing: 0,
-        antialias: true
+        bearing: 0,
+        antialias: true,
+        maxZoom: 18
     });
 
 

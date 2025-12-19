@@ -17,6 +17,7 @@ fetch('/api/config')
 export function setupControls() {
     document.getElementById('recenterBtn').onclick = () => {
         setFollowBusId(null);
+        closeAllPopups();
         getMap().fitBounds(bounds, {
             padding: { top: 40, bottom: (window.innerWidth < 768) ? 230 : 150, left: 20, right: 20 },
             pitch: 0,
