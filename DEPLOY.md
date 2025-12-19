@@ -1,137 +1,153 @@
-# Panduan Deployment Bipol Tracker
+# 🌍 PANDUAN DEPLOYMENT BIPOL TRACKER
 
-Dokumen ini menjelaskan langkah-langkah lengkap untuk menginstal dan men-deploy aplikasi Bipol Tracker ke server (VPS/Ubuntu) atau menjalankannya secara lokal.
+Dokumen ini menjelaskan secara rinci bagaimana cara men-deploy aplikasi **Bipol Tracker** ke lingkungan *production* atau *development* anda. Panduan ini mencakup konfigurasi environment, setup database, dan eksekusi server.
 
-## 1. Persiapan Sistem
+---
 
-Pastikan server atau mesin lokal Anda memiliki:
-- **Node.js** (Versi 18 atau terbaru direkomendasikan)
-- **NPM** (Biasanya terinstall bersama Node.js)
-- **Git**
-- **Supabase Account** (Untuk database PostgreSQL)
+## 📋 Daftar Isi
+1.  [Persyaratan Sistem](#1-persyaratan-sistem)
+2.  [Konfigurasi Environment (.env)](#2-konfigurasi-environment-env)
+3.  [Persiapan Database (Supabase)](#3-persiapan-database-supabase)
+4.  [Metode Deployment](#4-metode-deployment)
+    *   [Opsi A: Menggunakan Docker (Direkomendasikan)](#opsi-a-menggunakan-docker-direkomendasikan)
+    *   [Opsi B: Manual (Node.js)](#opsi-b-manual-nodejs)
+5.  [Verifikasi Instalasi](#5-verifikasi-instalasi)
+6.  [Troubleshooting](#6-troubleshooting)
 
-## 2. Instalasi Project
+---
 
-Clone repository dan install dependencies:
+## 1. Persyaratan Sistem
+Sebelum memulai, pastikan server atau komputer Anda memiliki spesifikasi berikut:
+*   **OS**: Linux / macOS / Windows
+*   **RAM**: Minimal 1GB (Disarankan 2GB+)
+*   **Software**:
+    *   [Docker Engine](https://docs.docker.com/engine/install/) & Docker Compose (Untuk Opsi A)
+    *   [Node.js v18+](https://nodejs.org/) (Untuk Opsi B)
+    *   Git
 
-```bash
-git clone <repository_url>
-cd bipol
-npm install
-```
+---
 
-## 3. Konfigurasi Database (Supabase)
+## 2. Konfigurasi Environment (.env)
+File `.env` adalah jantung konfigurasi aplikasi ini. Jangan pernah meng-upload file `.env` asli ke repository publik.
 
-1. Buat project baru di [Supabase Dashboard](https://supabase.com).
-2. Masuk ke **SQL Editor** di dashboard Supabase.
-3. Buka file `database/setup_full.sql` yang ada di project ini.
-4. Copy seluruh isi file tersebut dan Paste ke SQL Editor Supabase.
-5. Klik **Run** untuk membuat semua tabel dan konfigurasi awal.
+1.  Duplikat file contoh:
+    ```bash
+    cp .env.example .env
+    ```
 
-## 4. Konfigurasi Environment Variable
+2.  Edit file `.env` menggunakan text editor (nano/vim/vscode) dan isi variabel berikut:
 
-Duplikat file contoh `.env.example` menjadi `.env`:
+| Variabel | Deskripsi | Contoh Nilai |
+| :--- | :--- | :--- |
+| **PORT** | Port untuk Web Server / API | `3000` |
+| **UDP_PORT** | Port untuk menerima data GPS | `3333` |
+| **NODE_ENV** | Mode aplikasi | `production` |
+| **SUPABASE_URL** | URL Project Supabase Anda | `https://xyz.supabase.co` |
+| **SUPABASE_KEY** | Service Role Key (Server-side) | `eyJhbGcis...` |
+| **SESSION_SECRET** | Kunci enkripsi session cookie | `rahasia_super_panjang_123` |
+| **ALLOWED_ORIGINS** | Domain yang diizinkan (CORS) | `https://domainanda.com` |
+| **DATA_RETENTION_HOURS**| Lama data GPS disimpan (jam) | `24` |
 
-```bash
-cp .env.example .env
-```
+> **⚠️ Security Tip**: Gunakan `Service Role Key` dari Supabase untuk akses database tanpa batasan RLS di sisi server. Pastikan key ini tidak bocor ke client-side.
 
-Edit file `.env` dan isi sesuai konfigurasi Anda:
+---
 
-```bash
-nano .env
-```
+## 3. Persiapan Database (Supabase)
+Aplikasi ini membutuhkan struktur tabel tertentu agar berfungsi.
 
-Pastikan Anda mengisi:
-- `SUPABASE_URL` dan `SUPABASE_KEY` (Didapat dari Supabase > Project Settings > API).
-- `SESSION_SECRET` (Isi dengan string acak yang panjang untuk keamanan session).
-- `ALLOWED_ORIGINS` (URL web Anda, pisahkan dengan koma jika lebih dari satu).
+1.  Login ke Dashboard [Supabase](https://supabase.com/).
+2.  Buka project Anda -> Menu **SQL Editor**.
+3.  Buka file lokal `database/setup_full.sql` dari repository ini.
+4.  Copy semua isi file tersebut dan Paste ke SQL Editor Supabase.
+5.  Klik tombol **Run** untuk membuat tabel dan relasi yang diperlukan.
 
-## 5. Menjalankan Server
+Struktur utama yang akan dibuat meliputi:
+*   `users`: Menyimpan data admin/driver.
+*   `bipol_tracker`: Log data history perjalanan.
+*   `devices`: Daftar perangkat GPS yang terdaftar.
 
-### Mode Development (Lokal)
-Untuk menjalankan server dan build frontend secara bersamaan dengan hot-reload:
+---
 
-```bash
-npm run dev
-```
-Akses di `http://localhost:3000`.
+## 4. Metode Deployment
 
-### Mode Production (Server/VPS)
+### Opsi A: Menggunakan Docker (Direkomendasikan)
+Metode ini paling stabil karena memastikan isolasi environment.
 
-1. **Build Frontend:**
-   ```bash
-   npm run build
-   ```
-   Ini akan meng-compile file frontend ke folder `public/`.
+1.  **Build dan Jalankan Container**:
+    Pastikan Anda berada di direktori root project.
+    ```bash
+    docker compose up -d --build
+    ```
+    *Flag `-d` menjalankan container di background.*
 
-2. **Jalankan Server:**
-   ```bash
-   npm start
-   ```
+2.  **Cek Log (Opsional)**:
+    Untuk memastikan aplikasi berjalan lancar:
+    ```bash
+    docker compose logs -f
+    ```
 
-## 6. Deployment di VPS (Menggunakan PM2 & Nginx)
+3.  **Update Aplikasi**:
+    Jika ada perubahan kode, jalankan perintah langkah 1 lagi. Docker akan otomatis me-rebuild image.
 
-Untuk deployment yang stabil di server (misal Ubuntu di AWS/DigitalOcean), gunakan **PM2** untuk memanajemen proses dan **Nginx** sebagai reverse proxy.
+### Opsi B: Manual (Node.js)
+Gunakan metode ini jika Anda tidak ingin menggunakan Docker atau membutuhkan kontrol manual penuh.
 
-### Install PM2
-```bash
-npm install -g pm2
-```
+1.  **Install Dependencies**:
+    ```bash
+    npm install
+    ```
 
-### Jalankan Aplikasi dengan PM2
-```bash
-pm2 start server.js --name "bipol-tracker"
-pm2 save
-pm2 startup
-```
+2.  **Build Frontend (Jika ada aset Vite)**:
+    ```bash
+    npm run build
+    ```
 
-### Konfigurasi Nginx (Reverse Proxy)
-Install Nginx:
-```bash
-sudo apt update
-sudo apt install nginx
-```
+3.  **Jalankan Server**:
+    *   **Mode Development**:
+        ```bash
+        npm start
+        ```
+    *   **Mode Production** (Gunakan PM2 agar auto-restart):
+        ```bash
+        npm install -g pm2
+        pm2 start server.js --name "bipol-backend"
+        ```
 
-Buat config server block:
-```bash
-sudo nano /etc/nginx/sites-available/bipol
-```
+---
 
-Isi dengan konfigurasi berikut (sesuaikan `domain_anda.com`):
+## 5. Verifikasi Instalasi
 
-```nginx
-server {
-    server_name domain_anda.com www.domain_anda.com;
+Setelah aplikasi berjalan, lakukan pengecekan berikut:
 
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
+1.  **Web Interface**:
+    Buka `http://localhost:3000` (atau IP server Anda). Pastikan halaman login muncul.
+2.  **API Health Check**:
+    Akses `http://localhost:3000/api/health`. Response harus JSON:
+    ```json
+    { "status": "healthy", ... }
+    ```
+3.  **Database Connection**:
+    Akses `http://localhost:3000/api/health/ready` untuk memastikan koneksi ke Supabase berhasil.
+    ```json
+    { "status": "ready", "database": "connected" }
+    ```
 
-Aktifkan config:
-```bash
-sudo ln -s /etc/nginx/sites-available/bipol /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl restart nginx
-```
+---
 
-### SSL (HTTPS) dengan Certbot
-Amankan domain Anda dengan SSL gratis dari Let's Encrypt:
+## 6. Troubleshooting
 
-```bash
-sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d domain_anda.com -d www.domain_anda.com
-```
+### 🔴 Port Conflict
+*   **Error**: `EADDRINUSE: address already in use :::3000`
+*   **Solusi**: Port 3000 sudah dipakai aplikasi lain. Ubah `PORT` di file `.env` ke angka lain (misal `3001`), lalu restart.
 
-## 7. Troubleshooting
+### 🔴 Koneksi UDP Gagal
+*   **Masalah**: GPS Tracker tidak mengirim data.
+*   **Solusi**: Pastikan Firewall / Security Group di server (AWS/GCP/VPS) telah membuka **Port 3333 (UDP)**. Ingat, protokolnya UDP, bukan TCP.
 
-- **Server Error:** Cek logs dengan `pm2 logs bipol-tracker`.
-- **Database Error:** Pastikan `SUPABASE_URL` dan `KEY` benar dan table sudah dibuat via SQL script.
-- **WebSocket Gagal:** Pastikan konfigurasi Nginx sudah support Upgrade header (seperti contoh di atas).
+### 🔴 Supabase Connection Error
+*   **Error**: `PGRST301` atau Authorization error.
+*   **Solusi**: Cek kembali `SUPABASE_URL` dan `SUPABASE_KEY` di `.env`. Pastikan tidak ada spasi berlebih saat copy-paste.
+
+---
+
+*Dokumen ini diperbarui terakhir pada: Desember 2025*
