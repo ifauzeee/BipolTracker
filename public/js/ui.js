@@ -15,7 +15,14 @@ fetch('/api/config')
 export function setupControls() {
     document.getElementById('recenterBtn').onclick = () => {
         setFollowBusId(null);
-        getMap().fitBounds(bounds, { padding: { top: 40, bottom: 250, left: 20, right: 20 }, pitch: 0, bearing: 0 });
+        getMap().fitBounds(bounds, {
+            padding: { top: 40, bottom: 250, left: 20, right: 20 },
+            pitch: 0,
+            bearing: 0,
+            speed: 1.2,
+            curve: 1.42,
+            essential: true
+        });
         document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
     };
 
@@ -143,20 +150,14 @@ export function switchTab(tab) {
         }
         closeAllPopups();
 
-        getMap().easeTo({
-            center: bounds.getCenter(),
-            zoom: 14,
-            padding: { top: 40, bottom: 250, left: 20, right: 20 },
-            duration: 1200,
-            essential: true
-        });
-
-        getMap().fitBounds(bounds, {
-            padding: { top: 40, bottom: 250, left: 20, right: 20 },
-            speed: 0.8,
-            curve: 1.2,
-            essential: true
-        });
+        if (getMap()) {
+            getMap().fitBounds(bounds, {
+                padding: { top: 40, bottom: 250, left: 20, right: 20 },
+                speed: 1.2,
+                curve: 1.42,
+                essential: true
+            });
+        }
 
     } else if (tab === 'map') {
         sheet.classList.add('hidden');

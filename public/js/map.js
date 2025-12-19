@@ -24,11 +24,33 @@ export function closeAllPopups() {
     });
 }
 export function initMap() {
-    const styleUrl = 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json';
     map = new maplibregl.Map({
         container: 'map',
-        style: styleUrl,
-        attributionControl: false,
+        style: {
+            'version': 8,
+            'sources': {
+                'google-maps': {
+                    'type': 'raster',
+                    'tiles': [
+                        'https://mt0.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+                        'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+                        'https://mt2.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+                        'https://mt3.google.com/vt/lyrs=m&x={x}&y={y}&z={z}'
+                    ],
+                    'tileSize': 256,
+                    'attribution': '&copy; Google Maps'
+                }
+            },
+            'layers': [
+                {
+                    'id': 'google-maps-layer',
+                    'type': 'raster',
+                    'source': 'google-maps',
+                    'minzoom': 0,
+                    'maxzoom': 22
+                }
+            ]
+        },
         bounds: bounds,
         fitBoundsOptions: { padding: { top: 40, bottom: 250, left: 20, right: 20 } },
         pitch: 0,
@@ -36,10 +58,7 @@ export function initMap() {
         antialias: true
     });
 
-    map.on('load', () => {
-        const initialZoom = map.getZoom();
-        map.setMinZoom(initialZoom);
-    });
+
 
     map.on('styleimagemissing', (e) => {
         const id = e.id;
