@@ -17,8 +17,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script type="module" crossorigin src="/assets/main-6n2hHVss.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/main-wHB1pPtZ.css">
+  <script type="module" crossorigin src="/assets/main-CWjpWTfP.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/main-CXW50JFB.css">
 </head>
 
 <body>
@@ -106,7 +106,7 @@
         </div>
         <div class="page-content faq-content">
             <div class="faq-intro">
-                <p></p>
+                <p>Selamat datang di Bipol Tracker! Berikut penjelasan fitur-fitur yang tersedia di aplikasi ini.</p>
             </div>
 
             <div class="faq-section">
@@ -227,7 +227,10 @@
                 <form id="lostItemForm" class="lost-item-form" onsubmit="submitLostItem(event)">
                     <div class="form-group">
                         <label for="busPlate"><i class="fa-solid fa-bus"></i> Nomor Plat Bus</label>
-                        <input type="text" id="busPlate" name="busPlate" placeholder="Contoh: B 1234 ABC" required>
+                        <select id="busPlate" name="busPlate" required
+                            style="width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; background:#fff;">
+                            <option value="">Pilih Plat Bus...</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="waNumber"><i class="fa-brands fa-whatsapp"></i> Nomor WhatsApp Anda</label>

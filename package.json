@@ -12,9 +12,12 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^7.1.0",
     "@supabase/supabase-js": "^2.84.0",
+    "@turf/turf": "^7.3.1",
     "bcryptjs": "^3.0.3",
     "body-parser": "^2.2.1",
+    "chart.js": "^4.5.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
@@ -22,8 +25,11 @@
     "express-session": "^1.18.2",
     "helmet": "^8.0.0",
     "hpp": "^0.2.3",
+    "maplibre-gl": "^5.15.0",
     "node-fetch": "^2.7.0",
     "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "sweetalert2": "^11.26.10",
     "xss": "^1.0.15"
   },
   "devDependencies": {

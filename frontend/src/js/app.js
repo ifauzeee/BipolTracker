@@ -1,6 +1,7 @@
 import { initMap, addRoutes, addStops, add3DBuildings, updateMarker, removeInactiveMarkers, getMap, setFollowBusId, getFollowBusId } from './map.js';
 import { setupControls, updateSidebar, calculateETA, checkAlerts, switchTab, closeImage } from './ui.js';
 import { updateStatusConfig, GAS_ALERT_THRESHOLD, getBusStatus } from './status.js';
+import { startDummyBuses } from './dummy.js';
 
 fetch('/api/config')
     .then(r => r.json())
@@ -32,7 +33,7 @@ map.on('load', () => {
 
     const socket = io();
 
-    socket.on('update_bus', (bus) => {
+    const handleBusUpdate = (bus) => {
         updateMarker(bus);
 
         const list = document.getElementById('bus-list');
@@ -139,7 +140,10 @@ map.on('load', () => {
         document.getElementById('skeleton-loader').classList.add('hidden');
         document.getElementById('empty-state').classList.add('hidden');
         document.getElementById('empty-state').style.display = 'none';
-    });
+    };
+
+    socket.on('update_bus', handleBusUpdate);
+    startDummyBuses(handleBusUpdate);
 
     map.on('dragstart', () => {
         setFollowBusId(null);

@@ -41,6 +41,9 @@
             <button onclick="switchTab('settings')" class="nav-item" id="nav-settings">
                 <i class="fa-solid fa-sliders"></i> Settings
             </button>
+            <button onclick="switchTab('drivers')" class="nav-item" id="nav-drivers">
+                <i class="fa-solid fa-id-card"></i> Drivers
+            </button>
         </nav>
         <div class="user-panel">
             <div class="user-details">
@@ -297,6 +300,57 @@
                         </div>
                         <button onclick="saveAlertConfig()" class="btn-primary">Save Configuration</button>
                     </div>
+
+
+                </div>
+            </div>
+        </div>
+
+
+        <div id="drivers-section" class="section-container">
+            <div style="display: flex; gap: 40px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 300px;">
+                    <div class="settings-card">
+                        <h2><i class="fa-solid fa-user-plus"></i> Add New Driver</h2>
+                        <div class="form-grid">
+                            <div class="input-wrapper">
+                                <label>Nomer Plat Bus (ID)</label>
+                                <input type="text" id="newBusPlate" class="styled-input" placeholder="e.g. B 1234 XYZ">
+                                <small style="color:var(--text-light);">Use this as Login ID</small>
+                            </div>
+                            <div class="input-wrapper">
+                                <label>Driver Name (Optional)</label>
+                                <input type="text" id="newDriverName" class="styled-input"
+                                    placeholder="e.g. Budi Santoso">
+                            </div>
+                            <div class="input-wrapper">
+                                <label>Password (Optional)</label>
+                                <input type="text" id="newDriverPassword" class="styled-input"
+                                    placeholder="Auto-generated if empty">
+                            </div>
+                            <button onclick="addDriver()" class="btn-primary">
+                                <i class="fa-solid fa-plus"></i> Create Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="flex: 2; min-width: 300px;">
+                    <div class="settings-card">
+                        <h2><i class="fa-solid fa-users"></i> Registered Drivers</h2>
+                        <div class="table-glass">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Bus Plate</th>
+                                        <th>Driver Name</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="drivers-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -381,7 +435,8 @@
                 'geofence': 'Geofence Events',
                 'geofence': 'Geofence Events',
                 'feedback': 'User Feedback',
-                'settings': 'Settings'
+                'settings': 'Settings',
+                'drivers': 'Manage Drivers'
             };
             document.getElementById('page-title').innerText = titles[tab];
 
@@ -390,10 +445,167 @@
 
             if (tab === 'analytics') {
                 initCharts();
+            } else if (tab === 'drivers') {
+                loadDrivers();
             }
 
             closeSidebar();
         }
+
+        async function loadDrivers() {
+            const tbody = document.getElementById('drivers-table-body');
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading...</td></tr>';
+            try {
+                const res = await fetch('/api/admin/drivers');
+                const data = await res.json();
+
+                tbody.innerHTML = '';
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No drivers found</td></tr>';
+                    return;
+                }
+
+                data.forEach(d => {
+                    const tr = document.createElement('tr');
+                    const safePlate = d.bus_plate.replace(/'/g, "\\'");
+                    const safeName = (d.driver_name || '').replace(/'/g, "\\'");
+
+                    tr.innerHTML = `
+                        <td style="font-weight:600;">${d.bus_plate}</td>
+                        <td>${d.driver_name || '-'}</td>
+                        <td>
+                             <button class="btn-icon" onclick="openEditDriver('${d.id}', '${safePlate}', '${safeName}')" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                             <button class="btn-icon" onclick="resetDriverPassword('${d.id}')" title="Reset PW"><i class="fa-solid fa-key"></i></button>
+                             <button class="btn-icon" onclick="deleteDriver('${d.id}')" title="Delete" style="color:#ef4444;"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (e) {
+                console.error(e);
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:red;">Failed to load</td></tr>';
+            }
+        }
+
+        async function addDriver() {
+            const plate = document.getElementById('newBusPlate').value;
+            const name = document.getElementById('newDriverName').value;
+            const password = document.getElementById('newDriverPassword').value;
+
+            if (!plate) return Swal.fire('Error', 'Bus plate is required', 'error');
+
+            try {
+                const res = await fetch('/api/admin/drivers', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bus_plate: plate, driver_name: name, password: password })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        html: `Driver created.<br><b>ID: ${data.data.bus_plate}</b><br><b>Password: ${data.generatedPassword}</b>`,
+                        icon: 'success'
+                    });
+                    document.getElementById('newBusPlate').value = '';
+                    document.getElementById('newDriverName').value = '';
+                    document.getElementById('newDriverPassword').value = '';
+                    loadDrivers();
+                } else {
+                    Swal.fire('Error', data.error || 'Failed', 'error');
+                }
+            } catch (e) {
+                Swal.fire('Error', 'Network error', 'error');
+            }
+        }
+
+        async function deleteDriver(id) {
+            Swal.fire({
+                title: 'Delete Driver?',
+                text: "Confirm deletion.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Delete'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    await fetch('/api/admin/drivers/' + id, { method: 'DELETE' });
+                    loadDrivers();
+                    Swal.fire('Deleted', '', 'success');
+                }
+            });
+        }
+
+        async function openEditDriver(id, currentPlate, currentName) {
+            Swal.fire({
+                title: 'Edit Driver',
+                html: `
+                    <div style="text-align:left;">
+                        <label style="display:block;margin-bottom:5px;font-weight:500;">Bus Plate</label>
+                        <input id="editBusPlate" class="swal2-input" style="margin:0 0 15px 0;width:100%;box-sizing:border-box;" value="${currentPlate}">
+                        
+                        <label style="display:block;margin-bottom:5px;font-weight:500;">Driver Name</label>
+                        <input id="editDriverName" class="swal2-input" style="margin:0 0 15px 0;width:100%;box-sizing:border-box;" value="${currentName}">
+                        
+                        <label style="display:block;margin-bottom:5px;font-weight:500;">New Password (Optional)</label>
+                        <input id="editDriverPass" type="password" class="swal2-input" style="margin:0;width:100%;box-sizing:border-box;" placeholder="Leave empty to keep current">
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Save Changes',
+                preConfirm: () => {
+                    return {
+                        bus_plate: document.getElementById('editBusPlate').value,
+                        driver_name: document.getElementById('editDriverName').value,
+                        password: document.getElementById('editDriverPass').value
+                    }
+                }
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    const updates = result.value;
+                    try {
+                        const res = await fetch(`/api/admin/drivers/${id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(updates)
+                        });
+                        const data = await res.json();
+
+                        if (res.ok) {
+                            Swal.fire('Success', 'Driver updated successfully', 'success');
+                            loadDrivers();
+                        } else {
+                            Swal.fire('Error', data.error || 'Failed to update', 'error');
+                        }
+                    } catch (e) {
+                        Swal.fire('Error', 'Network error', 'error');
+                    }
+                }
+            });
+        }
+
+        async function resetDriverPassword(id) {
+            Swal.fire({
+                title: 'Reset Password?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, reset'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    const res = await fetch(`/api/admin/drivers/${id}/reset-password`, { method: 'PATCH' });
+                    const data = await res.json();
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Password Reset',
+                            html: `New Password: <b>${data.newPassword}</b>`,
+                            icon: 'success'
+                        });
+                    }
+                }
+            });
+        }
+
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -461,7 +673,7 @@
                         <p>${item.content}</p>
                         <div class="list-meta">Posted on ${new Date(item.created_at).toLocaleDateString()}</div>
                     </div>
-                    <button class="btn-icon" onclick="deleteInfo(${item.id})"><i class="fa-solid fa-trash"></i></button>
+                    <button class="btn-icon" onclick="deleteInfo('${item.id}')"><i class="fa-solid fa-trash"></i></button>
                 `;
                 container.appendChild(card);
             });
@@ -670,7 +882,7 @@
                 timer: 5000
             });
         });
-        socket.on('update_lost_item', () => loadLostItems());
+        socket.on('update_lost_items', () => loadLostItems());
         socket.on('new_feedback', (data) => {
             addFeedbackRow(data, false);
             Swal.fire({
@@ -733,7 +945,7 @@
                 <td style="font-weight:700;">${item.name || 'Anonim'}</td>
                 <td>${item.message}</td>
                 <td>
-                    <button class="btn-icon" onclick="deleteFeedback(${item.id})" title="Hapus"><i class="fa-solid fa-trash"></i></button>
+                    <button class="btn-icon" onclick="deleteFeedback('${item.id}')" title="Hapus"><i class="fa-solid fa-trash"></i></button>
                 </td>
             `;
 
@@ -813,12 +1025,12 @@
                 <td><span class="status-pill ${statusColors[item.status] || 'status-pending'}">${statusLabels[item.status] || item.status}</span></td>
                 <td>
                     <div style="display:flex; gap:8px; align-items:center;">
-                        <select onchange="updateLostItemStatus(${item.id}, this.value)" class="status-select" ${item.status !== 'pending' ? 'disabled' : ''}>
+                        <select onchange="updateLostItemStatus('${item.id}', this.value)" class="status-select" ${item.status !== 'pending' ? 'disabled' : ''}>
                             <option value="pending" ${item.status === 'pending' ? 'selected' : ''}>Pending</option>
                             <option value="resolved" ${item.status === 'resolved' ? 'selected' : ''}>Selesai</option>
                             <option value="rejected" ${item.status === 'rejected' ? 'selected' : ''}>Tolak</option>
                         </select>
-                        <button class="btn-icon" onclick="deleteLostItem(${item.id})" title="Hapus"><i class="fa-solid fa-trash"></i></button>
+                        <button class="btn-icon" onclick="deleteLostItem('${item.id}')" title="Hapus"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </td>
             `;

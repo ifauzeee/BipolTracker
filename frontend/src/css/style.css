@@ -1115,8 +1115,8 @@ html {
     background-repeat: no-repeat;
     cursor: pointer;
     position: relative;
-    
-    
+
+
 }
 
 .custom-toggle {
@@ -1901,4 +1901,144 @@ html {
 
 .chip-dashboard i {
     color: inherit;
+}
+
+.stop-marker-modern {
+    background: #ffffff;
+    border: 3px solid #0f172a;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 10;
+}
+
+.stop-marker-modern i {
+    color: #0f172a;
+    font-size: 12px;
+}
+
+.stop-marker-modern:hover {
+    transform: scale(1.2);
+    border-color: var(--accent);
+    z-index: 20;
+}
+
+.stop-marker-modern:hover i {
+    color: var(--accent);
+}
+
+/* Landscape Mode Optimization */
+@media screen and (orientation: landscape) and (max-height: 600px) {
+    .bottom-sheet {
+        top: 10px;
+        left: 10px !important;
+        bottom: 10px !important;
+        right: auto !important;
+        width: 320px !important;
+        max-height: none !important;
+        height: auto !important;
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        z-index: 400;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        transform: none !important;
+    }
+
+    .bottom-sheet.collapsed {
+        left: 10px !important;
+        width: 50px !important;
+        overflow: hidden;
+        padding: 0;
+        background: white;
+    }
+
+    .bottom-sheet.collapsed .sheet-header,
+    .bottom-sheet.collapsed .sheet-content {
+        visibility: hidden;
+        opacity: 0;
+    }
+
+    .bottom-sheet.collapsed #toggleSheetBtn {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) rotate(-90deg);
+        display: flex !important;
+        visibility: visible;
+        opacity: 1;
+        z-index: 50;
+    }
+
+    .sheet-handle-bar {
+        display: none;
+    }
+
+    .sheet-header {
+        padding-top: 16px;
+    }
+
+    /* Move nav to right side */
+    .mobile-nav {
+        left: auto;
+        right: 16px;
+        bottom: 50%;
+        transform: translateY(50%);
+        width: 64px;
+        height: auto;
+        flex-direction: column;
+        padding: 16px 0;
+        gap: 12px;
+        border-radius: 30px;
+        max-width: none;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-item {
+        padding: 12px;
+        width: 100%;
+        border-radius: 16px;
+    }
+
+    .nav-item span {
+        display: none;
+    }
+
+    .nav-item i {
+        font-size: 1.4rem;
+        margin: 0;
+    }
+
+    /* Floating controls adjustment */
+    .floating-controls {
+        right: 90px;
+        top: 16px;
+        flex-direction: row;
+    }
+
+    .sheet-content {
+        padding-bottom: 20px;
+        overflow-y: auto;
+    }
+
+    .route-panel-overlay {
+        padding-bottom: 0;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .route-master-panel {
+        max-height: 90vh;
+        overflow-y: auto;
+        border-radius: 24px;
+        margin: 0 20px;
+    }
 }

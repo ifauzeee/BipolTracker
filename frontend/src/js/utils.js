@@ -27,16 +27,3 @@ export function formatTime(minutes) {
     }
     return `${minutes} min`;
 }
-
-export function getCrowdConfig(level) {
-    switch (level?.toLowerCase()) {
-        case 'sepi':
-            return { color: '#10b981', text: 'Sepi' };
-        case 'sedang':
-            return { color: '#f59e0b', text: 'Sedang' };
-        case 'penuh':
-            return { color: '#ef4444', text: 'Penuh' };
-        default:
-            return { color: '#6b7280', text: 'Normal' };
-    }
-}

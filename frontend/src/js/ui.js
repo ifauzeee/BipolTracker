@@ -1,5 +1,5 @@
 import { stops, bounds } from './data.js';
-import { getMap, setFollowBusId, getFollowBusId, toggleRoute, closeAllPopups } from './map.js';
+import { getMap, setFollowBusId, getFollowBusId, toggleRoute, closeAllPopups, getMapPadding } from './map.js';
 import { getBusStatus, updateStatusConfig, GAS_ALERT_THRESHOLD } from './status.js';
 import * as turf from 'https://cdn.jsdelivr.net/npm/@turf/turf@7/+esm';
 
@@ -19,7 +19,7 @@ export function setupControls() {
         setFollowBusId(null);
         closeAllPopups();
         getMap().fitBounds(bounds, {
-            padding: { top: 40, bottom: (window.innerWidth < 768) ? 230 : 150, left: 20, right: 20 },
+            padding: getMapPadding(),
             pitch: 0,
             bearing: 0,
             speed: 1.2,
@@ -173,7 +173,7 @@ export function switchTab(tab) {
 
         if (getMap()) {
             getMap().fitBounds(bounds, {
-                padding: { top: 40, bottom: (window.innerWidth < 768) ? 230 : 150, left: 20, right: 20 },
+                padding: getMapPadding(),
                 speed: 1.2,
                 curve: 1.42,
                 essential: true
@@ -188,7 +188,7 @@ export function switchTab(tab) {
 
         getMap().resize();
         getMap().fitBounds(bounds, {
-            padding: { top: 50, bottom: (window.innerWidth < 768) ? 230 : 150, left: 20, right: 20 },
+            padding: { top: 20, bottom: 80, left: 20, right: 20 },
             speed: 0.8,
             curve: 1.2
         });

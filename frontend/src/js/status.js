@@ -1,7 +1,7 @@
 
-export const busLastMovedTime = {};
+const busLastMovedTime = {};
 export let GAS_ALERT_THRESHOLD = 600;
-export let BUS_STOP_TIMEOUT_MINUTES = 5;
+let BUS_STOP_TIMEOUT_MINUTES = 5;
 
 export function updateStatusConfig(config) {
     if (config.gasAlertThreshold) GAS_ALERT_THRESHOLD = config.gasAlertThreshold;

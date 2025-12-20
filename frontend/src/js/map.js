@@ -1,33 +1,51 @@
 import { stops, rutePagi, ruteSore, bounds } from './data.js';
-import { calculateDistance, estimateArrival, formatTime, getCrowdConfig } from './utils.js';
+import { calculateDistance, estimateArrival, formatTime } from './utils.js';
 import { getBusStatus, GAS_ALERT_THRESHOLD } from './status.js';
+
 let map;
 let busMarkers = {};
 let stopMarkers = [];
 let followBusId = null;
-let animationLoopStarted = false;
-const ANIMATION_DURATION = 1000;
-const easeLinear = t => t;
+
+export function getMapPadding() {
+    const width = window.innerWidth;
+    const isMobileLandscape = window.matchMedia("(orientation: landscape) and (max-height: 600px)").matches;
+    const isDesktop = width >= 768;
+
+    if (isMobileLandscape) {
+        return { top: 20, bottom: 20, left: 340, right: 90 };
+    }
+    if (isDesktop) {
+        return { top: 40, bottom: 130, left: 40, right: 40 };
+    }
+    return { top: 40, bottom: 230, left: 20, right: 20 };
+}
+
 export function getMap() {
     return map;
 }
+
 export function setFollowBusId(id) {
     followBusId = id;
 }
+
 export function getFollowBusId() {
     return followBusId;
 }
+
 export function closeAllPopups() {
     Object.values(busMarkers).forEach(obj => {
         const popup = obj.marker.getPopup();
         if (popup) popup.remove();
     });
 }
+
 export function initMap() {
     map = new maplibregl.Map({
         container: 'map',
         style: {
             'version': 8,
+            'glyphs': 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
             'sources': {
                 'google-maps': {
                     'type': 'raster',
@@ -56,15 +74,29 @@ export function initMap() {
             [bounds.getSouthWest().lng - 0.05, bounds.getSouthWest().lat - 0.05],
             [bounds.getNorthEast().lng + 0.05, bounds.getNorthEast().lat + 0.05]
         ],
-        fitBoundsOptions: { padding: { top: 40, bottom: (window.innerWidth < 768) ? 230 : 150, left: 20, right: 20 } },
+        fitBoundsOptions: { padding: { top: 40, bottom: 40, left: 20, right: 20 } },
+        padding: getMapPadding(),
         pitch: 0,
         bearing: 0,
-        bearing: 0,
         antialias: true,
-        maxZoom: 18
+        maxZoom: 18,
+        minZoom: 13
     });
 
+    map.on('load', () => {
+        loadMapImages(map);
+        setTimeout(() => {
+            map.resize();
+            map.fitBounds(bounds, { padding: getMapPadding(), animate: false });
+        }, 500);
+    });
 
+    window.addEventListener('resize', () => {
+        if (map) {
+            const newPadding = getMapPadding();
+            map.setPadding(newPadding);
+        }
+    });
 
     map.on('styleimagemissing', (e) => {
         const id = e.id;
@@ -76,8 +108,7 @@ export function initMap() {
     });
 
     map.on('error', (e) => {
-        if (e.error && e.error.message &&
-            e.error.message.includes('Expected value to be of type number, but found null')) {
+        if (e.error && e.error.message && e.error.message.includes('Expected value to be of type number, but found null')) {
             return;
         }
         console.warn('Map error:', e.error);
@@ -85,41 +116,140 @@ export function initMap() {
 
     return map;
 }
+
 export function addRoutes() {
     if (!map.getSource('rutePagi')) {
         map.addSource('rutePagi', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'LineString', coordinates: rutePagi } } });
+
         map.addLayer({
             id: 'rutePagiLayer', type: 'line', source: 'rutePagi',
             layout: { 'line-join': 'round', 'line-cap': 'round', 'visibility': 'visible' },
             paint: {
                 'line-color': '#BF1E2E',
-                'line-width': 4,
-                'line-opacity': 0.9,
+                'line-width': 6,
+                'line-opacity': 0.8,
                 'line-offset': -3
             }
         });
+
+        map.addLayer({
+            id: 'rutePagiArrows', type: 'symbol', source: 'rutePagi',
+            layout: {
+                'icon-image': 'arrow',
+                'symbol-placement': 'line',
+                'symbol-spacing': 50,
+                'icon-allow-overlap': true,
+                'icon-ignore-placement': true,
+                'icon-size': 0.6,
+                'icon-offset': [0, -4],
+                'visibility': 'visible',
+                'icon-rotation-alignment': 'map'
+            },
+            paint: { 'icon-opacity': 0.9, 'icon-color': '#ffffff' }
+        });
     }
+
     if (!map.getSource('ruteSore')) {
         map.addSource('ruteSore', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'LineString', coordinates: ruteSore } } });
+
         map.addLayer({
             id: 'ruteSoreLayer', type: 'line', source: 'ruteSore',
             layout: { 'line-join': 'round', 'line-cap': 'round', 'visibility': 'visible' },
             paint: {
                 'line-color': '#159BB3',
-                'line-width': 4,
-                'line-opacity': 0.9,
+                'line-width': 6,
+                'line-opacity': 0.8,
                 'line-offset': 3
             }
+        });
+
+        map.addLayer({
+            id: 'ruteSoreArrows', type: 'symbol', source: 'ruteSore',
+            layout: {
+                'icon-image': 'arrow',
+                'symbol-placement': 'line',
+                'symbol-spacing': 50,
+                'icon-allow-overlap': true,
+                'icon-ignore-placement': true,
+                'icon-size': 0.6,
+                'icon-offset': [0, 4],
+                'visibility': 'visible',
+                'icon-rotation-alignment': 'map'
+            },
+            paint: { 'icon-opacity': 0.9, 'icon-color': '#ffffff' }
         });
     }
     document.querySelectorAll('.chip').forEach(el => el.classList.add('active-route'));
 }
+
+function loadMapImages(map) {
+    const arrowCanvas = document.createElement('canvas');
+    arrowCanvas.width = 24;
+    arrowCanvas.height = 24;
+    const ctxArrow = arrowCanvas.getContext('2d');
+
+    ctxArrow.beginPath();
+    ctxArrow.moveTo(6, 4);
+    ctxArrow.lineTo(16, 12);
+    ctxArrow.lineTo(6, 20);
+    ctxArrow.lineWidth = 4;
+    ctxArrow.strokeStyle = '#ffffff';
+    ctxArrow.lineCap = 'round';
+    ctxArrow.lineJoin = 'round';
+    ctxArrow.stroke();
+
+    map.addImage('arrow', {
+        width: 24,
+        height: 24,
+        data: ctxArrow.getImageData(0, 0, 24, 24).data
+    });
+
+    const stopCanvas = document.createElement('canvas');
+    stopCanvas.width = 32;
+    stopCanvas.height = 32;
+    const ctxStop = stopCanvas.getContext('2d');
+
+    ctxStop.beginPath();
+    ctxStop.arc(16, 16, 13, 0, Math.PI * 2);
+    ctxStop.fillStyle = '#ffffff';
+    ctxStop.fill();
+    ctxStop.lineWidth = 3;
+    ctxStop.strokeStyle = '#0f172a';
+    ctxStop.stroke();
+
+    ctxStop.fillStyle = '#0f172a';
+    ctxStop.beginPath();
+    ctxStop.roundRect(9, 9, 14, 14, 2);
+    ctxStop.fill();
+
+    ctxStop.fillStyle = '#ffffff';
+    ctxStop.fillRect(11, 11, 10, 5);
+
+    ctxStop.fillStyle = '#0f172a';
+    ctxStop.beginPath();
+    ctxStop.arc(11, 24, 1.5, 0, Math.PI * 2);
+    ctxStop.arc(21, 24, 1.5, 0, Math.PI * 2);
+    ctxStop.fill();
+
+    map.addImage('stop-icon', {
+        width: 32,
+        height: 32,
+        data: ctxStop.getImageData(0, 0, 32, 32).data
+    });
+}
+
 export function toggleRoute(layerIdObj, element) {
     if (!map) return;
     const layerId = layerIdObj + 'Layer';
     const visibility = map.getLayoutProperty(layerId, 'visibility');
     const newVisibility = (visibility === 'visible' || visibility === undefined) ? 'none' : 'visible';
     map.setLayoutProperty(layerId, 'visibility', newVisibility);
+
+    const arrowLayerId = layerId.replace('Layer', 'Arrows');
+    if (map.getLayer(arrowLayerId)) {
+        map.setLayoutProperty(arrowLayerId, 'visibility', newVisibility);
+    }
+
     const isVisible = newVisibility === 'visible';
     if (element) {
         if (element.classList.contains('chip') || element.classList.contains('chip-dashboard')) {
@@ -136,26 +266,86 @@ export function toggleRoute(layerIdObj, element) {
         }
     }
 }
+
 if (typeof window !== 'undefined') {
     window.toggleRoute = toggleRoute;
 }
+
 export function addStops() {
     stopMarkers.forEach(m => m.remove());
     stopMarkers = [];
-    stops.forEach(stop => {
-        const el = document.createElement('div');
-        el.style.backgroundImage = "url('https://png.pngtree.com/png-clipart/20230321/original/pngtree-bus-stop-vector-icon-design-illustration-png-image_8997806.png')";
-        el.style.width = '30px';
-        el.style.height = '30px';
-        el.style.backgroundSize = 'contain';
-        el.style.backgroundRepeat = 'no-repeat';
-        const marker = new maplibregl.Marker({ element: el })
-            .setLngLat([stop.lng, stop.lat])
-            .setPopup(new maplibregl.Popup({ offset: 25 }).setText(stop.title))
-            .addTo(map);
-        stopMarkers.push(marker);
-    });
+
+    const stopsGeoJSON = {
+        type: 'FeatureCollection',
+        features: stops.map(stop => ({
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [stop.lng, stop.lat] },
+            properties: { title: stop.title.replace('Halte ', ''), fullName: stop.title }
+        }))
+    };
+
+    if (map.getSource('stopsSource')) {
+        map.getSource('stopsSource').setData(stopsGeoJSON);
+    } else {
+        map.addSource('stopsSource', { type: 'geojson', data: stopsGeoJSON });
+
+        map.addLayer({
+            id: 'stopsIcons',
+            type: 'symbol',
+            source: 'stopsSource',
+            layout: {
+                'icon-image': 'stop-icon',
+                'icon-size': 1,
+                'icon-allow-overlap': true,
+                'icon-ignore-placement': true
+            }
+        });
+
+        map.addLayer({
+            id: 'stopsLabels',
+            type: 'symbol',
+            source: 'stopsSource',
+            minzoom: 14.5,
+            layout: {
+                'text-field': ['get', 'title'],
+                'text-font': ['Open Sans Bold'],
+                'text-size': 12,
+                'text-offset': [0, 2],
+                'text-anchor': 'top',
+                'text-allow-overlap': false
+            },
+            paint: {
+                'text-color': '#334155',
+                'text-halo-color': '#ffffff',
+                'text-halo-width': 2
+            }
+        });
+
+        const popup = new maplibregl.Popup({
+            closeButton: false,
+            closeOnClick: false,
+            offset: 15
+        });
+
+        map.on('mouseenter', 'stopsIcons', (e) => {
+            map.getCanvas().style.cursor = 'pointer';
+            const coordinates = e.features[0].geometry.coordinates.slice();
+            const description = e.features[0].properties.fullName;
+            popup.setLngLat(coordinates).setText(description).addTo(map);
+        });
+
+        map.on('mouseleave', 'stopsIcons', () => {
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+        });
+
+        map.on('click', 'stopsIcons', (e) => {
+            const coordinates = e.features[0].geometry.coordinates.slice();
+            map.flyTo({ center: coordinates, zoom: 16 });
+        });
+    }
 }
+
 export function add3DBuildings() {
     const style = map.getStyle();
     if (!style || !style.sources) return;
@@ -190,6 +380,7 @@ export function add3DBuildings() {
         });
     }
 }
+
 export function updateMarker(bus) {
     const targetPos = [bus.longitude, bus.latitude];
     const gasClass = bus.gas_level > GAS_ALERT_THRESHOLD ? 'popup-danger' : '';
@@ -208,6 +399,7 @@ export function updateMarker(bus) {
             dist: calculateDistance(bus.latitude, bus.longitude, stop.lat, stop.lng)
         };
     }).sort((a, b) => a.dist - b.dist);
+
     const nearest = sortStops[0];
     if (nearest && nearest.dist < 5) {
         const timeMin = estimateArrival(nearest.dist, bus.speed);
@@ -222,6 +414,7 @@ export function updateMarker(bus) {
             </div>
         </div>`;
     }
+
     const content = `
         <div class="bus-popup">
             <div class="popup-header">
@@ -246,6 +439,7 @@ export function updateMarker(bus) {
             ${etaHtml}
         </div>
     `;
+
     if (busMarkers[bus.bus_id]) {
         const markerObj = busMarkers[bus.bus_id];
         markerObj.marker.setLngLat(targetPos);
@@ -266,9 +460,11 @@ export function updateMarker(bus) {
         el.style.backgroundSize = 'contain';
         el.style.backgroundRepeat = 'no-repeat';
         el.style.cursor = 'pointer';
+
         const pulse = document.createElement('div');
         pulse.className = 'marker-pulse';
         el.appendChild(pulse);
+
         el.onclick = () => {
             if (getFollowBusId() === bus.bus_id) return;
 
@@ -295,23 +491,23 @@ export function updateMarker(bus) {
                 document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
             }
         };
+
         const marker = new maplibregl.Marker({ element: el })
             .setLngLat(targetPos)
             .setPopup(new maplibregl.Popup({ offset: 25 }).setHTML(content))
             .addTo(map);
+
         busMarkers[bus.bus_id] = {
             marker: marker
         };
     }
 }
+
 export function removeInactiveMarkers(activeIds) {
     Object.keys(busMarkers).forEach(id => {
         if (!activeIds.has(id)) {
-            busMarkers[id].remove();
+            busMarkers[id].marker.remove();
             delete busMarkers[id];
         }
     });
-}
-export function flyToBus(pos) {
-    if (map) map.flyTo({ center: pos, speed: 0.5 });
 }
