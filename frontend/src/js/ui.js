@@ -27,6 +27,10 @@ export function setupControls() {
             essential: true
         });
         document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
+        if (window.innerWidth < 768) {
+            const sheet = document.querySelector('.bottom-sheet');
+            if (sheet) sheet.classList.add('collapsed');
+        }
     };
 
     window.toggleRouteCard = (layerIdObj) => {
@@ -46,6 +50,33 @@ export function setupControls() {
         const sheet = document.querySelector('.bottom-sheet');
         if (sheet) sheet.classList.add('collapsed');
     }
+
+    window.addEventListener('online', () => {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Online Kembali',
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+    });
+
+    window.addEventListener('offline', () => {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'warning',
+                title: 'Koneksi Terputus',
+                text: 'Beralih ke mode offline',
+                showConfirmButton: false,
+                timer: 5000
+            });
+        }
+    });
 }
 
 export function updateSidebar(bus, list, index) {
@@ -92,6 +123,10 @@ export function updateSidebar(bus, list, index) {
             setFollowBusId(bus.bus_id);
             map.flyTo({ center: [bus.longitude, bus.latitude], zoom: 18, speed: 1.5, curve: 1 });
             document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
+            if (window.innerWidth < 768) {
+                const sheet = document.querySelector('.bottom-sheet');
+                if (sheet) sheet.classList.add('collapsed');
+            }
             item.classList.add('active-focus');
         }
     };
@@ -178,6 +213,10 @@ export function switchTab(tab) {
                 curve: 1.42,
                 essential: true
             });
+        }
+
+        if (window.innerWidth < 768) {
+            sheet.classList.add('collapsed');
         }
 
     } else if (tab === 'map') {

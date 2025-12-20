@@ -1,5 +1,9 @@
 import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching';
 import { clientsClaim } from 'workbox-core';
+import { registerRoute } from 'workbox-routing';
+import { CacheFirst, NetworkFirst, NetworkOnly } from 'workbox-strategies';
+import { ExpirationPlugin } from 'workbox-expiration';
+import { BackgroundSyncPlugin } from 'workbox-background-sync';
 
 self.skipWaiting();
 clientsClaim();
@@ -8,25 +12,45 @@ cleanupOutdatedCaches();
 
 precacheAndRoute(self.__WB_MANIFEST);
 
-const CACHE_NAME = 'bipol-runtime-v1';
+registerRoute(
+  ({ url }) => url.hostname.includes('google.com') && url.pathname.includes('/vt'),
+  new CacheFirst({
+    cacheName: 'map-tiles-cache',
+    plugins: [
+      new ExpirationPlugin({
+        maxEntries: 1000,
+        maxAgeSeconds: 30 * 24 * 60 * 60,
+        purgeOnQuotaError: true,
+      }),
+    ],
+  })
+);
 
-self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-
-  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/auth/') || url.pathname.startsWith('/socket.io/')) {
-    return;
-  }
-
+const bgSyncPlugin = new BackgroundSyncPlugin('lost-items-queue', {
+  maxRetentionTime: 24 * 60
 });
 
-self.addEventListener('sync', event => {
-  if (event.tag === 'sync-lost-items') {
-    event.waitUntil(syncLostItems());
-  }
-});
+registerRoute(
+  ({ url }) => url.pathname === '/api/reports/lost-items' && url.origin === self.location.origin,
+  new NetworkOnly({
+    plugins: [bgSyncPlugin]
+  }),
+  'POST'
+);
 
-async function syncLostItems() {
-}
+registerRoute(
+  ({ url }) => url.pathname.startsWith('/api/') && !url.pathname.includes('/reports/'),
+  new NetworkFirst({
+    cacheName: 'api-cache',
+    plugins: [
+      new ExpirationPlugin({
+        maxEntries: 50,
+        maxAgeSeconds: 5 * 60,
+      }),
+    ],
+    networkTimeoutSeconds: 3
+  })
+);
 
 self.addEventListener('push', event => {
   const data = event.data ? event.data.json() : {};

@@ -413,6 +413,8 @@ export function updateMarker(bus) {
                 <div style="width:${Math.max(10, Math.min(100, (1 - nearest.dist / 3) * 100))}%; height:100%; background:#0369a1; border-radius:2px;"></div>
             </div>
         </div>`;
+
+        checkAndShowArrivalNotification(bus, nearest);
     }
 
     const content = `
@@ -494,13 +496,75 @@ export function updateMarker(bus) {
 
         const marker = new maplibregl.Marker({ element: el })
             .setLngLat(targetPos)
-            .setPopup(new maplibregl.Popup({ offset: 25 }).setHTML(content))
+            .setPopup(new maplibregl.Popup({ offset: 20, anchor: 'bottom' }).setHTML(content))
             .addTo(map);
 
         busMarkers[bus.bus_id] = {
             marker: marker
         };
     }
+}
+
+const notifiedState = new Map(); // Key: busId-stopName, Value: timestamp
+
+function checkAndShowArrivalNotification(bus, stop) {
+    // Threshold: 250 meter
+    if (stop.dist > 0.25) return;
+
+    const key = `${bus.bus_id}-${stop.title}`;
+    const now = Date.now();
+    const cooldown = 5 * 60 * 1000; // 5 menit cooldown per halte
+
+    // Jika sudah diberi notif dalam 5 menit terakhir, abaikan
+    if (notifiedState.has(key) && (now - notifiedState.get(key) < cooldown)) {
+        return;
+    }
+
+    // Tampilkan notifikasi
+    showArrivalNotification(bus, stop);
+
+    // Simpan state
+    notifiedState.set(key, now);
+
+    // Bersihkan state lama (garbage collection sederhana)
+    if (notifiedState.size > 50) {
+        for (const [k, t] of notifiedState) {
+            if (now - t > cooldown) notifiedState.delete(k);
+        }
+    }
+}
+
+function showArrivalNotification(bus, stop) {
+    const container = document.getElementById('arrival-notification-container');
+    if (!container) return;
+
+    const el = document.createElement('div');
+    el.className = 'arrival-card';
+
+    const stopName = stop.title.replace('Halte ', '');
+
+    el.innerHTML = `
+        <div class="arrival-icon">
+            <i class="fa-solid fa-bus"></i>
+        </div>
+        <div class="arrival-content">
+            <h4>${bus.bus_id} Mendekat!</h4>
+            <p>Akan tiba di ${stopName}</p>
+        </div>
+        <div class="arrival-time">
+            <i class="fa-solid fa-clock"></i> Segera
+        </div>
+    `;
+
+    container.appendChild(el);
+
+    // Hapus notif otomatis setelah 6 detik
+    setTimeout(() => {
+        el.classList.add('leaving');
+        el.addEventListener('animationend', () => {
+            el.remove();
+        });
+    }, 6000);
 }
 
 export function removeInactiveMarkers(activeIds) {

@@ -31,7 +31,14 @@ map.on('load', () => {
     if (emptyState) emptyState.style.display = 'none';
 
 
-    const socket = io();
+    const socket = io({
+        connectionStateRecovery: {
+            maxDisconnectionDuration: 2 * 60 * 1000,
+            skipMiddlewares: true,
+        },
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000
+    });
 
     const handleBusUpdate = (bus) => {
         updateMarker(bus);
@@ -78,6 +85,10 @@ map.on('load', () => {
                     setFollowBusId(bus.bus_id);
                     map.flyTo({ center: [bus.longitude, bus.latitude], zoom: 18, speed: 1.5 });
                     document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
+                    if (window.innerWidth < 768) {
+                        const sheet = document.querySelector('.bottom-sheet');
+                        if (sheet) sheet.classList.add('collapsed');
+                    }
                     existingItem.classList.add('active-focus');
                 }
             };
@@ -118,6 +129,10 @@ map.on('load', () => {
                     setFollowBusId(bus.bus_id);
                     map.flyTo({ center: [bus.longitude, bus.latitude], zoom: 17.5 });
                     document.querySelectorAll('.bus-item').forEach(i => i.classList.remove('active-focus'));
+                    if (window.innerWidth < 768) {
+                        const sheet = document.querySelector('.bottom-sheet');
+                        if (sheet) sheet.classList.add('collapsed');
+                    }
                     item.classList.add('active-focus');
                 }
             };
