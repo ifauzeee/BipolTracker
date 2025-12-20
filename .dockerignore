@@ -1,5 +1,37 @@
-node_modules
-.git
+# Dependencies
+node_modules/
+
+# Git
+.git/
+.gitignore
+
+# Environment Variables
 .env
-.idea
-npm-debug.log
+.env.local
+.env.production
+
+# IDE & Editors
+.idea/
+.vscode/
+*.sw?
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Documentation
+README.md
+DEPLOY.md
+LICENSE
+
+# Development files (excluded from production image)
+firmware/
+database/
+*.pcap
+RELEASE_NOTES_v1.0.0.md
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -7,6 +7,4 @@ services:
       - "${UDP_PORT:-3333}:${UDP_PORT:-3333}/udp"
     env_file:
       - .env
-    environment:
-      - NODE_ENV=production
     restart: unless-stopped

@@ -1,16 +1,37 @@
 {
-  "name": "bipol-backend",
+  "name": "bipol-tracker",
   "version": "1.0.0",
+  "description": "BIPOL Tracker - Sistem pelacakan armada bus kampus Politeknik Negeri Jakarta secara real-time menggunakan GPS, WebSocket, dan peta interaktif",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "build": "vite build",
+    "dev": "vite",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "bus-tracking",
+    "gps-tracker",
+    "real-time",
+    "socket.io",
+    "websocket",
+    "maplibre",
+    "supabase",
+    "esp32",
+    "politeknik-negeri-jakarta",
+    "pwa",
+    "geofencing"
+  ],
+  "author": "BIPOL Team (Ifauzeee)",
   "license": "ISC",
-  "description": "",
+  "homepage": "https://github.com/ifauzeee/BIPOL#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ifauzeee/BIPOL.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ifauzeee/BIPOL/issues"
+  },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.1.0",
     "@supabase/supabase-js": "^2.84.0",
