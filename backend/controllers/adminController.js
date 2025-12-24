@@ -4,6 +4,7 @@ const sanitizeInput = require('../utils/sanitizer');
 const validate = require('../utils/validators');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
+const { getAllSettings, updateSettings } = require('../services/settingsService');
 
 exports.getLogs = async (req, res) => {
     try {
@@ -174,5 +175,32 @@ exports.getGeofenceEvents = async (req, res) => {
     } catch (err) {
         console.error('Get geofence events error:', err.message);
         res.status(500).json({ error: 'Failed to fetch geofence events' });
+    }
+};
+
+exports.getSettings = async (req, res) => {
+    try {
+        const settings = await getAllSettings();
+        res.json(settings);
+    } catch (err) {
+        console.error('Get settings error:', err.message);
+        res.status(500).json({ error: 'Failed to fetch settings' });
+    }
+};
+
+exports.updateSettings = async (req, res) => {
+    try {
+        const { gasThreshold, stopTimeout, minSpeed } = req.body;
+        const updates = {};
+
+        if (gasThreshold !== undefined) updates['GAS_ALERT_THRESHOLD'] = gasThreshold;
+        if (stopTimeout !== undefined) updates['BUS_STOP_TIMEOUT_MINUTES'] = stopTimeout;
+        if (minSpeed !== undefined) updates['UDP_MIN_SPEED_THRESHOLD'] = minSpeed;
+
+        await updateSettings(updates);
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Update settings error:', err.message);
+        res.status(500).json({ error: 'Failed to update settings' });
     }
 };

@@ -14,4 +14,7 @@ router.delete('/drivers/:id', adminController.deleteDriver);
 router.patch('/drivers/:id/reset-password', adminController.resetDriverPassword);
 router.put('/drivers/:id', adminController.updateDriver);
 
+router.get('/settings', adminController.getSettings);
+router.post('/settings', adminController.updateSettings);
+
 module.exports = router;

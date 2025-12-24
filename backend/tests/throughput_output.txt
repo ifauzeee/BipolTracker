@@ -1,0 +1,36 @@
+
+🧪 BIPOL QoS Throughput Test
+═══════════════════════════════════════════════════════
+📊 Mode: 🔴 REAL DATA (ESP32)
+📡 Target: localhost:3333
+⏱️  Duration: 30 detik
+═══════════════════════════════════════════════════════
+✅ WebSocket connected
+
+📡 Monitoring throughput dari ESP32 asli...
+
+📊 [5s] Packets: 4 | Rate: 0.80/s
+📊 [10s] Packets: 7 | Rate: 0.70/s
+📊 [15s] Packets: 12 | Rate: 0.80/s
+📊 [20s] Packets: 16 | Rate: 0.80/s
+📊 [25s] Packets: 19 | Rate: 0.76/s
+
+═══════════════════════════════════════════════════════
+📊 HASIL PENGUJIAN QoS THROUGHPUT
+═══════════════════════════════════════════════════════
+
+📊 Mode: REAL DATA
+⏱️  Duration: 30.00 detik
+📥 Packets Received: 23
+📈 Packets/Second: 0.77
+💾 Total Data: 0.81 KB
+📊 Throughput: 0.03 KB/s
+
+🚌 Buses Detected: 1
+   PBL BIPOL: 23 packets
+
+📋 QoS ASSESSMENT:
+   ✅ Throughput: GOOD (0.77/s)
+
+═══════════════════════════════════════════════════════
+💾 Report: ./tests/throughput_real_1766529152344.json

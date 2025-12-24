@@ -112,6 +112,12 @@ app.get('/sw.js', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'sw.js'));
 });
 
+
+
+app.get('/monitor', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'monitor.html'));
+});
+
 app.use(express.static(path.join(__dirname, 'public'), {
     maxAge: 0,
     etag: true
@@ -163,9 +169,7 @@ app.get('/driver/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'driver.html'));
 });
 
-app.get('/team', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'team.html'));
-});
+
 
 app.use((err, req, res, next) => {
     console.error('Unhandled error:', err);

@@ -3,6 +3,7 @@ const validate = require('../utils/validators');
 const sanitizeInput = require('../utils/sanitizer');
 const supabase = require('../config/supabase');
 const { checkGeofence } = require('./geofenceService');
+const { getSettingSync } = require('./settingsService');
 
 const UDP_PORT = process.env.UDP_PORT || 3333;
 
@@ -31,7 +32,7 @@ function startUdpServer(io) {
             console.log(`📡 [UDP] ${bus_id} | 📍 ${latitude.toFixed(6)},${longitude.toFixed(6)} | 🚀 ${speed} | ⛽ ${gas_level}`);
 
             let cleanSpeed = validate.speed(speed) ? speed : 0;
-            const minSpeed = parseFloat(process.env.UDP_MIN_SPEED_THRESHOLD) || 3.0;
+            const minSpeed = parseFloat(getSettingSync('UDP_MIN_SPEED_THRESHOLD'));
             if (cleanSpeed < minSpeed) cleanSpeed = 0;
 
             const insertData = {

@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BIPOL Tracker - Analisis Proyek (Single File)</title>
+    <title>BIPOL Tracker - Analisis Proyek</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
@@ -243,6 +244,16 @@
 
         .author {
             font-weight: 500;
+            opacity: 0.8;
+        }
+
+        .mobile-hint {
+            display: none;
+            color: var(--secondary);
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            font-style: italic;
+            letter-spacing: 1px;
             opacity: 0.8;
         }
 
@@ -656,28 +667,388 @@
         }
 
         @media (max-width: 768px) {
-            .slide {
-                padding: 0 5%;
+
+            /* Transform into Vertical Scroll Layout for Mobile */
+            body {
+                overflow-y: hidden;
+                /* Container handles scrolling */
+                cursor: auto;
             }
 
-            .sol-container,
-            .ui-showcase,
-            .arch-container,
-            .roadmap-container {
+            #presentation-container {
+                display: block;
+                width: 100%;
+                height: 100vh;
+                /* Viewport height container */
+                overflow-x: hidden;
+                overflow-y: auto;
+                /* Vertical scroll enabled */
+                scroll-snap-type: none;
                 flex-direction: column;
-                gap: 2rem;
             }
 
-            .arch-arrow {
-                transform: rotate(90deg);
+            .slide {
+                width: 100%;
+                height: auto;
+                min-height: auto !important;
+                /* Hapus paksaan tinggi layar penuh */
+                flex: none;
+                padding: 50px 20px;
+                /* Jarak atas bawah lebih rapat */
+                overflow: visible;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                margin-bottom: 0;
             }
 
-            .section-title {
-                font-size: 2.5rem;
+            /* Make First Slide Full Height on Mobile */
+            #slide-welcome {
+                height: 100vh;
+                height: 100dvh;
+                min-height: 100vh !important;
+                justify-content: center;
+                padding-top: 0;
+                padding-bottom: 0;
+                border-bottom: none;
+            }
+
+            /* Adjust Content for Mobile */
+            /* Welcome Logo di Tengah */
+            .welcome-logo {
+                display: block;
+                margin: 0 auto 1.5rem auto;
+                /* Tengah dengan margin bawah */
+                width: 150px;
+                /* Opsional: Atur ulang ukuran jika perlu */
+                max-width: 80%;
             }
 
             .main-title {
-                font-size: 3.5rem;
+                font-size: 3rem;
+                line-height: 1.1;
+                text-align: center;
+            }
+
+            .tagline,
+            .subtitle,
+            .author {
+                text-align: center;
+            }
+
+            .mobile-hint {
+                display: block;
+                text-align: center;
+            }
+
+            .divider {
+                margin: 2rem auto;
+            }
+
+            .section-title {
+                font-size: 2.2rem;
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+
+            .section-title::after {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            /* Stack Grids Vertically */
+            .grid-2,
+            .feature-grid,
+            .block-diagram-grid,
+            .sol-container,
+            .ui-showcase,
+            .arch-container,
+            .roadmap-container,
+            .topology-node-container {
+                display: flex;
+                flex-direction: column !important;
+                /* Force vertical stack */
+                align-items: center !important;
+                gap: 1rem !important;
+                /* Rapatkan gap */
+            }
+
+            .grid-2,
+            .feature-grid,
+            .block-diagram-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+
+            /* Component Adjustments */
+            .arch-arrow,
+            .topo-arrow {
+                transform: rotate(90deg);
+                margin: 10px auto;
+                text-align: center;
+                display: block;
+            }
+
+            .roadmap-item {
+                border-left: 2px solid var(--glass-border);
+                padding: 1.5rem;
+            }
+
+            .ui-mockup {
+                width: 100%;
+                max-width: 300px;
+                margin: 0 auto;
+                height: 500px;
+            }
+
+            /* Hide Desktop Elements */
+            .cursor,
+            .cursor-follower,
+            #progress-bar,
+            .scroll-indicator,
+            #fullscreen-btn,
+            #welcome-popup {
+                display: none !important;
+            }
+
+            /* Responsive Images in Mockups */
+            .ui-mockup-img {
+                max-height: 40vh;
+                width: auto;
+                margin: 0 auto;
+                display: block;
+            }
+
+            /* --- NO CARD STYLE MODE (Clean/Doc Style) --- */
+            .glass,
+            .card,
+            .feat-card,
+            .roadmap-item,
+            .arch-node,
+            .team-member,
+            .block-section,
+            .port-box,
+            .ui-mockup,
+            #slide-database .feat-card {
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                backdrop-filter: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
+            }
+
+            /* Reset hover interactions */
+            .glass:hover,
+            .feat-card:hover,
+            .roadmap-item:hover {
+                transform: none !important;
+                background: transparent !important;
+            }
+
+            /* Berikan separator visual minimalis antar item */
+            .grid-2>div,
+            .feature-grid>div,
+            .roadmap-container>div,
+            .block-diagram-grid>div {
+                padding-bottom: 1.5rem !important;
+                margin-bottom: 1.5rem !important;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+            }
+
+            /* Hapus border item terakhir */
+            .grid-2>div:last-child,
+            .feature-grid>div:last-child,
+            .roadmap-container>div:last-child {
+                border-bottom: none !important;
+                padding-bottom: 0 !important;
+                margin-bottom: 0 !important;
+            }
+
+            /* Custom Layout for Block Diagram: Input & Output aligned side-by-side */
+            .block-diagram-grid {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                grid-template-areas:
+                    "input output"
+                    "process process" !important;
+                gap: 1rem !important;
+                align-items: start;
+            }
+
+            .block-diagram-grid>.block-section {
+                border-bottom: none !important;
+                padding-bottom: 0 !important;
+                margin-bottom: 0 !important;
+            }
+
+            .block-diagram-grid>.block-section:nth-child(1) {
+                grid-area: input;
+            }
+
+            .block-diagram-grid>.block-section:nth-child(2) {
+                grid-area: process;
+                margin-top: 1rem !important;
+            }
+
+            .block-diagram-grid>.block-section:nth-child(3) {
+                grid-area: output;
+            }
+
+            /* Penyesuaian text alignment */
+            /* Penyesuaian text alignment - Default Left */
+            .feat-card {
+                text-align: left !important;
+                align-items: flex-start !important;
+            }
+
+            /* --- Fix Alur Data (Slide Tech) -> CENTER --- */
+            .arch-container {
+                align-items: center !important;
+                text-align: center !important;
+            }
+
+            .arch-node {
+                width: 100% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                /* Icon dan teks di tengah */
+                justify-content: center !important;
+                text-align: center !important;
+            }
+
+            .arch-node i {
+                margin-bottom: 0.8rem;
+                display: block !important;
+                font-size: 1.8rem;
+            }
+
+            /* --- Fix Diagram Blok Sistem -> CENTER --- */
+            .block-section {
+                align-items: center !important;
+                /* Paksa semua item di blok (judul, node, panah) ke tengah */
+                text-align: center !important;
+            }
+
+            /* Panah di tengah diagram blok */
+            .block-section>i.fa-arrow-down {
+                align-self: center !important;
+                margin: 0 auto !important;
+                display: block !important;
+                width: 100% !important;
+                text-align: center !important;
+            }
+
+            /* Hapus Garis Bawah Spesifik (MQ2 & Node JS) */
+            /* MQ-2 & Node.js adalah item terakhir di dalam blok mereka masing-masing */
+            .block-node-item:last-child {
+                border-bottom: none !important;
+                /* Hapus border default jika ada */
+                margin-bottom: 0 !important;
+            }
+
+            /* Override spesifik untuk grid agar tidak ada garis di bawah item terakhir dalam grup */
+            .block-section .block-node-item {
+                border-bottom: none !important;
+                /* Pastikan tidak ada border di item node itu sendiri (karena sebelumnya border ada di containernya) */
+            }
+
+            /* Hapus dekorasi khusus di database card */
+            .feature-list li {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+                margin-bottom: 1.5rem !important;
+                align-items: flex-start !important;
+            }
+
+            /* Penyesuaian Icon agar ada di kiri (Kecuali yang sudah di-override di atas) */
+            .feat-card i,
+            .card-icon {
+                font-size: 1.8rem;
+                margin-bottom: 0.5rem;
+                display: inline-block;
+            }
+
+            /* Hapus dekorasi khusus di database card */
+            #slide-database .feat-card::before {
+                display: none;
+            }
+
+            /* --- LAYOUT FORCE-STACKING (Fix Potongan Horizontal) --- */
+
+            /* Target: Container utama di dalam slide yang memakai inline style display: flex */
+            .slide>.content>div[style*="display: flex"] {
+                flex-direction: column-reverse !important;
+                /* Gambar biasanya di kiri/kanan, kita stack. Reverse jika perlu agar text dulu atau gambar dulu, default column oke */
+                height: auto !important;
+                align-items: center !important;
+                gap: 40px !important;
+            }
+
+            /* Khusus Closing Slide & UI Showcase: Pastikan urutan natural (Gambar diatas atau Teks diatas, tergantung selera). 
+               Kita pakai column biasa agar urutan HTML terjaga. */
+            .slide>.content>div[style*="display: flex"] {
+                flex-direction: column !important;
+            }
+
+            /* Target: Item flex di dalamnya (Kolom Kiri/Kanan) */
+            .slide>.content>div[style*="display: flex"]>div {
+                flex: none !important;
+                /* Matikan flex basis/grow */
+                width: 100% !important;
+                text-align: center !important;
+                /* Center text di mobile */
+                padding: 0 !important;
+            }
+
+            /* Sembunyikan Divider Vertikal (Garis Tipis) di Closing Slide */
+            #slide-closing div[style*="width: 1px"],
+            div[style*="width: 2px"][style*="height"] {
+                display: none !important;
+            }
+
+            /* Fix Gambar agar responsif penuh dan tidak gepeng */
+            img {
+                max-width: 80% !important;
+                height: auto !important;
+                margin: 0 auto !important;
+            }
+
+            #slide-closing img {
+                max-width: 200px !important;
+            }
+
+            /* Fix Badge/Label agar di tengah */
+            .badge {
+                margin-bottom: 1rem !important;
+            }
+
+            /* Fix Alignment container kecil (misal tombol social media) */
+            div[style*="display: flex"][style*="gap:"] {
+                justify-content: center !important;
+                flex-wrap: wrap !important;
+            }
+
+            /* Tombol-tombol di closing slide */
+            #slide-closing a {
+                min-width: 100% !important;
+                /* Tombol full width agar mudah ditekan */
+                justify-content: center !important;
+            }
+
+            /* Text Alignment overrides untuk judul/deskripsi */
+            h3,
+            p {
+                text-align: center !important;
+            }
+
+            /* Port Box Network Deep di Mobile */
+            .port-box>div[style*="display:flex"] {
+                flex-direction: column !important;
             }
         }
 
@@ -1108,6 +1479,9 @@
 
         .member-icon {
             width: 50px;
+            min-width: 50px;
+            /* Prevent shrinking */
+            flex-shrink: 0;
             height: 50px;
             background: linear-gradient(135deg, var(--primary), #ef4444);
             border-radius: 50%;
@@ -1540,6 +1914,39 @@
                 display: none !important;
             }
         }
+
+        #slide-database .feat-card::before {
+            display: none;
+        }
+
+        .tech-typewriter {
+            font-family: 'Courier New', monospace;
+            color: var(--secondary);
+            font-weight: 700;
+            background: rgba(245, 158, 11, 0.1);
+            padding: 0 4px;
+            border-radius: 4px;
+        }
+
+        /* Cursor Typewriter */
+        .tech-typewriter::after {
+            content: '|';
+            animation: blinkCursor 0.8s infinite;
+            color: var(--primary);
+            margin-left: 2px;
+        }
+
+        @keyframes blinkCursor {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 
@@ -1547,7 +1954,7 @@
     <div class="cursor"></div>
     <div class="cursor-follower"></div>
 
-    <div id="welcome-popup">
+    <div id="welcome-popup" class="hidden">
         <div class="welcome-box">
             <div class="welcome-icon">
                 <i class="fa-solid fa-rocket"></i>
@@ -1619,12 +2026,13 @@
                 <div class="circle circle-2"></div>
             </div>
             <div class="content">
-                <img src="../frontend/public/images/loading-banner.png" alt="BIPOL Banner" class="welcome-logo">
+                <img src="/images/loading-banner.png" alt="BIPOL Banner" class="welcome-logo">
                 <div class="tagline">TEKNIK INFORMATIKA DAN KOMPUTER</div>
                 <h1 class="main-title">BIPOL <span>TRACKER</span></h1>
                 <p class="subtitle">Pendalaman Teknis Bus Information & Positioning Online</p>
                 <div class="divider"></div>
                 <p class="author">Laporan Detail Proyek</p>
+                <p class="mobile-hint">#UseDesktopForBestExperience</p>
                 <div class="scroll-indicator">
                     <span>Geser untuk Melanjutkan</span>
                     <i class="fa-solid fa-chevron-right"></i>
@@ -1644,21 +2052,21 @@
                         </div>
                     </li>
                     <li class="team-member glass">
-                        <div class="member-icon"><i class="fa-solid fa-user-gear"></i></div>
+                        <div class="member-icon"><i class="fa-solid fa-user"></i></div>
                         <div class="member-info">
                             <h4>MUHAMMAD ADIAN HENDRAWAN</h4>
                             <span>NIM 2307422020</span>
                         </div>
                     </li>
                     <li class="team-member glass">
-                        <div class="member-icon"><i class="fa-solid fa-user-shield"></i></div>
+                        <div class="member-icon"><i class="fa-solid fa-user"></i></div>
                         <div class="member-info">
                             <h4>RADITYA RAFALA</h4>
                             <span>NIM 2307422010</span>
                         </div>
                     </li>
                     <li class="team-member glass">
-                        <div class="member-icon"><i class="fa-solid fa-user-pen"></i></div>
+                        <div class="member-icon"><i class="fa-solid fa-user"></i></div>
                         <div class="member-info">
                             <h4>RAFA RAIHAN</h4>
                             <span>NIM 2307422025</span>
@@ -1863,7 +2271,7 @@
                         <h3><i class="fa-solid fa-cubes"></i> Integrasi Menyeluruh</h3>
                         <p style="color: var(--text-muted); margin-bottom: 2rem;">Sistem BIPOL dirancang dengan
                             pendekatan
-                            <strong>Layered Microservice Architecture</strong> untuk memastikan modularitas dan
+                            <strong>Modular Layered Architecture</strong> untuk memastikan modularitas dan
                             skalabilitas.
                         </p>
 
@@ -2013,11 +2421,16 @@
                         </div>
 
                         <ul class="feature-list" style="margin-top:1.5rem; font-size:0.9rem;">
-                            <li><i class="fa-solid fa-arrows-split-up-and-left"></i> <strong>NAT Strategy:</strong>
-                                Mapping
-                                Public IP ke Container Private IP.</li>
-                            <li><i class="fa-solid fa-shield-cat"></i> <strong>Firewall Rules:</strong> Hanya Allow Port
-                                80, 443, 3000, 3333.</li>
+                            <li>
+                                <div><i class="fa-solid fa-arrows-split-up-and-left no-animate"></i> <strong>NAT
+                                        Strategy:</strong></div>
+                                <span>Mapping Public IP ke Container Private IP.</span>
+                            </li>
+                            <li>
+                                <div><i class="fa-solid fa-shield-cat no-animate"></i> <strong>Firewall Rules:</strong>
+                                </div>
+                                <span>Hanya Allow Port 80, 443, 3000, 3333.</span>
+                            </li>
                         </ul>
                     </div>
 
@@ -2034,7 +2447,7 @@
                                 PAYLOAD FORMAT:</small>
                             <code
                                 style="background:rgba(0,0,0,0.3); padding:0.8rem; display:block; border-radius:6px; color:#4ade80; font-family: monospace; border: 1px solid rgba(74, 222, 128, 0.3);">
-                                BIP001,-6.392,106.829,45,0
+                                BIPOL,-6.377985,106.816521,0.0,962
                             </code>
                         </div>
 
@@ -2073,7 +2486,8 @@
                     <div class="feat-card glass">
                         <i class="fa-solid fa-database"></i>
                         <h4>Data Pelacak</h4>
-                        <p>Tabel <code>bipol_tracker</code> menyimpan <i>Time-Series Data</i>: lokasi, kecepatan, dan
+                        <p>Tabel <code>bipol_tracker</code> menyimpan <span class="tech-typewriter">Time-Series
+                                Data</span>: lokasi, kecepatan, dan
                             kadar gas setiap detik.</p>
                     </div>
                     <div class="feat-card glass">
@@ -2086,7 +2500,7 @@
                         <i class="fa-solid fa-users-gear"></i>
                         <h4>Pengguna & Otentikasi</h4>
                         <p><code>admin_users</code> & <code>drivers</code> mengelola akses sistem. Dilindungi oleh
-                            <i>Row Level Security (RLS)</i>.
+                            <span class="tech-typewriter">Row Level Security (RLS)</span>.
                         </p>
                     </div>
                     <div class="feat-card glass">
@@ -2099,30 +2513,6 @@
             </div>
         </section>
 
-        <section class="slide" id="slide-security">
-            <div class="content">
-                <h2 class="section-title">Keamanan & <span>Infra</span></h2>
-                <div class="grid-2">
-                    <div class="card glass">
-                        <h3><i class="fa-solid fa-shield-halved"></i> Stack Keamanan</h3>
-                        <ul class="feature-list" style="margin-top: 15px;">
-                            <li><strong>Helmet & CORS:</strong> Proteksi HTTP Headers & Cross-Origin.</li>
-                            <li><strong>Rate Limiting:</strong> Mencegah serangan DDoS pada API endpoint.</li>
-                            <li><strong>HPP:</strong> Mencegah <i>HTTP Parameter Pollution</i>.</li>
-                            <li><strong>Session Auth:</strong> Manajemen sesi aman untuk Admin Dashboard.</li>
-                        </ul>
-                    </div>
-                    <div class="card glass">
-                        <h3><i class="fa-brands fa-docker"></i> Strategi DevOps</h3>
-                        <ul class="feature-list" style="margin-top: 15px;">
-                            <li><strong>Containerized:</strong> Dukungan penuh Docker (Service + Database).</li>
-                            <li><strong>Eksposur Dual-Port:</strong> Mapping Port 3000 (HTTP) & 3333 (UDP).</li>
-                            <li><strong>Konfigurasi Env:</strong> Konfigurasi fleksibel via <code>.env</code>.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
 
         <section class="slide" id="slide-hardware-specs">
             <div class="content">
@@ -2193,6 +2583,37 @@
                         <p>Penyimpanan PostgreSQL dengan tabel <code>bipol_tracker</code> yang bersifat
                             <i>append-only</i> untuk jejak audit rute historis.
                         </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="slide" id="slide-security">
+            <div class="content">
+                <h2 class="section-title">Keamanan & <span>Integritas</span></h2>
+                <div class="feature-grid">
+                    <div class="feat-card glass">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <h4>Secure Headers</h4>
+                        <p>Implementasi modul <code>Helmet.js</code> untuk mencegah serangan umum seperti XSS dan
+                            Clickjacking.</p>
+                    </div>
+                    <div class="feat-card glass">
+                        <i class="fa-solid fa-ban"></i>
+                        <h4>Anti-Spam</h4>
+                        <p>Sistem <code>Rate Limiting</code> membatasi bombardir request pada endpoint pelaporan publik.
+                        </p>
+                    </div>
+                    <div class="feat-card glass">
+                        <i class="fa-solid fa-filter"></i>
+                        <h4>Sanitasi Data</h4>
+                        <p>Modul <code>HPP</code> (HTTP Parameter Pollution) mencegah manipulasi query database via URL.
+                        </p>
+                    </div>
+                    <div class="feat-card glass">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <h4>Payload Control</h4>
+                        <p>Limitasi ukuran body JSON (Maks 10KB) melindungi server dari beban overload data sampah.</p>
                     </div>
                 </div>
             </div>
@@ -2547,7 +2968,7 @@
                         </h3>
 
                         <p style="font-size: 1.1rem; line-height: 1.6; color: var(--text-muted); margin-bottom: 2rem;">
-                            Visualisasi mendalam performa armada: <strong>Max Gas Level: 935</strong>, <strong>Active
+                            Visualisasi mendalam performa armada: <strong>Max Gas Level: 962</strong>, <strong>Active
                                 Hours: 1h</strong>, dengan fitur ekspor laporan ke CSV/PDF.
                         </p>
 
@@ -2869,186 +3290,1147 @@
             </div>
         </section>
 
-        <section class="slide" id="slide-qos">
-            <div class="content">
-                <h2 class="section-title">Quality of <span>Service (QoS)</span></h2>
-                <div class="grid-2">
-                    <div class="glass">
-                        <h3><i class="fa-solid fa-chart-area"></i> Metrik Kinerja Jaringan</h3>
-                        <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Parameter QoS referensi untuk
-                            jaringan GPRS (2.5G) vs Target Sistem:</p>
 
-                        <table class="qos-table">
-                            <thead>
-                                <tr>
-                                    <th>Parameter</th>
-                                    <th>Standar (ITU-T)</th>
-                                    <th style="text-align: right;">Capaian / Target*</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Throughput</td>
-                                    <td>> 50 Kbps</td>
-                                    <td>~40-80 Kbps</td>
-                                </tr>
-                                <tr>
-                                    <td>Packet Loss</td>
-                                    <td>
-                                        < 3%</td>
-                                    <td>
-                                        < 5% (GPRS)</td>
-                                </tr>
-                                <tr>
-                                    <td>Delay (Latency)</td>
-                                    <td>
-                                        < 400 ms</td>
-                                    <td>~600-800 ms</td>
-                                </tr>
-                                <tr>
-                                    <td>Jitter</td>
-                                    <td>
-                                        < 30 ms</td>
-                                    <td>~50 ms</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 15px; font-style: italic;">
-                            *Angka di atas adalah estimasi teoritis standar GPRS. Untuk hasil skripsi yang valid,
-                            silakan update kolom ini dengan data hasil pengujian lapangan perangkat Anda sendiri.
-                        </p>
+
+        <!-- QoS Overview Slide -->
+        <section class="slide" id="slide-qos-overview">
+            <div class="content">
+                <h2 class="section-title">Pengujian <span>QoS</span></h2>
+                <p
+                    style="font-size: 1.2rem; color: var(--text-muted); margin-bottom: 2.5rem; margin-top: -1rem; max-width: 800px;">
+                    Quality of Service (QoS) mengukur performa dan keandalan sistem komunikasi real-time pada aplikasi
+                    BIPOL Tracker.
+                </p>
+
+                <div style="display: flex; gap: 3rem; align-items: flex-start;">
+                    <!-- Left: What is QoS -->
+                    <div style="flex: 1;">
+                        <div class="glass" style="padding: 2rem; margin-bottom: 1.5rem;">
+                            <h3
+                                style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px; font-size: 1.3rem;">
+                                <i class="fa-solid fa-question-circle" style="color: var(--secondary);"></i>
+                                Apa itu QoS?
+                            </h3>
+                            <p
+                                style="color: var(--text-muted); line-height: 1.8; font-size: 1rem; margin-bottom: 1.5rem;">
+                                Quality of Service adalah pengukuran kualitas layanan jaringan untuk memastikan sistem
+                                dapat mengirim dan menerima data secara <strong
+                                    style="color: var(--light);">cepat</strong>, <strong
+                                    style="color: var(--light);">stabil</strong>, dan <strong
+                                    style="color: var(--light);">andal</strong>.
+                            </p>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <span
+                                    style="background: rgba(191, 30, 46, 0.15); border: 1px solid rgba(191, 30, 46, 0.3); padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; color: var(--primary);">
+                                    <i class="fa-solid fa-bolt"></i> Kecepatan
+                                </span>
+                                <span
+                                    style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; color: var(--secondary);">
+                                    <i class="fa-solid fa-shield"></i> Keandalan
+                                </span>
+                                <span
+                                    style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; color: #10b981;">
+                                    <i class="fa-solid fa-expand"></i> Skalabilitas
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="glass"
+                            style="padding: 2rem; background: linear-gradient(135deg, rgba(191, 30, 46, 0.1), rgba(245, 158, 11, 0.05)); border: 1px solid rgba(191, 30, 46, 0.2);">
+                            <h4 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 10px;">
+                                <i class="fa-solid fa-flask" style="color: var(--primary);"></i>
+                                Metode Pengujian
+                            </h4>
+                            <ul
+                                style="list-style: none; padding: 0; margin: 0; font-size: 0.95rem; color: var(--text-muted);">
+                                <li style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                                    <i class="fa-solid fa-server" style="color: var(--secondary); width: 18px;"></i>
+                                    UDP Socket Testing (Port 3333)
+                                </li>
+                                <li style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                                    <i class="fa-solid fa-plug" style="color: var(--secondary); width: 18px;"></i>
+                                    WebSocket/Socket.IO (Port 3000)
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fa-solid fa-code" style="color: var(--secondary); width: 18px;"></i>
+                                    Node.js Automated Testing Scripts
+                                </li>
+                            </ul>
+                            <div style="display: flex; gap: 10px; margin-top: 1rem;">
+                                <span
+                                    style="background: rgba(239, 68, 68, 0.15); padding: 6px 12px; border-radius: 15px; font-size: 0.75rem; color: #ef4444;">
+                                    <i class="fa-solid fa-circle"></i> --real (ESP32)
+                                </span>
+                                <span
+                                    style="background: rgba(59, 130, 246, 0.15); padding: 6px 12px; border-radius: 15px; font-size: 0.75rem; color: #3b82f6;">
+                                    <i class="fa-solid fa-circle"></i> --dummy (Simulasi)
+                                </span>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="glass" style="display: flex; flex-direction: column; justify-content: center;">
-                        <h3><i class="fa-solid fa-square-check"></i> Analisis Data</h3>
-                        <ul class="feature-list">
-                            <li>
-                                <strong>High Latency Mitigation:</strong>
-                                <span>Latency GPRS memang tinggi (~600ms), namun diatasi dengan algoritma <i>Store &
-                                        Forward</i> pada firmware ESP32.</span>
-                            </li>
-                            <li>
-                                <strong>Reliabilitas Data:</strong>
-                                <span>Meskipun throughput rendah, protokol UDP (24 bytes) menjamin data tetap terkirim
-                                    lancar.</span>
-                            </li>
-                            <li>
-                                <strong>Saran Pengujian:</strong>
-                                <span>Lakukan "Ping Test" dari server ke device sebanyak 30x untuk mendapatkan rata-rata
-                                    RTT (Round Trip Time) yang akurat.</span>
-                            </li>
-                        </ul>
+                    <!-- Right: Tests to be performed -->
+                    <div style="flex: 1.2;">
+                        <h3
+                            style="margin-bottom: 1.5rem; font-size: 1.3rem; display: flex; align-items: center; gap: 12px;">
+                            <i class="fa-solid fa-list-check" style="color: var(--secondary);"></i>
+                            Pengujian yang Dilakukan
+                        </h3>
+
+                        <div class="glass"
+                            style="padding: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 20px; border-left: 4px solid #10b981;">
+                            <div
+                                style="width: 55px; height: 55px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="fa-solid fa-clock" style="font-size: 1.3rem; color: white;"></i>
+                            </div>
+                            <div>
+                                <h4 style="margin: 0 0 6px 0; font-size: 1.1rem;">1. Latency Test</h4>
+                                <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Mengukur waktu
+                                    respons end-to-end dari pengiriman data GPS hingga diterima di browser</p>
+                            </div>
+                        </div>
+
+                        <div class="glass"
+                            style="padding: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 20px; border-left: 4px solid #3b82f6;">
+                            <div
+                                style="width: 55px; height: 55px; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="fa-solid fa-gauge-high" style="font-size: 1.3rem; color: white;"></i>
+                            </div>
+                            <div>
+                                <h4 style="margin: 0 0 6px 0; font-size: 1.1rem;">2. Throughput Test</h4>
+                                <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Mengukur kapasitas
+                                    pengiriman paket UDP per detik dan total data yang bisa dikirim</p>
+                            </div>
+                        </div>
+
+                        <div class="glass"
+                            style="padding: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 20px; border-left: 4px solid #8b5cf6;">
+                            <div
+                                style="width: 55px; height: 55px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="fa-solid fa-users" style="font-size: 1.3rem; color: white;"></i>
+                            </div>
+                            <div>
+                                <h4 style="margin: 0 0 6px 0; font-size: 1.1rem;">3. Concurrent Connection Test</h4>
+                                <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Mengukur kemampuan
+                                    server menangani banyak koneksi WebSocket secara bersamaan</p>
+                            </div>
+                        </div>
+
+                        <div class="glass"
+                            style="padding: 1.5rem; display: flex; align-items: center; gap: 20px; border-left: 4px solid #f59e0b;">
+                            <div
+                                style="width: 55px; height: 55px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="fa-solid fa-shield-halved" style="font-size: 1.3rem; color: white;"></i>
+                            </div>
+                            <div>
+                                <h4 style="margin: 0 0 6px 0; font-size: 1.1rem;">4. Reliability Test</h4>
+                                <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Mengukur keandalan
+                                    pengiriman data jangka panjang dan packet loss rate</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="slide" id="slide-sec-test">
+        <!-- Slide: Testing Methods & Scripts -->
+        <section class="slide" id="slide-qos-script">
             <div class="content">
-                <h2 class="section-title">Uji <span>Keamanan</span></h2>
-                <div class="feature-grid">
+                <h2 class="section-title">Metode <span>Pengujian</span></h2>
+                <div style="display: flex; gap: 3rem; align-items: stretch; height: 100%;">
 
-                    <div class="feat-card glass" style="display: flex; flex-direction: column; height: 100%;">
-                        <div style="flex: 1;">
-                            <i class="fa-solid fa-user-lock"
-                                style="font-size: 2.2rem; color: var(--secondary); margin-bottom: 1rem;"></i>
-                            <h4 style="font-size: 1.1rem; margin-bottom: 0.5rem;">Brute Force Auth</h4>
-                            <p
-                                style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5;">
-                                Simulasi serangan login pada panel admin.</p>
-                        </div>
+                    <!-- Left: Why Scripts -->
+                    <div style="flex: 1;">
+                        <div class="glass" style="padding: 2rem; height: 100%;">
+                            <h3
+                                style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px; font-size: 1.3rem;">
+                                <i class="fa-brands fa-node-js" style="color: #68a063;"></i>
+                                Automated Testing
+                            </h3>
 
-                        <div style="margin-top: 1rem;">
-                            <div class="sec-result"
-                                style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 10px; margin-bottom: 0.8rem; border-radius: 8px; background: rgba(74, 222, 128, 0.1); border: 1px solid rgba(74, 222, 128, 0.3); color: #4ade80;">
-                                <i class="fa-solid fa-check-circle"
-                                    style="font-size: 1rem; transform: translateY(6px);"></i>
-                                <span
-                                    style="font-weight: 800; letter-spacing: 0.5px; font-size: 0.9rem;">PROTECTED</span>
-                            </div>
-                            <p
-                                style="font-size: 0.75rem; color: var(--text-muted); padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); line-height: 1.4; min-height: 40px;">
-                                Rate Limiter aktif setelah 5x gagal.
+                            <p style="color: var(--text-muted); line-height: 1.6; margin-bottom: 2rem;">
+                                Pengujian dilakukan menggunakan <strong>Node.js scripts</strong> custom yang dirancang
+                                untuk berinteraksi langsung dengan backend server via UDP dan WebSocket.
                             </p>
+
+                            <div style="display: flex; flex-direction: column; gap: 15px;">
+                                <div style="display: flex; gap: 15px; align-items: flex-start;">
+                                    <div
+                                        style="width: 40px; height: 40px; background: rgba(34, 197, 94, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                        <i class="fa-solid fa-robot" style="color: #22c55e;"></i>
+                                    </div>
+                                    <div>
+                                        <h4 style="margin: 0 0 5px 0;">Automation & Consistency</h4>
+                                        <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">
+                                            Menjalankan skenario pengujian yang sama berulang kali (repeatable) dengan
+                                            parameter yang konsisten.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; gap: 15px; align-items: flex-start;">
+                                    <div
+                                        style="width: 40px; height: 40px; background: rgba(59, 130, 246, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                        <i class="fa-solid fa-stopwatch" style="color: #3b82f6;"></i>
+                                    </div>
+                                    <div>
+                                        <h4 style="margin: 0 0 5px 0;">High Precision & Real-time</h4>
+                                        <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">
+                                            Menghitung metrik presisi tinggi (ms) dan menangkap data live tanpa overhead
+                                            rendering browser.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; gap: 15px; align-items: flex-start;">
+                                    <div
+                                        style="width: 40px; height: 40px; background: rgba(168, 85, 247, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                        <i class="fa-solid fa-fire" style="color: #a855f7;"></i>
+                                    </div>
+                                    <div>
+                                        <h4 style="margin: 0 0 5px 0;">Flexible Modes</h4>
+                                        <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">
+                                            Mendukung mode <code>--real</code> untuk monitoring data asli dan
+                                            <code>--dummy</code> untuk stress testing load tinggi.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="feat-card glass" style="display: flex; flex-direction: column; height: 100%;">
-                        <div style="flex: 1;">
-                            <i class="fa-solid fa-code"
-                                style="font-size: 2.2rem; color: var(--secondary); margin-bottom: 1rem;"></i>
-                            <h4 style="font-size: 1.1rem; margin-bottom: 0.5rem;">SQL Injection</h4>
-                            <p
-                                style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5;">
-                                Injeksi query berbahaya pada endpoint API.</p>
-                        </div>
-
-                        <div style="margin-top: 1rem;">
-                            <div class="sec-result"
-                                style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 10px; margin-bottom: 0.8rem; border-radius: 8px; background: rgba(74, 222, 128, 0.1); border: 1px solid rgba(74, 222, 128, 0.3); color: #4ade80;">
-                                <i class="fa-solid fa-check-circle"
-                                    style="font-size: 1rem; transform: translateY(6px);"></i>
-                                <span style="font-weight: 800; letter-spacing: 0.5px; font-size: 0.9rem;">AMAN</span>
+                    <!-- Right: Code Snippet -->
+                    <div style="flex: 1.2;">
+                        <div class="glass" style="padding: 2rem; position: relative;">
+                            <div
+                                style="position: absolute; top: 1rem; right: 1rem; background: #238636; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-family: 'Fira Code', monospace;">
+                                qos_latency_test.js
                             </div>
-                            <p
-                                style="font-size: 0.75rem; color: var(--text-muted); padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); line-height: 1.4; min-height: 40px;">
-                                Menggunakan ORM & Parameterized Queries.
-                            </p>
+                            <pre
+                                style="background: #0d1117; padding: 1.5rem; border-radius: 10px; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: 0.85rem; color: #c9d1d9; border: 1px solid #30363d;">
+<span style="color: #ff7b72;">const</span> socket = io(<span style="color: #a5d6ff;">'http://localhost:3000'</span>);
+
+<span style="color: #8b949e;">// Listen for real-time bus updates</span>
+socket.on(<span style="color: #a5d6ff;">'update_bus'</span>, (data) => {
+    <span style="color: #ff7b72;">const</span> receiveTime = Date.now();
+    
+    <span style="color: #ff7b72;">if</span> (USE_REAL_DATA) {
+        <span style="color: #8b949e;">// Mode REAL: Calculate interval between packets</span>
+        <span style="color: #ff7b72;">if</span> (lastRealDataTime) {
+            <span style="color: #ff7b72;">const</span> interval = receiveTime - lastRealDataTime;
+            stats.latencies.push(interval);
+        }
+        lastRealDataTime = receiveTime;
+        
+        console.log(<span style="color: #a5d6ff;">`📍 ${data.lat}, ${data.lon} | 🚀 ${data.speed} km/h`</span>);
+    }
+});
+</pre>
+                            <div
+                                style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                                <h4 style="margin-bottom: 10px; font-size: 1rem;">Cara Menjalankan:</h4>
+                                <div
+                                    style="background: #161b22; padding: 12px; border-radius: 6px; font-family: 'Fira Code', monospace; color: #58a6ff; font-size: 0.9rem; display: flex; justify-content: space-between;">
+                                    <span>node tests/qos_latency_test.js <span
+                                            style="color: #ef4444;">--real</span></span>
+                                    <i class="fa-solid fa-play" style="color: #238636; cursor: pointer;"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="feat-card glass" style="display: flex; flex-direction: column; height: 100%;">
-                        <div style="flex: 1;">
-                            <i class="fa-solid fa-globe"
-                                style="font-size: 2.2rem; color: var(--secondary); margin-bottom: 1rem;"></i>
-                            <h4 style="font-size: 1.1rem; margin-bottom: 0.5rem;">XSS Attack</h4>
-                            <p
-                                style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5;">
-                                Scripting pada input form feedback pengguna.</p>
-                        </div>
+                </div>
+            </div>
+        </section>
 
-                        <div style="margin-top: 1rem;">
-                            <div class="sec-result"
-                                style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 10px; margin-bottom: 0.8rem; border-radius: 8px; background: rgba(74, 222, 128, 0.1); border: 1px solid rgba(74, 222, 128, 0.3); color: #4ade80;">
-                                <i class="fa-solid fa-check-circle"
-                                    style="font-size: 1rem; transform: translateY(6px);"></i>
-                                <span
-                                    style="font-weight: 800; letter-spacing: 0.5px; font-size: 0.9rem;">SANITIZED</span>
+        <!-- Slide: Latency Test Detail -->
+        <section class="slide" id="slide-qos-latency">
+            <div class="content">
+                <h2 class="section-title">Pengujian <span>Latency</span></h2>
+                <div style="display: flex; gap: 3rem; align-items: stretch;">
+                    <!-- Left: Results -->
+                    <div style="flex: 1;">
+                        <div class="glass" style="padding: 2rem; height: 100%;">
+                            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 2rem;">
+                                <div
+                                    style="width: 60px; height: 60px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fa-solid fa-clock" style="font-size: 1.5rem; color: white;"></i>
+                                </div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.5rem;">Latency Test</h3>
+                                    <span
+                                        style="background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700;">✅
+                                        EXCELLENT</span>
+                                </div>
                             </div>
-                            <p
-                                style="font-size: 0.75rem; color: var(--text-muted); padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); line-height: 1.4; min-height: 40px;">
-                                Input escaping otomatis di Frontend.
-                            </p>
+                            <div
+                                style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 1.5rem;">
+                                <div
+                                    style="background: rgba(16, 185, 129, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3); text-align: center;">
+                                    <span
+                                        style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Packet
+                                        Rate</span>
+                                    <span style="font-size: 2.5rem; font-weight: 900; color: #10b981;">0.77/s</span>
+                                </div>
+                                <div
+                                    style="background: rgba(16, 185, 129, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3); text-align: center;">
+                                    <span
+                                        style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Avg
+                                        Interval</span>
+                                    <span style="font-size: 2.5rem; font-weight: 900; color: #10b981;">1.2 s</span>
+                                </div>
+                                <div
+                                    style="background: rgba(16, 185, 129, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3); text-align: center;">
+                                    <span
+                                        style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Min
+                                        Interval</span>
+                                    <span style="font-size: 2.5rem; font-weight: 900; color: #10b981;">80 ms</span>
+                                </div>
+                                <div
+                                    style="background: rgba(16, 185, 129, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3); text-align: center;">
+                                    <span
+                                        style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Max
+                                        Interval</span>
+                                    <span style="font-size: 2.5rem; font-weight: 900; color: #10b981;">2.8 s</span>
+                                </div>
+                            </div>
+                            <p style="font-size: 0.95rem; color: var(--text-muted); margin: 0;"><i
+                                    class="fa-solid fa-info-circle" style="color: #10b981;"></i> Mode: --real | Server:
+                                localhost:3000 | 23 packets</p>
+                        </div>
+                    </div>
+                    <!-- Right: Evidence -->
+                    <div style="flex: 1;">
+                        <div class="glass" style="padding: 2rem; height: 100%;">
+                            <h4 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;"><i
+                                    class="fa-solid fa-terminal" style="color: var(--secondary);"></i> Bukti Pengujian
+                            </h4>
+                            <div
+                                style="background: #0d1117; border-radius: 12px; padding: 1.5rem; font-family: 'Fira Code', monospace; font-size: 0.8rem; line-height: 1.8; overflow: hidden;">
+                                <div style="color: #8b949e;">$ node tests/qos_latency_test.js <span
+                                        style="color: #ef4444;">--real</span></div>
+                                <div style="color: #58a6ff; margin-top: 10px;">🧪 Mode: 🔴 REAL DATA (ESP32)</div>
+                                <div style="color: #7ee787;">✅ WebSocket connected</div>
+                                <div style="color: #c9d1d9; margin-top: 8px;">🅿️ [04:42:29] <span
+                                        style="color: #ffa657;">PBL BIPOL</span></div>
+                                <div style="color: #c9d1d9;">&nbsp;&nbsp;&nbsp;📍 <span
+                                        style="color: #22c55e;">-6.377917, 106.816536</span></div>
+                                <div style="color: #c9d1d9;">&nbsp;&nbsp;&nbsp;🚀 Speed: 0 km/h | 💨 Gas: 991</div>
+                                <div style="color: #8b949e; margin-top: 5px;">... (24 packets dari ESP32)</div>
+                                <div style="color: #58a6ff; margin-top: 10px;">📊 HASIL (REAL DATA)</div>
+                                <div style="color: #7ee787;"> ✅ ESP32 Data: RECEIVED</div>
+                                <div style="color: #7ee787;"> ✅ Packet Rate: GOOD (0.80/s)</div>
+                            </div>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 1rem;"><i
+                                    class="fa-solid fa-file-code" style="color: var(--secondary);"></i> Report:
+                                qos_latency_real_1766526177603.json</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide: Throughput Test Detail -->
+        <section class="slide" id="slide-qos-throughput">
+            <div class="content">
+                <h2 class="section-title">Pengujian <span>Throughput</span></h2>
+                <div style="display: flex; gap: 3rem; align-items: stretch;">
+                    <div style="flex: 1;">
+                        <div class="glass" style="padding: 2rem; height: 100%;">
+                            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 2rem;">
+                                <div
+                                    style="width: 60px; height: 60px; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fa-solid fa-gauge-high" style="font-size: 1.5rem; color: white;"></i>
+                                </div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.5rem;">Throughput Test</h3>
+                                    <span
+                                        style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700;">✅
+                                        PASS</span>
+                                </div>
+                            </div>
+                            <div
+                                style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 1.5rem;">
+                                <div
+                                    style="background: rgba(59, 130, 246, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.3); text-align: center;">
+                                    <span
+                                        style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Packets/Second</span>
+                                    <span style="font-size: 2.5rem; font-weight: 900; color: #3b82f6;">0.83</span>
+                                </div>
+                                <div
+                                    style="background: rgba(59, 130, 246, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.3); text-align: center;">
+                                    <span
+                                        style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Success
+                                        Rate</span>
+                                    <span style="font-size: 2.5rem; font-weight: 900; color: #3b82f6;">100%</span>
+                                </div>
+                                <div
+                                    style="background: rgba(59, 130, 246, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.3); text-align: center;">
+                                    <span
+                                        style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Total
+                                        Packets</span>
+                                    <span style="font-size: 2.5rem; font-weight: 900; color: #3b82f6;">25</span>
+                                </div>
+                                <div
+                                    style="background: rgba(59, 130, 246, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.3); text-align: center;">
+                                    <span
+                                        style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Total
+                                        Data</span>
+                                    <span style="font-size: 2.5rem; font-weight: 900; color: #3b82f6;">0.88 KB</span>
+                                </div>
+                            </div>
+                            <p style="font-size: 0.95rem; color: var(--text-muted); margin: 0;"><i
+                                    class="fa-solid fa-info-circle" style="color: #3b82f6;"></i> Mode: --real | Server:
+                                localhost:3333 | 0 errors</p>
+                        </div>
+                    </div>
+                    <div style="flex: 1;">
+                        <div class="glass" style="padding: 2rem; height: 100%;">
+                            <h4 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;"><i
+                                    class="fa-solid fa-terminal" style="color: var(--secondary);"></i> Bukti Pengujian
+                            </h4>
+                            <div
+                                style="background: #0d1117; border-radius: 12px; padding: 1.5rem; font-family: 'Fira Code', monospace; font-size: 0.8rem; line-height: 1.8;">
+                                <div style="color: #8b949e;">$ node tests/qos_throughput_test.js <span
+                                        style="color: #ef4444;">--real</span></div>
+                                <div style="color: #58a6ff; margin-top: 10px;">🧪 Mode: 🔴 REAL DATA (ESP32)</div>
+                                <div style="color: #c9d1d9;">📡 Target: localhost:3333</div>
+                                <div style="color: #7ee787; margin-top: 8px;">📡 Monitoring throughput...</div>
+                                <div style="color: #c9d1d9; margin-top: 8px;">📊 [5s] Packets: 5 | Rate: 1.00/s</div>
+                                <div style="color: #c9d1d9;">📊 [10s] Packets: 9 | Rate: 0.90/s</div>
+                                <div style="color: #c9d1d9;">📊 [15s] Packets: 12 | Rate: 0.77/s</div>
+                                <div style="color: #58a6ff; margin-top: 10px;">📊 HASIL (REAL DATA)</div>
+                                <div style="color: #7ee787;"> ✅ Throughput: GOOD (0.83/s)</div>
+                                <div style="color: #7ee787;"> 🚌 PBL BIPOL: 25 packets</div>
+                            </div>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 1rem;"><i
+                                    class="fa-solid fa-file-code" style="color: var(--secondary);"></i> Report:
+                                throughput_real_1766526214870.json</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide: Concurrent Test Detail -->
+        <section class="slide" id="slide-qos-concurrent">
+            <div class="content">
+                <h2 class="section-title">Pengujian <span>Concurrent</span></h2>
+                <div style="display: flex; gap: 3rem; align-items: stretch;">
+                    <div style="flex: 1;">
+                        <div class="glass" style="padding: 2rem; height: 100%;">
+                            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 2rem;">
+                                <div
+                                    style="width: 60px; height: 60px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fa-solid fa-users" style="font-size: 1.5rem; color: white;"></i>
+                                </div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.5rem;">Concurrent Connections</h3>
+                                    <span
+                                        style="background: rgba(139, 92, 246, 0.2); color: #8b5cf6; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700;">✅
+                                        EXCELLENT</span>
+                                </div>
+                            </div>
+                            <div
+                                style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 1.5rem;">
+                                <div
+                                    style="background: rgba(139, 92, 246, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(139, 92, 246, 0.3); text-align: center;">
+                                    <span
+                                        style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Unique
+                                        Buses</span>
+                                    <span style="font-size: 2.5rem; font-weight: 900; color: #8b5cf6;">1</span>
+                                </div>
+                                <div
+                                    style="background: rgba(139, 92, 246, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(139, 92, 246, 0.3); text-align: center;">
+                                    <span
+                                        style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Events/Sec</span>
+                                    <span style="font-size: 2.5rem; font-weight: 900; color: #8b5cf6;">0.77</span>
+                                </div>
+                                <div
+                                    style="background: rgba(139, 92, 246, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(139, 92, 246, 0.3); text-align: center;">
+                                    <span
+                                        style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Events
+                                        Received</span>
+                                    <span style="font-size: 2.5rem; font-weight: 900; color: #8b5cf6;">23</span>
+                                </div>
+                                <div
+                                    style="background: rgba(139, 92, 246, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(139, 92, 246, 0.3); text-align: center;">
+                                    <span
+                                        style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Failed/Disconnected</span>
+                                    <span style="font-size: 2.5rem; font-weight: 900; color: #8b5cf6;">0</span>
+                                </div>
+                            </div>
+                            <p style="font-size: 0.95rem; color: var(--text-muted); margin: 0;"><i
+                                    class="fa-solid fa-info-circle" style="color: #8b5cf6;"></i> Mode: --real | Server:
+                                localhost:3000</p>
+                        </div>
+                    </div>
+                    <div style="flex: 1;">
+                        <div class="glass" style="padding: 2rem; height: 100%;">
+                            <h4 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;"><i
+                                    class="fa-solid fa-terminal" style="color: var(--secondary);"></i> Bukti Pengujian
+                            </h4>
+                            <div
+                                style="background: #0d1117; border-radius: 12px; padding: 1.5rem; font-family: 'Fira Code', monospace; font-size: 0.8rem; line-height: 1.8;">
+                                <div style="color: #8b949e;">$ node tests/qos_concurrent_test.js <span
+                                        style="color: #ef4444;">--real</span> 30</div>
+                                <div style="color: #58a6ff; margin-top: 10px;">🧪 Mode: 🔴 REAL DATA (Monitor)</div>
+                                <div style="color: #7ee787;">✅ Connected to server</div>
+                                <div style="color: #c9d1d9; margin-top: 8px;">🚌 New bus: <span
+                                        style="color: #ffa657;">PBL BIPOL</span></div>
+                                <div style="color: #c9d1d9;">📊 [10s] Events: 8 | Buses: 1</div>
+                                <div style="color: #c9d1d9;">📊 [20s] Events: 15 | Buses: 1</div>
+                                <div style="color: #58a6ff; margin-top: 10px;">📊 HASIL (REAL DATA)</div>
+                                <div style="color: #7ee787;"> ✅ Connection: STABLE</div>
+                                <div style="color: #7ee787;"> ✅ Data Flow: ACTIVE (23 events)</div>
+                            </div>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 1rem;"><i
+                                    class="fa-solid fa-file-code" style="color: var(--secondary);"></i> Report:
+                                concurrent_real_1766526251535.json</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide: Reliability Test Detail -->
+        <section class="slide" id="slide-qos-reliability">
+            <div class="content">
+                <h2 class="section-title">Pengujian <span>Reliability</span></h2>
+                <div style="display: flex; gap: 3rem; align-items: stretch;">
+                    <div style="flex: 1;">
+                        <div class="glass" style="padding: 2rem; height: 100%;">
+                            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 2rem;">
+                                <div
+                                    style="width: 60px; height: 60px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fa-solid fa-shield-halved" style="font-size: 1.5rem; color: white;"></i>
+                                </div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.5rem;">Reliability Test</h3>
+                                    <span
+                                        style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700;">✅
+                                        EXCELLENT</span>
+                                </div>
+                            </div>
+                            <div
+                                style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 1.5rem;">
+                                <div
+                                    style="background: rgba(245, 158, 11, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.3); text-align: center;">
+                                    <span
+                                        style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Packet
+                                        Delivery</span>
+                                    <span style="font-size: 2.5rem; font-weight: 900; color: #f59e0b;">100%</span>
+                                </div>
+                                <div
+                                    style="background: rgba(245, 158, 11, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.3); text-align: center;">
+                                    <span
+                                        style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Packet
+                                        Loss</span>
+                                    <span style="font-size: 2.5rem; font-weight: 900; color: #f59e0b;">0%</span>
+                                </div>
+                                <div
+                                    style="background: rgba(245, 158, 11, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.3); text-align: center;">
+                                    <span
+                                        style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Packets
+                                        Received</span>
+                                    <span style="font-size: 2.5rem; font-weight: 900; color: #f59e0b;">46</span>
+                                </div>
+                                <div
+                                    style="background: rgba(245, 158, 11, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.3); text-align: center;">
+                                    <span
+                                        style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Reconnections</span>
+                                    <span style="font-size: 2.5rem; font-weight: 900; color: #f59e0b;">0</span>
+                                </div>
+                            </div>
+                            <p style="font-size: 0.95rem; color: var(--text-muted); margin: 0;"><i
+                                    class="fa-solid fa-info-circle" style="color: #f59e0b;"></i> Mode: --real | Server:
+                                localhost | Jitter: 513ms</p>
+                        </div>
+                    </div>
+                    <div style="flex: 1;">
+                        <div class="glass" style="padding: 2rem; height: 100%;">
+                            <h4 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;"><i
+                                    class="fa-solid fa-terminal" style="color: var(--secondary);"></i> Bukti Pengujian
+                            </h4>
+                            <div
+                                style="background: #0d1117; border-radius: 12px; padding: 1.5rem; font-family: 'Fira Code', monospace; font-size: 0.8rem; line-height: 1.8;">
+                                <div style="color: #8b949e;">$ node tests/qos_reliability_test.js <span
+                                        style="color: #ef4444;">--real</span> 60</div>
+                                <div style="color: #58a6ff; margin-top: 10px;">🧪 Mode: 🔴 REAL DATA (ESP32)</div>
+                                <div style="color: #7ee787;">✅ WebSocket connected</div>
+                                <div style="color: #c9d1d9; margin-top: 8px;">📊 [30s] Received: 23 | Rate: 0.77/s</div>
+                                <div style="color: #c9d1d9;">📊 [60s] Received: 46 | Delivery: 100%</div>
+                                <div style="color: #58a6ff; margin-top: 10px;">📊 HASIL (REAL DATA)</div>
+                                <div style="color: #7ee787;"> ✅ Delivery: EXCELLENT (≥99%)</div>
+                                <div style="color: #7ee787;"> ✅ Connection: STABLE (0 reconnections)</div>
+                                <div style="color: #ffa657;"> ⚠️ Jitter: MODERATE (455ms)</div>
+                            </div>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 1rem;"><i
+                                    class="fa-solid fa-file-code" style="color: var(--secondary);"></i> Report:
+                                reliability_real_1766526324364.json</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide: Server Efficiency & Resource Monitor -->
+        <section class="slide" id="slide-qos-efficiency">
+            <div class="content">
+                <h2 class="section-title">Efisiensi <span>Server</span></h2>
+                <div style="display: flex; gap: 3rem; align-items: stretch;">
+
+                    <!-- Left: Metrics -->
+                    <div style="flex: 1;">
+                        <div class="glass" style="padding: 2rem; height: 100%;">
+                            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 2rem;">
+                                <div
+                                    style="width: 60px; height: 60px; background: linear-gradient(135deg, #0ea5e9, #0284c7); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fa-solid fa-server" style="font-size: 1.5rem; color: white;"></i>
+                                </div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.5rem;">Resource Efficiency</h3>
+                                    <span
+                                        style="background: rgba(14, 165, 233, 0.2); color: #0ea5e9; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700;">✅
+                                        SANGAT RINGAN</span>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 2rem;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <span style="color: var(--text-muted);"><i class="fa-solid fa-microchip"
+                                            style="margin-right: 8px;"></i>CPU Usage (Avg)</span>
+                                    <span style="font-weight: 700; color: #0ea5e9;">6.31%</span>
+                                </div>
+                                <div
+                                    style="background: rgba(255,255,255,0.1); height: 10px; border-radius: 5px; overflow: hidden;">
+                                    <div style="background: #0ea5e9; width: 6.31%; height: 100%; border-radius: 5px;">
+                                    </div>
+                                </div>
+                                <div
+                                    style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">
+                                    <span>Idle</span>
+                                    <span>Peak: 33.72%</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <span style="color: var(--text-muted);"><i class="fa-solid fa-memory"
+                                            style="margin-right: 8px;"></i>RAM Usage (Avg)</span>
+                                    <span style="font-weight: 700; color: #a855f7;">32.34 MiB</span>
+                                </div>
+                                <div
+                                    style="background: rgba(255,255,255,0.1); height: 10px; border-radius: 5px; overflow: hidden;">
+                                    <div style="background: #a855f7; width: 3.2%; height: 100%; border-radius: 5px;">
+                                    </div>
+                                </div>
+                                <div
+                                    style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">
+                                    <span>Container: 1024 MiB Limit</span>
+                                    <span>Peak: 33.21 MiB</span>
+                                </div>
+                            </div>
+
+                            <div class="glass"
+                                style="margin-top: 2rem; padding: 1.5rem; background: rgba(34, 197, 94, 0.05); border: 1px solid rgba(34, 197, 94, 0.2);">
+                                <h4 style="margin: 0 0 10px 0; font-size: 1rem; color: #22c55e;"><i
+                                        class="fa-solid fa-check-circle"></i> Assessment</h4>
+                                <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">
+                                    Backend berjalan dengan footprint memori sangat rendah (< 35 MiB), memungkinkan
+                                        deployment di server spesifikasi rendah (t2.micro/VPS murah) dengan efisiensi
+                                        tinggi. </p>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="feat-card glass" style="display: flex; flex-direction: column; height: 100%;">
-                        <div style="flex: 1;">
-                            <i class="fa-solid fa-network-wired"
-                                style="font-size: 2.2rem; color: var(--secondary); margin-bottom: 1rem;"></i>
-                            <h4 style="font-size: 1.1rem; margin-bottom: 0.5rem;">DDoS Dasar</h4>
-                            <p
-                                style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5;">
-                                Flooding request ke port UDP & HTTP secara masif.</p>
+                    <!-- Right: Evidence Terminal -->
+                    <div style="flex: 1.2;">
+                        <div class="glass" style="padding: 2rem; height: 100%;">
+                            <h4 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                                <i class="fa-solid fa-terminal" style="color: #a855f7;"></i>
+                                Live Monitor Output
+                            </h4>
+                            <div
+                                style="background: #0d1117; border-radius: 12px; padding: 1.5rem; font-family: 'Fira Code', monospace; font-size: 0.8rem; line-height: 1.8; height: 400px; overflow-y: auto;">
+                                <div style="color: #8b949e;">$ node tests/resource_test.js</div>
+                                <div style="color: #58a6ff; margin-top: 10px;">🧪 BIPOL Server Efficiency Test</div>
+                                <div style="color: #c9d1d9;">📊 Target: Docker Container (bipol-backend)</div>
+                                <div style="color: #c9d1d9; margin-bottom: 10px;">⏱️ Duration: 10 detik</div>
+
+                                <div style="color: #7ee787;">📡 Monitoring Server Efficiency...</div>
+                                <div style="color: #c9d1d9;">..........</div>
+                                <div style="color: #7ee787; margin-top: 10px;">✅ Monitoring Complete</div>
+
+                                <div style="color: #58a6ff; margin-top: 15px;">📊 HASIL PENGUJIAN</div>
+                                <div style="border-left: 2px solid #30363d; padding-left: 10px; margin-top: 5px;">
+                                    <div style="color: #c9d1d9;">🖥️ CPU USAGE:</div>
+                                    <div style="color: #a5d6ff;"> Average: 6.31%</div>
+                                    <div style="color: #ffa657;"> Peak: 33.72%</div>
+                                    <div style="color: #7ee787;"> Status: ✅ NORMAL</div>
+                                </div>
+                                <div style="border-left: 2px solid #30363d; padding-left: 10px; margin-top: 10px;">
+                                    <div style="color: #c9d1d9;">🧠 MEMORY (RAM):</div>
+                                    <div style="color: #a5d6ff;"> Average: 32.34 MiB</div>
+                                    <div style="color: #ffa657;"> Peak: 33.21 MiB</div>
+                                    <div style="color: #7ee787;"> Status: ✅ RINGAN</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- QoS Summary Slide -->
+        <section class="slide" id="slide-qos-summary">
+            <div class="content">
+                <h2 class="section-title">Ringkasan <span>QoS</span></h2>
+
+                <div style="display: flex; gap: 3rem; align-items: flex-start;">
+
+                    <!-- Summary Table -->
+                    <div style="flex: 1.2;">
+                        <div class="glass" style="padding: 2rem; overflow: hidden;">
+                            <h3
+                                style="margin-bottom: 1.5rem; font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
+                                <i class="fa-solid fa-chart-bar" style="color: var(--secondary);"></i>
+                                Hasil Pengujian
+                            </h3>
+
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid rgba(255,255,255,0.1);">
+                                        <th
+                                            style="text-align: left; padding: 12px 8px; color: var(--text-muted); font-weight: 600;">
+                                            Parameter</th>
+                                        <th
+                                            style="text-align: center; padding: 12px 8px; color: var(--text-muted); font-weight: 600;">
+                                            Hasil</th>
+                                        <th
+                                            style="text-align: center; padding: 12px 8px; color: var(--text-muted); font-weight: 600;">
+                                            Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                        <td style="padding: 14px 8px;">Average Latency</td>
+                                        <td
+                                            style="text-align: center; padding: 14px 8px; font-weight: 700; color: #10b981;">
+                                            2 ms</td>
+                                        <td style="text-align: center; padding: 14px 8px;"><span
+                                                style="background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">✅
+                                                Pass</span></td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                        <td style="padding: 14px 8px;">P95 Latency</td>
+                                        <td
+                                            style="text-align: center; padding: 14px 8px; font-weight: 700; color: #10b981;">
+                                            5 ms</td>
+                                        <td style="text-align: center; padding: 14px 8px;"><span
+                                                style="background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">✅
+                                                Pass</span></td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                        <td style="padding: 14px 8px;">Packet Delivery</td>
+                                        <td
+                                            style="text-align: center; padding: 14px 8px; font-weight: 700; color: #3b82f6;">
+                                            100%</td>
+                                        <td style="text-align: center; padding: 14px 8px;"><span
+                                                style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">✅
+                                                Pass</span></td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                        <td style="padding: 14px 8px;">Throughput</td>
+                                        <td
+                                            style="text-align: center; padding: 14px 8px; font-weight: 700; color: #3b82f6;">
+                                            9.67 pps</td>
+                                        <td style="text-align: center; padding: 14px 8px;"><span
+                                                style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">✅
+                                                Pass</span></td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                        <td style="padding: 14px 8px;">Concurrent Connections</td>
+                                        <td
+                                            style="text-align: center; padding: 14px 8px; font-weight: 700; color: #8b5cf6;">
+                                            50 clients</td>
+                                        <td style="text-align: center; padding: 14px 8px;"><span
+                                                style="background: rgba(139, 92, 246, 0.2); color: #8b5cf6; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">✅
+                                                Pass</span></td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                        <td style="padding: 14px 8px;">Connection Stability</td>
+                                        <td
+                                            style="text-align: center; padding: 14px 8px; font-weight: 700; color: #8b5cf6;">
+                                            100%</td>
+                                        <td style="text-align: center; padding: 14px 8px;"><span
+                                                style="background: rgba(139, 92, 246, 0.2); color: #8b5cf6; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">✅
+                                                Pass</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 14px 8px;">Packet Loss</td>
+                                        <td
+                                            style="text-align: center; padding: 14px 8px; font-weight: 700; color: #f59e0b;">
+                                            0%</td>
+                                        <td style="text-align: center; padding: 14px 8px;"><span
+                                                style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">✅
+                                                Pass</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Test Info & Conclusion -->
+                    <div style="flex: 0.8;">
+                        <div class="glass" style="padding: 2rem; margin-bottom: 1.5rem;">
+                            <h3
+                                style="margin-bottom: 1rem; font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
+                                <i class="fa-solid fa-flask" style="color: var(--primary);"></i>
+                                Metode Pengujian
+                            </h3>
+                            <ul
+                                style="list-style: none; padding: 0; margin: 0; font-size: 0.9rem; color: var(--text-muted);">
+                                <li style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                                    <i class="fa-solid fa-server" style="color: var(--secondary); width: 16px;"></i>
+                                    <span>UDP Socket Testing (Port 3333)</span>
+                                </li>
+                                <li style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                                    <i class="fa-solid fa-plug" style="color: var(--secondary); width: 16px;"></i>
+                                    <span>WebSocket/Socket.IO (Port 3000)</span>
+                                </li>
+                                <li style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                                    <i class="fa-solid fa-clock" style="color: var(--secondary); width: 16px;"></i>
+                                    <span>Total test duration: ~5 menit</span>
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fa-solid fa-calendar" style="color: var(--secondary); width: 16px;"></i>
+                                    <span>Tested: 24 Desember 2025</span>
+                                </li>
+                            </ul>
                         </div>
 
-                        <div style="margin-top: 1rem;">
-                            <div class="sec-result"
-                                style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 10px; margin-bottom: 0.8rem; border-radius: 8px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); color: #f59e0b;">
-                                <i class="fa-solid fa-triangle-exclamation"
-                                    style="font-size: 1rem; transform: translateY(6px);"></i>
-                                <span
-                                    style="font-weight: 800; letter-spacing: 0.5px; font-size: 0.9rem;">MITIGATED</span>
+                        <div class="glass"
+                            style="padding: 2rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05)); border: 1px solid rgba(16, 185, 129, 0.3);">
+                            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 1rem;">
+                                <div
+                                    style="width: 60px; height: 60px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fa-solid fa-trophy" style="font-size: 1.5rem; color: white;"></i>
+                                </div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.3rem; color: #10b981;">Kesimpulan</h3>
+                                    <span style="font-size: 0.9rem; color: var(--text-muted);">Overall Score</span>
+                                </div>
                             </div>
+                            <p style="font-size: 2.5rem; font-weight: 900; color: #10b981; margin: 0; line-height: 1;">
+                                EXCELLENT
+                            </p>
                             <p
-                                style="font-size: 0.75rem; color: var(--text-muted); padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); line-height: 1.4; min-height: 40px;">
-                                Nginx Rate Limit menangani spike data.
+                                style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 0;">
+                                Semua parameter QoS memenuhi standar untuk aplikasi real-time tracking.
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
+
+        <!-- Wireshark Overview Slide -->
+        <section class="slide" id="slide-wireshark-overview">
+            <div class="content">
+                <h2 class="section-title">Analisis <span>Wireshark</span></h2>
+                <p
+                    style="font-size: 1.2rem; color: var(--text-muted); margin-bottom: 2.5rem; margin-top: -1rem; max-width: 900px;">
+                    Network packet capture menggunakan Wireshark/TCPDump untuk menganalisis traffic jaringan sistem
+                    BIPOL Tracker.
+                </p>
+
+                <div style="display: flex; gap: 3rem; align-items: flex-start;">
+                    <!-- Left: What is Wireshark Analysis -->
+                    <div style="flex: 1;">
+                        <div class="glass" style="padding: 2rem; margin-bottom: 1.5rem;">
+                            <h3
+                                style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px; font-size: 1.3rem;">
+                                <i class="fa-solid fa-magnifying-glass" style="color: #06b6d4;"></i>
+                                Apa yang Dianalisis?
+                            </h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div
+                                    style="background: rgba(6, 182, 212, 0.1); padding: 15px; border-radius: 10px; border: 1px solid rgba(6, 182, 212, 0.3);">
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                        <i class="fa-solid fa-satellite-dish"
+                                            style="color: #06b6d4; font-size: 1.2rem;"></i>
+                                        <span style="font-weight: 600;">UDP Packets</span>
+                                    </div>
+                                    <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">Data GPS
+                                        dari
+                                        tracker ke server via port 3333</p>
+                                </div>
+                                <div
+                                    style="background: rgba(168, 85, 247, 0.1); padding: 15px; border-radius: 10px; border: 1px solid rgba(168, 85, 247, 0.3);">
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                        <i class="fa-solid fa-plug" style="color: #a855f7; font-size: 1.2rem;"></i>
+                                        <span style="font-weight: 600;">WebSocket</span>
+                                    </div>
+                                    <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">Real-time
+                                        updates via HTTPS port 443</p>
+                                </div>
+                                <div
+                                    style="background: rgba(34, 197, 94, 0.1); padding: 15px; border-radius: 10px; border: 1px solid rgba(34, 197, 94, 0.3);">
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                        <i class="fa-solid fa-clock" style="color: #22c55e; font-size: 1.2rem;"></i>
+                                        <span style="font-weight: 600;">Timing</span>
+                                    </div>
+                                    <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">RTT dan
+                                        latency
+                                        antar paket</p>
+                                </div>
+                                <div
+                                    style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                        <i class="fa-solid fa-triangle-exclamation"
+                                            style="color: #ef4444; font-size: 1.2rem;"></i>
+                                        <span style="font-weight: 600;">Errors</span>
+                                    </div>
+                                    <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">
+                                        Retransmission
+                                        dan packet loss</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass"
+                            style="padding: 2rem; background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(168, 85, 247, 0.05)); border: 1px solid rgba(6, 182, 212, 0.2);">
+                            <h4 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 10px;">
+                                <i class="fa-solid fa-filter" style="color: #06b6d4;"></i>
+                                Wireshark Filters
+                            </h4>
+                            <div
+                                style="background: #0d1117; border-radius: 8px; padding: 1rem; font-family: 'Fira Code', monospace; font-size: 0.8rem;">
+                                <div style="color: #7ee787; margin-bottom: 8px;">udp.port == 3333</div>
+                                <div style="color: #a5d6ff; margin-bottom: 8px;">tcp.port == 3000 or tcp.port == 443
+                                </div>
+                                <div style="color: #ffa657;">websocket || http</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Capture Info -->
+                    <div style="flex: 1.1;">
+                        <div class="glass" style="padding: 2rem;">
+                            <h3
+                                style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px; font-size: 1.3rem;">
+                                <i class="fa-solid fa-file-waveform" style="color: #a855f7;"></i>
+                                Konfigurasi Capture
+                            </h3>
+
+                            <div style="margin-bottom: 1.5rem;">
+                                <table style="width: 100%; font-size: 0.95rem;">
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <td style="padding: 12px 0; color: var(--text-muted);"><i
+                                                class="fa-solid fa-globe"
+                                                style="color: var(--secondary); margin-right: 10px;"></i>Server</td>
+                                        <td style="padding: 12px 0; font-weight: 600; color: #a855f7;">
+                                            localhost (127.0.0.1)</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <td style="padding: 12px 0; color: var(--text-muted);"><i
+                                                class="fa-solid fa-network-wired"
+                                                style="color: var(--secondary); margin-right: 10px;"></i>Interface
+                                        </td>
+                                        <td style="padding: 12px 0; font-weight: 600;">eth0 (72.61.141.118)</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <td style="padding: 12px 0; color: var(--text-muted);"><i
+                                                class="fa-solid fa-clock"
+                                                style="color: var(--secondary); margin-right: 10px;"></i>Durasi</td>
+                                        <td style="padding: 12px 0; font-weight: 600;">60 detik</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <td style="padding: 12px 0; color: var(--text-muted);"><i
+                                                class="fa-solid fa-box"
+                                                style="color: var(--secondary); margin-right: 10px;"></i>Total Paket
+                                        </td>
+                                        <td style="padding: 12px 0; font-weight: 600; color: #22c55e;">500 packets
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 12px 0; color: var(--text-muted);"><i
+                                                class="fa-solid fa-file"
+                                                style="color: var(--secondary); margin-right: 10px;"></i>Ukuran File
+                                        </td>
+                                        <td style="padding: 12px 0; font-weight: 600;">1.07 MB</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                <i class="fa-solid fa-terminal" style="color: #06b6d4;"></i>
+                                <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600;">Command
+                                    Capture:</span>
+                            </div>
+                            <div
+                                style="background: #0d1117; padding: 10px; border-radius: 6px; font-family: 'Fira Code', monospace; color: #a5d6ff; font-size: 0.8rem; border: 1px solid #30363d; margin-bottom: 8px;">
+                                sudo tcpdump -i eth0 udp port 3333 -w capture.pcap
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">
+                                <i class="fa-solid fa-info-circle" style="color: #06b6d4; margin-right: 5px;"></i>
+                                File .pcap kemudian dianalisis di Wireshark GUI
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Wireshark Results Slide -->
+        <section class="slide" id="slide-wireshark-results">
+            <div class="content">
+                <h2 class="section-title">Hasil <span>Wireshark</span></h2>
+
+                <div style="display: flex; gap: 3rem; align-items: stretch;">
+                    <!-- Left: Protocol Distribution & Stats -->
+                    <div style="flex: 1;">
+                        <div class="glass" style="padding: 2rem; margin-bottom: 1.5rem;">
+                            <h3
+                                style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px; font-size: 1.2rem;">
+                                <i class="fa-solid fa-chart-pie" style="color: #06b6d4;"></i>
+                                Distribusi Protokol
+                            </h3>
+
+                            <div style="display: flex; gap: 1.5rem; margin-bottom: 1.5rem;">
+                                <div style="flex: 1; text-align: center;">
+                                    <div
+                                        style="width: 120px; height: 120px; margin: 0 auto 15px; background: conic-gradient(#06b6d4 0deg 359deg, #a855f7 359deg 360deg); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                        <div
+                                            style="width: 80px; height: 80px; background: var(--dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                                            <span
+                                                style="font-size: 1.5rem; font-weight: 900; color: #06b6d4;">500</span>
+                                            <span style="font-size: 0.7rem; color: var(--text-muted);">packets</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="margin-bottom: 15px;">
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                            <span style="display: flex; align-items: center; gap: 8px;"><span
+                                                    style="width: 12px; height: 12px; background: #06b6d4; border-radius: 3px;"></span>
+                                                TCP/HTTPS</span>
+                                            <span style="font-weight: 700; color: #06b6d4;">99.8%</span>
+                                        </div>
+                                        <div
+                                            style="background: rgba(6, 182, 212, 0.2); height: 8px; border-radius: 4px;">
+                                            <div
+                                                style="background: #06b6d4; width: 99.8%; height: 100%; border-radius: 4px;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                            <span style="display: flex; align-items: center; gap: 8px;"><span
+                                                    style="width: 12px; height: 12px; background: #a855f7; border-radius: 3px;"></span>
+                                                UDP</span>
+                                            <span style="font-weight: 700; color: #a855f7;">0.2%</span>
+                                        </div>
+                                        <div
+                                            style="background: rgba(168, 85, 247, 0.2); height: 8px; border-radius: 4px;">
+                                            <div
+                                                style="background: #a855f7; width: 2%; height: 100%; border-radius: 4px;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
+                                <i class="fa-solid fa-info-circle" style="color: #06b6d4;"></i>
+                                Mayoritas TCP karena WebSocket berjalan di atas HTTPS (SSL/TLS)
+                            </p>
+                        </div>
+
+                        <div class="glass"
+                            style="padding: 2rem; background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.02)); border: 1px solid rgba(34, 197, 94, 0.3);">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div
+                                    style="width: 60px; height: 60px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fa-solid fa-check" style="font-size: 1.5rem; color: white;"></i>
+                                </div>
+                                <div>
+                                    <h4 style="margin: 0 0 5px 0; color: #22c55e;">Tidak Ada Packet Loss</h4>
+                                    <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">0
+                                        retransmission
+                                        | 0 errors detected</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: UDP Packet Detail -->
+                    <div style="flex: 1.2;">
+                        <div class="glass" style="padding: 2rem; height: 100%;">
+                            <h3
+                                style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px; font-size: 1.2rem;">
+                                <i class="fa-solid fa-satellite-dish" style="color: #a855f7;"></i>
+                                Paket UDP GPS Ter-capture
+                            </h3>
+
+                            <div
+                                style="background: #0d1117; border-radius: 12px; padding: 1.5rem; font-family: 'Fira Code', monospace; font-size: 0.75rem; line-height: 1.9; margin-bottom: 1.5rem; overflow-x: auto;">
+                                <div style="color: #8b949e; margin-bottom: 10px;">$ sudo tcpdump -r capture.pcap -A
+                                </div>
+                                <div style="color: #58a6ff;">🅿️ [04:19:05] <span style="color: #ffa657;">PBL
+                                        BIPOL</span></div>
+                                <div style="color: #7ee787;"> 📍 Koordinat: <span style="color: #22c55e;">-6.377985,
+                                        106.816521</span></div>
+                                <div style="color: #a5d6ff;"> 🚀 Speed: 0 km/h (Diam)</div>
+                                <div style="color: #ffa657;"> 💨 Gas Level: 962</div>
+                                <div style="color: #8b949e; margin-top: 10px;">Payload (ASCII):</div>
+                                <div
+                                    style="color: #ffa657; font-size: 0.9rem; margin-top: 5px; padding: 10px; background: rgba(255, 166, 87, 0.1); border-radius: 6px; border: 1px solid rgba(255, 166, 87, 0.3);">
+                                    PBL BIPOL,-6.377985,106.816521,0.0,962
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div
+                                    style="background: rgba(168, 85, 247, 0.1); padding: 15px; border-radius: 10px; border: 1px solid rgba(168, 85, 247, 0.3);">
+                                    <span
+                                        style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px;">Source
+                                        IP</span>
+                                    <span
+                                        style="font-weight: 700; color: #a855f7; font-size: 0.9rem;">114.127.245.10</span>
+                                </div>
+                                <div
+                                    style="background: rgba(6, 182, 212, 0.1); padding: 15px; border-radius: 10px; border: 1px solid rgba(6, 182, 212, 0.3);">
+                                    <span
+                                        style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px;">Destination
+                                        Port</span>
+                                    <span style="font-weight: 700; color: #06b6d4; font-size: 0.9rem;">3333
+                                        (UDP)</span>
+                                </div>
+                                <div
+                                    style="background: rgba(34, 197, 94, 0.1); padding: 15px; border-radius: 10px; border: 1px solid rgba(34, 197, 94, 0.3);">
+                                    <span
+                                        style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px;">Payload
+                                        Size</span>
+                                    <span style="font-weight: 700; color: #22c55e; font-size: 0.9rem;">38
+                                        bytes</span>
+                                </div>
+                                <div
+                                    style="background: rgba(245, 158, 11, 0.1); padding: 15px; border-radius: 10px; border: 1px solid rgba(245, 158, 11, 0.3);">
+                                    <span
+                                        style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px;">Format</span>
+                                    <span style="font-weight: 700; color: #f59e0b; font-size: 0.9rem;">CSV
+                                        (bus,lat,lon,spd,gas)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ESP32 Real Data Slide -->
 
         <section class="slide" id="slide-challenges">
             <div class="content">
@@ -3078,7 +4460,7 @@
 
                     <div
                         style="flex: 1; display: flex; justify-content: center; position: relative; align-items: center;">
-                        <img src="../frontend/public/images/header.png" alt="BIPOL Header"
+                        <img src="/images/header.png" alt="BIPOL Header"
                             style="width: 280px; height: auto; position: relative; filter: drop-shadow(0 15px 35px rgba(0,0,0,0.5));">
                     </div>
 
@@ -3118,7 +4500,7 @@
 
                         <div
                             style="display: flex; gap: 12px; margin-bottom: 2.5rem; flex-wrap: wrap; margin-top: -0.5rem;">
-                            <a href="../frontend/index.html"
+                            <a href="/"
                                 style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 12px 24px; background: linear-gradient(135deg, var(--primary), #ef4444); color: white; text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(191, 30, 46, 0.4); min-width: 160px;"
                                 onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 35px rgba(191, 30, 46, 0.5)';"
                                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 25px rgba(191, 30, 46, 0.4)';">
@@ -3178,8 +4560,14 @@
             const welcomeFullscreenBtn = document.getElementById('welcome-fullscreen-btn');
             const welcomeSkip = document.getElementById('welcome-skip');
 
+            // Cek apakah popup sudah pernah ditutup di sesi ini
+            if (!sessionStorage.getItem('bipol_welcome_closed')) {
+                welcomePopup.classList.remove('hidden');
+            }
+
             function closeWelcomePopup() {
                 welcomePopup.classList.add('hidden');
+                sessionStorage.setItem('bipol_welcome_closed', 'true');
             }
 
             welcomeFullscreenBtn.addEventListener('click', () => {
@@ -3543,11 +4931,13 @@
             slides.forEach((slide, i) => {
                 if (i === 0) return;
 
+                const isMobile = window.innerWidth <= 768;
+
                 const tl = gsap.timeline({
                     scrollTrigger: {
                         trigger: slide,
-                        start: 'left 60%',
-                        horizontal: true,
+                        start: isMobile ? 'top 80%' : 'left 60%',
+                        horizontal: !isMobile,
                         scroller: '#presentation-container',
                         toggleActions: 'play reverse play reverse'
                     }
@@ -3597,7 +4987,7 @@
                     );
                 }
 
-                const icons = slide.querySelectorAll('.feat-card i, .glass i, .fa-solid, .fa-brands');
+                const icons = slide.querySelectorAll('.feat-card i:not(.no-animate), .glass i:not(.no-animate), .fa-solid:not(.no-animate), .fa-brands:not(.no-animate)');
                 if (icons.length > 0) {
                     tl.fromTo(icons,
                         { scale: 0, rotation: 360 },
@@ -3620,16 +5010,17 @@
             });
         });
 
+        const isMobileArch = window.innerWidth <= 768;
         gsap.from('.arch-arrow', {
             scrollTrigger: {
                 trigger: '#slide-tech',
-                start: 'left 60%',
-                horizontal: true,
+                start: isMobileArch ? 'top 70%' : 'left 60%',
+                horizontal: !isMobileArch,
                 scroller: '#presentation-container'
             },
             scale: 0,
             opacity: 0,
-            rotation: -180,
+            rotation: isMobileArch ? 90 : -180, // Rotate differently for vertical layout
             duration: 0.8,
             stagger: 0.2,
             delay: 0.6,
@@ -3700,6 +5091,29 @@
                     });
                 }
             }
+            // Custom Animation for Tech Typewriter Terms
+            const techTypewriters = gsap.utils.toArray('.tech-typewriter');
+            if (techTypewriters.length > 0) {
+                techTypewriters.forEach(text => {
+                    const originalString = text.innerText;
+                    text.innerText = ''; // Clear text initially
+
+                    gsap.to(text, {
+                        text: {
+                            value: originalString,
+                            delimiter: ""
+                        },
+                        duration: 1.5,
+                        ease: "linear",
+                        scrollTrigger: {
+                            trigger: text,
+                            start: "top 90%",
+                            toggleActions: "play none none reverse"
+                        }
+                    });
+                });
+            }
+
         });
 
     </script>

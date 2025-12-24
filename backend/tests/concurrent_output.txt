@@ -1,0 +1,36 @@
+
+🧪 BIPOL QoS Concurrent Connections Test
+═══════════════════════════════════════════════════════
+📊 Mode: 🔴 REAL DATA (Monitor)
+🔗 WebSocket: http://localhost:3000
+⏱️  Duration: 30 detik
+═══════════════════════════════════════════════════════
+
+📡 Monitoring koneksi aktif...
+
+✅ Connected to server
+
+🚌 New bus detected: PBL BIPOL
+📊 [10s] Events: 8 | Buses: 1
+📊 [20s] Events: 15 | Buses: 1
+
+═══════════════════════════════════════════════════════
+📊 HASIL PENGUJIAN QoS CONCURRENT
+═══════════════════════════════════════════════════════
+
+📊 Mode: REAL MONITOR
+⏱️  Duration: 30.02 detik
+
+🚌 Unique Buses: 1
+📨 Events Received: 23
+📈 Events/Second: 0.77
+
+🚌 Bus Details:
+   PBL BIPOL: 23 events
+
+📋 QoS ASSESSMENT:
+   ✅ Connection: STABLE
+   ✅ Data Flow: ACTIVE (23 events)
+
+═══════════════════════════════════════════════════════
+💾 Report: ./tests/concurrent_real_1766529188042.json

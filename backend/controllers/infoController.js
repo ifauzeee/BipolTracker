@@ -22,10 +22,11 @@ exports.getInfo = async (req, res) => {
     }
 };
 
-exports.getConfig = (req, res) => {
+exports.getConfig = async (req, res) => {
+    const { getSetting } = require('../services/settingsService');
     res.json({
-        gasAlertThreshold: parseInt(process.env.GAS_ALERT_THRESHOLD) || 600,
-        busStopTimeoutMinutes: parseInt(process.env.BUS_STOP_TIMEOUT_MINUTES) || 5
+        gasAlertThreshold: parseInt(await getSetting('GAS_ALERT_THRESHOLD')),
+        busStopTimeoutMinutes: parseInt(await getSetting('BUS_STOP_TIMEOUT_MINUTES'))
     });
 };
 

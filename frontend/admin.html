@@ -288,15 +288,21 @@
                     <div class="form-grid">
                         <div class="input-wrapper">
                             <label>Gas Alert Threshold</label>
-                            <input type="number" id="gasThreshold" class="styled-input" placeholder="Default: 600"
-                                min="0" max="10000">
+                            <input type="number" id="gasThreshold" class="styled-input" placeholder="Loading..." min="0"
+                                max="10000">
                             <small style="color:var(--text-light);">Alert ketika gas level melebihi nilai ini</small>
                         </div>
                         <div class="input-wrapper">
                             <label>Bus Stop Timeout (minutes)</label>
-                            <input type="number" id="stopTimeout" class="styled-input" placeholder="Default: 5" min="1"
+                            <input type="number" id="stopTimeout" class="styled-input" placeholder="Loading..." min="1"
                                 max="60">
                             <small style="color:var(--text-light);">Waktu sebelum bus dianggap parkir</small>
+                        </div>
+                        <div class="input-wrapper">
+                            <label>Minimum Speed (km/h)</label>
+                            <input type="number" id="minSpeed" class="styled-input" placeholder="Loading..." step="0.1"
+                                min="0" max="100">
+                            <small style="color:var(--text-light);">Filtering noise GPS saat diam</small>
                         </div>
                         <button onclick="saveAlertConfig()" class="btn-primary">Save Configuration</button>
                     </div>
@@ -1300,26 +1306,38 @@
         }
 
         function loadAlertConfig() {
-            fetch('/api/config').then(function (r) { return r.json(); }).then(function (config) {
-                document.getElementById('gasThreshold').placeholder = 'Current: ' + config.gasAlertThreshold;
-                document.getElementById('stopTimeout').placeholder = 'Current: ' + config.busStopTimeoutMinutes;
+            fetch('/api/admin/settings').then(r => r.json()).then(config => {
+                document.getElementById('gasThreshold').value = config['GAS_ALERT_THRESHOLD'];
+                document.getElementById('stopTimeout').value = config['BUS_STOP_TIMEOUT_MINUTES'];
+                document.getElementById('minSpeed').value = config['UDP_MIN_SPEED_THRESHOLD'];
             });
         }
 
-        function saveAlertConfig() {
-            var gasThreshold = document.getElementById('gasThreshold').value;
-            var stopTimeout = document.getElementById('stopTimeout').value;
-            var msg = '<p>To change these values, update your .env file:</p>';
-            msg += '<pre style="text-align:left;background:#f5f5f5;padding:10px;border-radius:8px;">';
-            msg += 'GAS_ALERT_THRESHOLD=' + (gasThreshold || 600) + '\n';
-            msg += 'BUS_STOP_TIMEOUT_MINUTES=' + (stopTimeout || 5);
-            msg += '</pre><p>Then restart the server.</p>';
-            Swal.fire({
-                icon: 'info',
-                title: 'Server Configuration',
-                html: msg,
-                confirmButtonColor: '#111827'
-            });
+        async function saveAlertConfig() {
+            const gasThreshold = document.getElementById('gasThreshold').value;
+            const stopTimeout = document.getElementById('stopTimeout').value;
+            const minSpeed = document.getElementById('minSpeed').value;
+
+            try {
+                const res = await fetch('/api/admin/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ gasThreshold, stopTimeout, minSpeed })
+                });
+
+                if (res.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Settings Saved',
+                        text: 'Configuration updated successfully.',
+                        confirmButtonColor: '#10b981'
+                    });
+                } else {
+                    Swal.fire('Error', 'Failed to save settings', 'error');
+                }
+            } catch (e) {
+                Swal.fire('Error', 'Network error', 'error');
+            }
         }
     </script>
 </body>

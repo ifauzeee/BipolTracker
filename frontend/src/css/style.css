@@ -375,41 +375,65 @@ html {
 }
 
 .gas-alert-popup {
-    background: linear-gradient(145deg, #1f0508, #360206) !important;
-    border: 2px solid #BF1E2E !important;
-    box-shadow: 0 0 30px rgba(191, 30, 46, 0.4) !important;
-    border-radius: 24px !important;
-    padding: 30px !important;
+    background: linear-gradient(145deg, #2b0306, #46050b) !important;
+    border: 1px solid rgba(255, 59, 81, 0.4) !important;
+    box-shadow: 0 0 50px rgba(191, 30, 46, 0.6) !important;
+    border-radius: 28px !important;
+    padding: 40px 30px !important;
+    max-width: 400px !important;
 }
 
 .gas-warning-icon {
-    font-size: 3.5rem;
-    color: #BF1E2E;
-    margin-bottom: 20px;
-    animation: shake 1.5s infinite;
+    font-size: 4rem;
+    color: #ff4757;
+    margin-bottom: 16px;
+    filter: drop-shadow(0 0 15px rgba(255, 71, 87, 0.5));
 }
 
 .gas-value-display {
-    font-family: 'Courier New', monospace;
-    font-size: 3.5rem;
+    font-family: 'Outfit', sans-serif;
+    font-size: 4rem;
     font-weight: 800;
     color: #fff;
-    margin: 10px 0;
-    text-shadow: 0 0 10px #BF1E2E;
+    margin: 8px 0;
+    text-shadow: 0 0 20px #BF1E2E;
     letter-spacing: -2px;
+    line-height: 1;
 }
 
 .gas-alert-title {
-    color: #fff !important;
-    font-size: 1.8rem !important;
+    color: #ffffff !important;
+    font-size: 1.6rem !important;
     font-weight: 800 !important;
     text-transform: uppercase;
     letter-spacing: 1px;
+    margin-bottom: 8px;
 }
 
 .gas-alert-text {
-    color: rgba(255, 255, 255, 0.7) !important;
+    color: rgba(255, 255, 255, 0.8) !important;
     font-size: 1rem !important;
+    line-height: 1.5;
+    margin-top: 10px;
+}
+
+.gas-confirm-btn {
+    margin-top: 24px !important;
+    padding: 14px 32px !important;
+    background: #ff4757 !important;
+    color: white !important;
+    border-radius: 100px !important;
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+    letter-spacing: 1px;
+    box-shadow: 0 8px 20px rgba(255, 71, 87, 0.3) !important;
+    text-transform: uppercase;
+    transition: transform 0.2s !important;
+}
+
+.gas-confirm-btn:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 12px 25px rgba(255, 71, 87, 0.5) !important;
 }
 
 @keyframes shake {

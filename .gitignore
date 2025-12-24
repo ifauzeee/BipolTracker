@@ -45,6 +45,7 @@ Thumbs.db
 # Testing
 coverage
 .nyc_output
+backend/tests/qos_*.json
 
 # Build
 dist
@@ -53,6 +54,3 @@ build
 # Context Tool artifacts
 code_context.txt
 cat.py
-
-# Mobile App (separate repository)
-mobile/

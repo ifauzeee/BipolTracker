@@ -43,16 +43,17 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "express-session": "^1.18.2",
+    "gsap": "^3.14.2",
     "helmet": "^8.0.0",
     "hpp": "^0.2.3",
     "maplibre-gl": "^5.15.0",
     "socket.io": "^4.8.1",
-    "socket.io-client": "^4.8.1",
     "sweetalert2": "^11.26.10",
     "xss": "^1.0.15"
   },
   "devDependencies": {
     "sharp": "^0.34.5",
+    "socket.io-client": "^4.8.3",
     "vite": "^7.3.0",
     "vite-plugin-pwa": "^1.2.0",
     "workbox-core": "^7.4.0",

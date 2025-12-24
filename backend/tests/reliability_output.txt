@@ -1,0 +1,54 @@
+
+🧪 BIPOL QoS Reliability Test
+═══════════════════════════════════════════════════════
+📊 Mode: 🔴 REAL DATA (ESP32)
+📡 Target: localhost:3333
+🔌 WebSocket: http://localhost:3000
+⏱️  Duration: 60 detik
+═══════════════════════════════════════════════════════
+✅ WebSocket connected
+
+📡 Monitoring reliability dari ESP32 asli...
+   (Akan menghitung packet interval dan gaps)
+
+🅿️ [10] PBL BIPOL | -6.377993, 106.816574 | Speed: 0
+🅿️ [20] PBL BIPOL | -6.377992, 106.816566 | Speed: 0
+📊 [30s] Received: 23 | Rate: 0.77/s | Delivery: 100.0%
+🅿️ [30] PBL BIPOL | -6.377987, 106.816551 | Speed: 0
+🅿️ [40] PBL BIPOL | -6.377987, 106.816536 | Speed: 0
+⚠️  Gap detected: 3.7s without data
+
+═══════════════════════════════════════════════════════
+📊 HASIL PENGUJIAN QoS RELIABILITY
+═══════════════════════════════════════════════════════
+
+📊 Mode: REAL DATA
+⏱️  Duration: 60.00 detik
+
+🚌 Bus ID: PBL BIPOL
+📦 Packets Received: 47
+📈 Packet Rate: 0.78/s
+
+📈 DELIVERY:
+   Delivery Ratio: 100.00%
+   Packet Loss: 2.13%
+   Gaps Detected: 1
+
+🔗 CONNECTION:
+   Reconnections: 0
+   Connection Drops: 0
+
+⏱️  PACKET INTERVALS:
+   Min: 40 ms
+   Max: 3744 ms
+   Avg: 1285 ms
+   Jitter: 513 ms
+
+📋 QoS ASSESSMENT:
+   ✅ Delivery: EXCELLENT (≥99%)
+   ✅ Connection: STABLE (0 reconnections)
+   ❌ Jitter: HIGH (513ms)
+
+═══════════════════════════════════════════════════════
+💾 Report: ./tests/reliability_real_1766529252866.json
+⚠️  WebSocket disconnected
