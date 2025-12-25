@@ -1,33 +1,17 @@
-/**
- * BIPOL QoS Latency Test
- * Pengujian latensi end-to-end sistem BIPOL Tracker
- * 
- * Mode:
- *   --real   : Menggunakan data dari ESP32 asli
- *   --dummy  : Menggunakan data simulasi (default)
- * 
- * Contoh:
- *   node tests/qos_latency_test.js --real     # Data ESP32 asli
- *   node tests/qos_latency_test.js --dummy    # Data simulasi
- *   node tests/qos_latency_test.js            # Default: dummy
- */
-
 const dgram = require('dgram');
 const { io } = require('socket.io-client');
 const fs = require('fs');
 
-// Parse arguments
 const args = process.argv.slice(2);
 const USE_REAL_DATA = args.includes('--real');
-const TEST_DURATION = parseInt(process.env.TEST_DURATION) || 60; // detik
+const TEST_DURATION = parseInt(process.env.TEST_DURATION) || 60;
 
-// Konfigurasi
 const SERVER_HOST = process.env.TEST_HOST || 'localhost';
 const UDP_PORT = process.env.UDP_PORT || 3333;
 const WS_PORT = process.env.PORT || 3000;
 const TEST_DURATION_MS = TEST_DURATION * 1000;
 const SEND_INTERVAL_MS = 1000;
-// Statistik
+
 const stats = {
     packetsSent: 0,
     packetsReceived: 0,
@@ -39,8 +23,7 @@ const stats = {
     realDataReceived: []
 };
 
-console.log('');
-console.log('🧪 BIPOL QoS Latency Test');
+console.log('\n🧪 BIPOL QoS Latency Test');
 console.log('═'.repeat(55));
 console.log(`📊 Mode: ${USE_REAL_DATA ? '🔴 REAL DATA (ESP32)' : '🔵 DUMMY DATA (Simulasi)'}`);
 console.log(`📡 UDP Target: ${SERVER_HOST}:${UDP_PORT}`);
@@ -48,16 +31,12 @@ console.log(`🔌 WebSocket: http://${SERVER_HOST}:${WS_PORT}`);
 console.log(`⏱️  Duration: ${TEST_DURATION} detik`);
 console.log('═'.repeat(55));
 
-// Setup UDP Client (hanya untuk dummy mode)
 const udpClient = USE_REAL_DATA ? null : dgram.createSocket('udp4');
-
-// Setup WebSocket Client
 const socket = io(`http://${SERVER_HOST}:${WS_PORT}`, {
     transports: ['websocket'],
     reconnection: true
 });
 
-// Track sent packets dengan timestamps
 const sentPackets = new Map();
 let lastRealDataTime = null;
 
@@ -66,14 +45,12 @@ socket.on('connect', () => {
     stats.startTime = Date.now();
 
     if (USE_REAL_DATA) {
-        console.log('📡 Menunggu data dari ESP32 asli...');
-        console.log('   (Pastikan ESP32 aktif dan mengirim data)\n');
+        console.log('📡 Menunggu data dari ESP32 asli...\n');
     } else {
         console.log('🚀 Mengirim data simulasi...\n');
         startDummyTest();
     }
 
-    // Stop test setelah durasi
     setTimeout(() => {
         finishTest();
     }, TEST_DURATION_MS);
@@ -84,7 +61,6 @@ socket.on('update_bus', (data) => {
     stats.wsEventsReceived++;
 
     if (USE_REAL_DATA) {
-        // Mode REAL: Hitung latency dari interval data
         if (lastRealDataTime) {
             const interval = receiveTime - lastRealDataTime;
             stats.latencies.push(interval);
@@ -92,7 +68,6 @@ socket.on('update_bus', (data) => {
         lastRealDataTime = receiveTime;
         stats.packetsReceived++;
 
-        // Simpan data real
         stats.realDataReceived.push({
             time: new Date().toISOString(),
             bus_id: data.bus_id,
@@ -106,13 +81,12 @@ socket.on('update_bus', (data) => {
 
         const speedStr = data.speed !== undefined ? `${data.speed} km/h` : 'N/A';
         const statusIcon = data.speed === 0 ? '🅿️' : '🚗';
+
         console.log(`${statusIcon} [${new Date().toLocaleTimeString('id-ID')}] ${data.bus_id}`);
         console.log(`   📍 ${data.latitude?.toFixed(6)}, ${data.longitude?.toFixed(6)}`);
-        console.log(`   🚀 ${speedStr} | 💨 Gas: ${data.gas_level || 'N/A'}`);
-        console.log('');
+        console.log(`   🚀 ${speedStr} | 💨 Gas: ${data.gas_level || 'N/A'}\n`);
 
     } else {
-        // Mode DUMMY: Cocokkan dengan paket yang dikirim
         const key = `${data.bus_id}-${data.latitude.toFixed(6)}-${data.longitude.toFixed(6)}`;
 
         if (sentPackets.has(key)) {
@@ -130,8 +104,6 @@ socket.on('update_bus', (data) => {
 socket.on('connect_error', (err) => {
     console.error('❌ WebSocket error:', err.message);
 });
-
-// ==================== DUMMY MODE FUNCTIONS ====================
 
 function generateDummyPacket() {
     const lat = -6.2 + (Math.random() * 0.1);
@@ -171,8 +143,6 @@ function startDummyTest() {
         clearInterval(sendInterval);
     }, TEST_DURATION_MS - 1000);
 }
-
-// ==================== HASIL & REPORT ====================
 
 function calculateStats(arr) {
     if (arr.length === 0) return { min: 0, max: 0, avg: 0, median: 0, p95: 0, p99: 0 };
@@ -233,61 +203,42 @@ function finishTest() {
         console.log(`   P99:      ${latencyStats.p99} ms`);
     }
 
-    // Assessment
     console.log('\n📋 QoS ASSESSMENT:');
     if (USE_REAL_DATA) {
         if (stats.packetsReceived > 0) {
             console.log('   ✅ ESP32 Data: RECEIVED');
             const rate = stats.packetsReceived / duration;
-            if (rate >= 0.5) {
-                console.log(`   ✅ Packet Rate: GOOD (${rate.toFixed(2)}/s)`);
-            } else {
-                console.log(`   ⚠️  Packet Rate: LOW (${rate.toFixed(2)}/s)`);
-            }
+            console.log(`   ${rate >= 0.5 ? '✅' : '⚠️'}  Packet Rate: ${rate >= 0.5 ? 'GOOD' : 'LOW'} (${rate.toFixed(2)}/s)`);
         } else {
             console.log('   ❌ ESP32 Data: NOT RECEIVED');
         }
     } else {
-        if (latencyStats.avg < 500) {
-            console.log('   ✅ Latency: EXCELLENT (< 500ms)');
-        } else if (latencyStats.avg < 1000) {
-            console.log('   ⚠️  Latency: ACCEPTABLE (500-1000ms)');
-        } else {
-            console.log('   ❌ Latency: POOR (> 1000ms)');
-        }
+        if (latencyStats.avg < 500) console.log('   ✅ Latency: EXCELLENT (< 500ms)');
+        else if (latencyStats.avg < 1000) console.log('   ⚠️  Latency: ACCEPTABLE (500-1000ms)');
+        else console.log('   ❌ Latency: POOR (> 1000ms)');
 
-        if (deliveryRatio > 95) {
-            console.log('   ✅ Packet Delivery: EXCELLENT (> 95%)');
-        } else if (deliveryRatio > 80) {
-            console.log('   ⚠️  Packet Delivery: ACCEPTABLE (80-95%)');
-        } else {
-            console.log('   ❌ Packet Delivery: POOR (< 80%)');
-        }
+        if (deliveryRatio > 95) console.log('   ✅ Packet Delivery: EXCELLENT (> 95%)');
+        else if (deliveryRatio > 80) console.log('   ⚠️  Packet Delivery: ACCEPTABLE (80-95%)');
+        else console.log('   ❌ Packet Delivery: POOR (< 80%)');
     }
 
     console.log('\n' + '═'.repeat(55));
 
-    // Save report
     const report = {
         testDate: new Date().toISOString(),
         mode: USE_REAL_DATA ? 'real' : 'dummy',
         durationSeconds: duration,
-        config: {
-            serverHost: SERVER_HOST,
-            udpPort: UDP_PORT,
-            wsPort: WS_PORT
-        },
+        config: { SERVER_HOST, UDP_PORT, WS_PORT },
         results: USE_REAL_DATA ? {
             busId: stats.busId,
             packetsReceived: stats.packetsReceived,
             packetRate: stats.packetsReceived / duration,
             interval: latencyStats,
-            lastPosition: stats.realDataReceived.length > 0 ?
-                stats.realDataReceived[stats.realDataReceived.length - 1] : null
+            lastPosition: stats.realDataReceived[stats.realDataReceived.length - 1] || null
         } : {
             packetsSent: stats.packetsSent,
             packetsReceived: stats.packetsReceived,
-            deliveryRatio: deliveryRatio,
+            deliveryRatio,
             latency: latencyStats
         },
         rawData: USE_REAL_DATA ? stats.realDataReceived : stats.latencies
@@ -295,6 +246,7 @@ function finishTest() {
 
     const modeStr = USE_REAL_DATA ? 'real' : 'dummy';
     const reportPath = `./tests/qos_latency_${modeStr}_${Date.now()}.json`;
+
     fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
     console.log(`💾 Report: ${reportPath}`);
 
@@ -303,7 +255,6 @@ function finishTest() {
     process.exit(0);
 }
 
-// Handle Ctrl+C
 process.on('SIGINT', () => {
     console.log('\n⚠️  Test interrupted');
     finishTest();

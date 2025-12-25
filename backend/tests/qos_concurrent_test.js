@@ -1,32 +1,15 @@
-/**
- * BIPOL QoS Concurrent Connections Test
- * Pengujian koneksi WebSocket bersamaan
- * 
- * Mode:
- *   --real   : Monitor koneksi aktif dari client nyata
- *   --dummy  : Simulasi banyak koneksi WebSocket (default)
- * 
- * Contoh:
- *   node tests/qos_concurrent_test.js --real 60       # Monitor 60 detik
- *   node tests/qos_concurrent_test.js --dummy 50      # Simulasi 50 koneksi
- *   node tests/qos_concurrent_test.js 20              # Default: 20 koneksi dummy
- */
-
 const { io } = require('socket.io-client');
 const fs = require('fs');
 
-// Parse arguments
 const args = process.argv.slice(2);
 const USE_REAL_DATA = args.includes('--real');
 const numArg = args.find(a => !isNaN(parseInt(a)));
 const NUM_CONNECTIONS = USE_REAL_DATA ? 1 : (parseInt(numArg) || 50);
-const HOLD_DURATION = USE_REAL_DATA ? (parseInt(numArg) || 60) : 60; // detik
+const HOLD_DURATION = USE_REAL_DATA ? (parseInt(numArg) || 60) : 60;
 
-// Konfigurasi
 const SERVER_HOST = process.env.TEST_HOST || 'localhost';
 const WS_PORT = process.env.PORT || 3000;
 
-// Statistik
 const stats = {
     connectionsAttempted: 0,
     connectionsSuccessful: 0,
@@ -54,14 +37,10 @@ console.log(`⏱️  Duration: ${HOLD_DURATION} detik`);
 console.log('═'.repeat(55));
 
 if (USE_REAL_DATA) {
-    // Mode REAL: Satu koneksi untuk monitor
     startRealMonitor();
 } else {
-    // Mode DUMMY: Buat banyak koneksi simulasi
     startStressTest();
 }
-
-// ==================== REAL MODE - MONITOR ====================
 
 function startRealMonitor() {
     console.log('\n📡 Monitoring koneksi aktif...\n');
@@ -80,8 +59,6 @@ function startRealMonitor() {
 
     socket.on('update_bus', (data) => {
         stats.eventsReceived++;
-
-        // Track unique buses (sebagai proxy untuk "clients")
         if (!stats.busData.has(data.bus_id)) {
             stats.busData.set(data.bus_id, {
                 count: 0,
@@ -99,7 +76,6 @@ function startRealMonitor() {
         stats.activeConnections = 0;
     });
 
-    // Progress setiap 10 detik
     const progressInterval = setInterval(() => {
         const elapsed = (Date.now() - stats.startTime) / 1000;
         console.log(`📊 [${elapsed.toFixed(0)}s] Events: ${stats.eventsReceived} | Buses: ${stats.busData.size}`);
@@ -112,26 +88,21 @@ function startRealMonitor() {
     }, HOLD_DURATION * 1000);
 }
 
-// ==================== DUMMY MODE - STRESS TEST ====================
-
 function startStressTest() {
     console.log('\n🔌 Creating connections...\n');
     stats.startTime = Date.now();
 
-    // Create connections dengan staggered timing
     for (let i = 0; i < NUM_CONNECTIONS; i++) {
         setTimeout(() => {
             createConnection(i + 1);
-        }, i * 50); // 50ms delay antar koneksi
+        }, i * 50);
     }
 
-    // Progress setiap 10 detik
     const progressInterval = setInterval(() => {
         const elapsed = (Date.now() - stats.startTime) / 1000;
         console.log(`📊 [${elapsed.toFixed(0)}s] Active: ${stats.activeConnections}/${NUM_CONNECTIONS} | Events: ${stats.eventsReceived}`);
     }, 10000);
 
-    // Hold duration
     setTimeout(() => {
         clearInterval(progressInterval);
         finishTest();
@@ -155,7 +126,7 @@ function createConnection(id) {
         }
     });
 
-    socket.on('update_bus', (data) => {
+    socket.on('update_bus', () => {
         stats.eventsReceived++;
     });
 
@@ -171,8 +142,6 @@ function createConnection(id) {
 
     clients.push(socket);
 }
-
-// ==================== HASIL & REPORT ====================
 
 function finishTest() {
     stats.endTime = Date.now();
@@ -190,7 +159,6 @@ function finishTest() {
         console.log(`\n🚌 Unique Buses: ${stats.busData.size}`);
         console.log(`📨 Events Received: ${stats.eventsReceived}`);
         console.log(`📈 Events/Second: ${(stats.eventsReceived / duration).toFixed(2)}`);
-
         if (stats.busData.size > 0) {
             console.log('\n🚌 Bus Details:');
             stats.busData.forEach((data, busId) => {
@@ -207,7 +175,6 @@ function finishTest() {
         console.log(`📨 Total Events: ${stats.eventsReceived}`);
     }
 
-    // Assessment
     console.log('\n📋 QoS ASSESSMENT:');
     if (USE_REAL_DATA) {
         if (stats.eventsReceived > 0) {
@@ -234,7 +201,6 @@ function finishTest() {
 
     console.log('\n' + '═'.repeat(55));
 
-    // Save report
     const report = {
         testDate: new Date().toISOString(),
         mode: USE_REAL_DATA ? 'real' : 'dummy',
@@ -264,7 +230,6 @@ function finishTest() {
     fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
     console.log(`💾 Report: ${reportPath}`);
 
-    // Cleanup connections
     clients.forEach(c => c.disconnect());
     process.exit(0);
 }

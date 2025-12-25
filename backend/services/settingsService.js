@@ -2,12 +2,12 @@ const supabase = require('../config/supabase');
 
 let settingsCache = {};
 let lastFetch = 0;
-const CACHE_TTL = 60 * 1000; // 1 minute
+const CACHE_TTL = 60 * 1000;
 
 const DEFAULTS = {
-    'GAS_ALERT_THRESHOLD': '600',
-    'BUS_STOP_TIMEOUT_MINUTES': '5',
-    'UDP_MIN_SPEED_THRESHOLD': '3.0'
+    GAS_ALERT_THRESHOLD: '600',
+    BUS_STOP_TIMEOUT_MINUTES: '5',
+    UDP_MIN_SPEED_THRESHOLD: '3.0'
 };
 
 async function loadSettings() {
@@ -15,7 +15,6 @@ async function loadSettings() {
         const { data, error } = await supabase.from('app_settings').select('*');
         if (error) {
             console.error('Failed to load settings from DB:', error.message);
-            // Fallback to defaults if empty or error
             if (Object.keys(settingsCache).length === 0) {
                 settingsCache = { ...DEFAULTS };
             }
@@ -27,7 +26,6 @@ async function loadSettings() {
             newCache[item.key] = item.value;
         });
 
-        // Ensure defaults exist if missing in DB
         for (const [key, val] of Object.entries(DEFAULTS)) {
             if (newCache[key] === undefined) {
                 newCache[key] = val;
@@ -42,7 +40,6 @@ async function loadSettings() {
     }
 }
 
-// Initial load
 loadSettings();
 
 async function getSetting(key) {
@@ -78,7 +75,6 @@ async function updateSettings(updates) {
 
         if (error) throw error;
 
-        // Update local cache immediately
         upserts.forEach(u => {
             settingsCache[u.key] = u.value;
         });

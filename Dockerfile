@@ -14,4 +14,4 @@ EXPOSE 3000
 
 EXPOSE 3333/udp
 
-CMD ["node", "server.js"]
+CMD ["node", "backend/server.js"]

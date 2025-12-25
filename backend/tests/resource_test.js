@@ -2,8 +2,8 @@ const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const DURATION = 10; // Monitor selama 10 detik
-const INTERVAL = 1000; // Cek setiap 1 detik
+const DURATION = 10;
+const INTERVAL = 1000;
 
 console.log(`
 🧪 BIPOL Server Resource Efficiency Test
@@ -15,24 +15,23 @@ console.log(`
 
 let stats = {
     cpu: [],
-    memory: [],
-    memoryLimit: ''
+    memory: []
 };
 
 function getDockerStats() {
     return new Promise((resolve) => {
-        // Format: CPU% | MemUsage | MemLimit
-        exec('docker stats bipol-backend --no-stream --format "{{.CPUPerc}}|{{.MemUsage}}|{{.MemPerc}}"', (err, stdout) => {
+        const format = '"{{.CPUPerc}}|{{.MemUsage}}|{{.MemPerc}}"';
+        exec(`docker stats bipol-backend --no-stream --format ${format}`, (err, stdout) => {
             if (err) {
-                console.error('Error reading docker stats:', err);
-                resolve(null);
-                return;
+                console.error('❌ Error reading docker stats:', err.message);
+                return resolve(null);
             }
+
             const parts = stdout.trim().split('|');
             if (parts.length === 3) {
                 resolve({
                     cpu: parseFloat(parts[0].replace('%', '')),
-                    memString: parts[1].trim(), // e.g. "45.1MiB / 1.9GiB"
+                    memString: parts[1].trim(),
                     memPerc: parseFloat(parts[2].replace('%', ''))
                 });
             } else {
@@ -49,11 +48,8 @@ async function runTest() {
         const data = await getDockerStats();
         if (data) {
             stats.cpu.push(data.cpu);
-
-            // Parse memory e.g "50MiB / 2GiB" -> take 50
-            const memUsed = parseFloat(data.memString.split(' ')[0].replace('MiB', '').replace('GiB', ''));
+            const memUsed = parseFloat(data.memString.split(' ')[0].replace(/[a-zA-Z]/g, ''));
             stats.memory.push(memUsed);
-
             process.stdout.write('.');
         }
         await new Promise(r => setTimeout(r, INTERVAL));
@@ -61,10 +57,8 @@ async function runTest() {
 
     console.log('\n✅ Monitoring Complete\n');
 
-    // Calculate Averages
     const avgCpu = (stats.cpu.reduce((a, b) => a + b, 0) / stats.cpu.length).toFixed(2);
     const maxCpu = Math.max(...stats.cpu).toFixed(2);
-
     const avgMem = (stats.memory.reduce((a, b) => a + b, 0) / stats.memory.length).toFixed(2);
     const maxMem = Math.max(...stats.memory).toFixed(2);
 
@@ -91,15 +85,15 @@ async function runTest() {
 ═══════════════════════════════════════════════════════
 `);
 
-    // Save Report
     const report = {
-        date: new Date(),
+        date: new Date().toISOString(),
         cpu: { avg: avgCpu, peak: maxCpu },
         memory: { avg: avgMem, peak: maxMem }
     };
 
     const filename = path.join(__dirname, `resource_report_${Date.now()}.json`);
     fs.writeFileSync(filename, JSON.stringify(report, null, 2));
+
     console.log(`💾 Report saved: ${filename}`);
 }
 
