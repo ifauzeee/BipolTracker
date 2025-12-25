@@ -13,18 +13,6 @@ map.on('load', () => {
     addRoutes();
     try { add3DBuildings(); } catch (e) { }
     addStops();
-
-    const removeLoading = () => {
-        const loadingScreen = document.getElementById('loading-screen');
-        if (loadingScreen && !loadingScreen.classList.contains('hidden')) {
-            loadingScreen.classList.add('hidden');
-        }
-    };
-
-    setTimeout(removeLoading, 300);
-
-    setTimeout(removeLoading, 3000);
-
     const skeletonLoader = document.getElementById('skeleton-loader');
     const emptyState = document.getElementById('empty-state');
     if (skeletonLoader) skeletonLoader.classList.remove('hidden');
